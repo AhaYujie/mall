@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: dev
+
+mybatis-plus:
+  mapper-locations: classpath*:online/ahayujie/**/*.xml
