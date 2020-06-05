@@ -6,9 +6,7 @@ import online.ahayujie.mall.security.jwt.JwtConfigurer;
 import online.ahayujie.mall.security.jwt.JwtUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
@@ -17,31 +15,21 @@ import org.springframework.security.config.http.SessionCreationPolicy;
  * @author aha
  * @date 2020/3/25
  */
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Autowired
+    private JwtConfigurer jwtConfigurer;
 
-    private final JwtConfigurer jwtConfigurer;
+    @Autowired
+    private IgnoreUrlsConfig ignoreUrlsConfig;
 
-    private final IgnoreUrlsConfig ignoreUrlsConfig;
+    @Autowired
+    private JwtUserDetailService jwtUserDetailService;
 
-    private final JwtUserDetailService jwtUserDetailService;
+    @Autowired
+    private JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
-    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-
-    public WebSecurityConfig(JwtConfigurer jwtConfigurer,
-                             IgnoreUrlsConfig ignoreUrlsConfig,
-                             JwtUserDetailService jwtUserDetailService,
-                             JwtAccessDeniedHandler jwtAccessDeniedHandler,
-                             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
-        this.jwtConfigurer = jwtConfigurer;
-        this.ignoreUrlsConfig = ignoreUrlsConfig;
-        this.jwtUserDetailService = jwtUserDetailService;
-        this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
-        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
-    }
+    @Autowired
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Autowired
     public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
