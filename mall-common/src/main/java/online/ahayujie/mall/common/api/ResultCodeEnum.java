@@ -29,6 +29,11 @@ public enum ResultCodeEnum implements ResultCode {
     FORBIDDEN(HttpStatus.FORBIDDEN.value(), "未授权"),
 
     /**
+     * 请求无效
+     */
+    BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), "请求无效"),
+
+    /**
      * 接口不存在
      */
     NOT_FOUND(HttpStatus.NOT_FOUND.value(), "接口不存在");
