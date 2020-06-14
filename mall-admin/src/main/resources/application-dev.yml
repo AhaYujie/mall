@@ -1,0 +1,20 @@
+server:
+  port: 4000
+
+spring:
+  datasource:
+    url: jdbc:mysql://111.230.220.37:3306/mall?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: mysql123456
+
+jwt:
+  base64-access-secret: ZmQ0ZGI5NjQ0MDQwY2I4MjMxY2Y3ZmI3MjdhN2ZmMjNhODViOTg1ZGE0NTBjMGM4NDA5NzYxMjdjOWMwYWRmZTBlZjlhNGY3ZTg4Y2U3YTE1ODVkZDU5Y2Y3OGYwZWE1NzUzNWQ2YjFjZDc0NGMxZWU2MmQ3MjY1NzJmNTE0MzI=
+  base64-refresh-secret: ZmQ0ZGI5NjQ0MDQwY2I4MjMxY2Y3ZmI3MjdhN2Z3MmYyM2E4NWI5ODVkYTI1Y2E0NTBjMGM4NDA5NzYxMjdjOWMwYWRmZTBlZjlhNGY3ZTg4Y2U3YTE1ZGQ1OWNmNzhmMGVhNTc1MzVkNmIxY2Q3NDRjMWVlNjJkNzI2NTcyZjUxNDMy
+  # access-token is valid 24 hours
+  access-token-validity-in-seconds: 86400
+  # refresh-token is valid 30 days
+  refresh-token-validity-in-seconds: 2592000
+
+logging:
+  level:
+    online.ahayujie.mall: debug

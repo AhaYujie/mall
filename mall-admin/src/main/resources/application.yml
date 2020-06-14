@@ -4,3 +4,9 @@ spring:
 
 mybatis-plus:
   mapper-locations: classpath*:online/ahayujie/**/*.xml
+
+secure:
+  ignored:
+    urls:
+      - /admin/register
+      - /admin/login

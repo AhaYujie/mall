@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.admin.ums.mapper.AdminMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.ums.bean.model.Admin">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="is_deleted" property="isDeleted" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <result column="icon" property="icon" />
+        <result column="email" property="email" />
+        <result column="nick_name" property="nickName" />
+        <result column="note" property="note" />
+        <result column="login_time" property="loginTime" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <select id="selectByUsername" resultMap="BaseResultMap">
+        select id, update_time, create_time, is_deleted, username, password, icon, email, nick_name, note, login_time, status
+        from ums_admin
+        where username = #{username} and is_deleted = 0
+    </select>
+
+</mapper>
