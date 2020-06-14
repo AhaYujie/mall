@@ -5,6 +5,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,21 +32,19 @@ public class TokenProvider implements InitializingBean {
     private final Long accessTokenValidityInMilliseconds;
     private final Long refreshTokenValidityInMilliseconds;
 
-    private final JwtUserDetailService jwtUserDetailService;
+    private JwtUserDetailService jwtUserDetailService;
 
-    private static Key accessKey;
-    private static Key refreshKey;
+    private Key accessKey;
+    private Key refreshKey;
 
     public TokenProvider(@Value("${jwt.base64-access-secret}") String base64AccessSecret,
                          @Value("${jwt.base64-refresh-secret}") String base64RefreshSecret,
                          @Value("${jwt.access-token-validity-in-seconds}") Long accessTokenValidityInSeconds,
-                         @Value("${jwt.refresh-token-validity-in-seconds}") Long refreshTokenValidityInSeconds,
-                         JwtUserDetailService jwtUserDetailService) {
+                         @Value("${jwt.refresh-token-validity-in-seconds}") Long refreshTokenValidityInSeconds) {
         this.base64AccessSecret = base64AccessSecret;
         this.base64RefreshSecret = base64RefreshSecret;
         this.accessTokenValidityInMilliseconds = accessTokenValidityInSeconds * 1000;
         this.refreshTokenValidityInMilliseconds = refreshTokenValidityInSeconds * 1000;
-        this.jwtUserDetailService = jwtUserDetailService;
     }
 
     @Override
@@ -97,7 +96,7 @@ public class TokenProvider implements InitializingBean {
      */
     public Authentication getAuthentication(String accessToken) {
         Claims claims = getClaimsFromAccessToken(accessToken);
-        Collection<? extends GrantedAuthority> authorities = jwtUserDetailService.getAuthorities();
+        Collection<? extends GrantedAuthority> authorities = jwtUserDetailService.getAuthorities(claims);
         User principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, accessToken, authorities);
     }
@@ -149,7 +148,7 @@ public class TokenProvider implements InitializingBean {
      * @param accessToken jwt
      * @return 承载数据claims
      */
-    public static Claims getClaimsFromAccessToken(String accessToken) {
+    public Claims getClaimsFromAccessToken(String accessToken) {
         return Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(accessToken).getBody();
     }
 
@@ -158,8 +157,12 @@ public class TokenProvider implements InitializingBean {
      * @param refreshToken jwt
      * @return 承载数据claims
      */
-    public static Claims getClaimsFromRefreshToken(String refreshToken) {
+    public Claims getClaimsFromRefreshToken(String refreshToken) {
         return Jwts.parserBuilder().setSigningKey(refreshKey).build().parseClaimsJws(refreshToken).getBody();
     }
 
+    @Autowired
+    public void setJwtUserDetailService(JwtUserDetailService jwtUserDetailService) {
+        this.jwtUserDetailService = jwtUserDetailService;
+    }
 }

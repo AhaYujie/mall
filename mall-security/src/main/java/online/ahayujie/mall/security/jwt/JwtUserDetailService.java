@@ -1,8 +1,10 @@
 package online.ahayujie.mall.security.jwt;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -14,9 +16,11 @@ import java.util.List;
 public interface JwtUserDetailService extends UserDetailsService {
 
     /**
-     * 获取用户角色权限
+     * 通过Claims获取用户角色权限，
+     * 获取的用户角色权限会被用来创建 {@code Authentication}
+     * @param claims jwt承载数据
      * @return 用户角色权限
      */
-    List<GrantedAuthority> getAuthorities();
+    Collection<GrantedAuthority> getAuthorities(Claims claims);
 
 }
