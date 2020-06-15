@@ -21,6 +21,9 @@ public class Base {
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
 
+    public Base() {
+    }
+
     public Base(Long id, Date updateTime, Date createTime) {
         this.id = id;
         this.updateTime = updateTime;
