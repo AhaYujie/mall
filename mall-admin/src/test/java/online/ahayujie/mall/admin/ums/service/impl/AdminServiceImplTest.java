@@ -5,8 +5,11 @@ import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginDTO;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginParam;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminRegisterParam;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
+import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.admin.DuplicateUsernameException;
 import online.ahayujie.mall.admin.ums.service.AdminService;
+import online.ahayujie.mall.admin.ums.service.RoleService;
+import online.ahayujie.mall.common.bean.model.Base;
 import online.ahayujie.mall.security.jwt.TokenProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,7 +21,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,6 +34,9 @@ class AdminServiceImplTest {
 
     @Autowired
     private AdminService adminService;
+
+    @Autowired
+    private RoleService roleService;
 
     @Autowired
     private TokenProvider tokenProvider;
@@ -98,6 +105,55 @@ class AdminServiceImplTest {
         adminLoginParam.setUsername(getRandomString(random.nextInt(16)));
         throwable = assertThrows(UsernameNotFoundException.class, () -> adminService.login(adminLoginParam));
         log.debug(throwable.getMessage());
+    }
+
+    @Test
+    void updateRole() {
+        List<Role> roles = roleService.list();
+        Long adminId = null;
+        List<Long> roleIds = new ArrayList<>();
+
+        // adminId is null
+        Long finalAdminId = adminId;
+        List<Long> finalRoleIds = roleIds;
+        Throwable throwable = assertThrows(UsernameNotFoundException.class, () -> adminService.updateRole(finalAdminId, finalRoleIds));
+        log.debug(throwable.getMessage());
+
+        // roleIds is null
+        adminId = 1L;
+        roleIds = null;
+        List<Role> adminRoles = roleService.getRoleListByAdminId(adminId);
+        adminService.updateRole(adminId, roleIds);
+        List<Role> updateAdminRoles = roleService.getRoleListByAdminId(adminId);
+        assertEquals(adminRoles.size(), updateAdminRoles.size());
+        List<Long> updateAdminRoleIds = updateAdminRoles.stream().map(Base::getId).collect(Collectors.toList());
+        for (Role role : adminRoles) {
+            assertTrue(updateAdminRoleIds.contains(role.getId()));
+        }
+
+        // roleIds is empty
+        roleIds = new ArrayList<>();
+        adminService.updateRole(adminId, roleIds);
+        updateAdminRoles = roleService.getRoleListByAdminId(adminId);
+        assertEquals(0, updateAdminRoles.size());
+        log.debug("roleIds is empty: " + updateAdminRoles);
+
+        // roleIds is illegal
+        roleIds = Arrays.asList(-1L, 1L, 2L);
+        Long finalAdminId1 = adminId;
+        List<Long> finalRoleIds1 = roleIds;
+        throwable = assertThrows(IllegalArgumentException.class, () -> adminService.updateRole(finalAdminId1, finalRoleIds1));
+        log.debug(throwable.getMessage());
+
+        // roleIds is not empty
+        roleIds = roles.stream().map(Base::getId).collect(Collectors.toList());
+        adminService.updateRole(adminId, roleIds);
+        updateAdminRoles = roleService.getRoleListByAdminId(adminId);
+        assertEquals(roleIds.size(), updateAdminRoles.size());
+        for (Role role : updateAdminRoles) {
+            assertTrue(roleIds.contains(role.getId()));
+        }
+        log.debug("roleIds is not empty: " + updateAdminRoles);
     }
 
     private static String getRandomString(int length) {

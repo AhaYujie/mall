@@ -6,12 +6,17 @@ import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginParam;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminRegisterParam;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminUserDetailsDTO;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
+import online.ahayujie.mall.admin.ums.bean.model.AdminRoleRelation;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
+import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.admin.DuplicateUsernameException;
 import online.ahayujie.mall.admin.ums.mapper.AdminMapper;
+import online.ahayujie.mall.admin.ums.mapper.AdminRoleRelationMapper;
 import online.ahayujie.mall.admin.ums.service.AdminService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
+import online.ahayujie.mall.admin.ums.service.RoleService;
+import online.ahayujie.mall.common.bean.model.Base;
 import online.ahayujie.mall.common.exception.ApiException;
 import online.ahayujie.mall.security.jwt.TokenProvider;
 import org.springframework.beans.BeanUtils;
@@ -25,9 +30,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -41,13 +49,17 @@ import java.util.*;
 public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements AdminService {
     private final AdminMapper adminMapper;
     private final PasswordEncoder passwordEncoder;
+    private final AdminRoleRelationMapper adminRoleRelationMapper;
 
+    private RoleService roleService;
     private TokenProvider tokenProvider;
     private ResourceService resourceService;
 
-    public AdminServiceImpl(AdminMapper adminMapper, PasswordEncoder passwordEncoder) {
+    public AdminServiceImpl(AdminMapper adminMapper, PasswordEncoder passwordEncoder,
+                            AdminRoleRelationMapper adminRoleRelationMapper) {
         this.adminMapper = adminMapper;
         this.passwordEncoder = passwordEncoder;
+        this.adminRoleRelationMapper = adminRoleRelationMapper;
     }
 
     @Override
@@ -81,9 +93,37 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateRole(Long adminId, List<Long> roleIdList)
+            throws UsernameNotFoundException, IllegalArgumentException {
+        if (roleIdList == null) {
+            return;
+        }
+        // 检查用户是否存在
+        if (adminMapper.selectById(adminId) == null) {
+            throw new UsernameNotFoundException("用户不存在");
+        }
+        // 检查角色是否合法
+        List<Long> legalRoleIds = roleService.list().stream().map(Base::getId).collect(Collectors.toList());
+        for (Long roleId : roleIdList) {
+            if (!legalRoleIds.contains(roleId)) {
+                throw new IllegalArgumentException("角色不合法: " + roleId);
+            }
+        }
+        // 删除用户原本的全部角色
+        adminRoleRelationMapper.deleteByAdminId(adminId);
+        // 添加新角色
+        List<AdminRoleRelation> adminRoleRelations = roleIdList.stream()
+                .map(roleId -> new AdminRoleRelation(null, null, new Date(), adminId, roleId))
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(adminRoleRelations)) {
+            adminRoleRelationMapper.insert(adminRoleRelations);
+        }
+    }
+
+    @Override
     public Collection<GrantedAuthority> getAuthorities(Claims claims) {
         String authoritiesString = claims.get("auth", String.class);
-        log.debug(authoritiesString);
         return AdminUserDetailsDTO.getAuthorities(authoritiesString);
     }
 
@@ -102,6 +142,11 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         claims.put("username", userDetails.getUsername());
         claims.put("auth", AdminUserDetailsDTO.getAuthoritiesString(userDetails.getAuthorities()));
         return claims;
+    }
+
+    @Autowired
+    public void setRoleService(RoleService roleService) {
+        this.roleService = roleService;
     }
 
     @Autowired

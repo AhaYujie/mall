@@ -18,4 +18,17 @@
         where admin_id = #{adminId}
     </select>
 
+    <delete id="deleteByAdminId">
+        delete
+        from ums_admin_role_relation
+        where admin_id = #{adminId}
+    </delete>
+
+    <insert id="insert">
+        insert into ums_admin_role_relation (update_time, create_time, admin_id, role_id) values
+        <foreach collection="list" separator="," item="item" index="index">
+            (#{item.updateTime}, #{item.createTime}, #{item.adminId}, #{item.roleId})
+        </foreach>
+    </insert>
+
 </mapper>

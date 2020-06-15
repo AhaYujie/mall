@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 /**
  * <p>
  * 后台用户和角色关系表
@@ -33,5 +35,9 @@ public class AdminRoleRelation extends Base {
     @ApiModelProperty(value = "角色id")
     private Long roleId;
 
-
+    public AdminRoleRelation(Long id, Date updateTime, Date createTime, Long adminId, Long roleId) {
+        super(id, updateTime, createTime);
+        this.adminId = adminId;
+        this.roleId = roleId;
+    }
 }

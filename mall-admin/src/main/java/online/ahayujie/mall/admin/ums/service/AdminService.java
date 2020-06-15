@@ -38,5 +38,14 @@ public interface AdminService extends IService<Admin>, JwtUserDetailService {
      */
     AdminLoginDTO login(AdminLoginParam param) throws UsernameNotFoundException, BadCredentialsException;
 
-    void updateRole(Long adminId, List<Long> roleIdList);
+    /**
+     * 更新用户的角色，
+     * 如果 roleIdList 为 null，则不做任何处理，
+     * 如果 roleIdList 为空，则删除用户的所有角色
+     * @param adminId 用户id
+     * @param roleIdList 角色id
+     * @throws UsernameNotFoundException 用户不存在
+     * @throws IllegalArgumentException 角色id不合法
+     */
+    void updateRole(Long adminId, List<Long> roleIdList) throws UsernameNotFoundException, IllegalArgumentException;
 }

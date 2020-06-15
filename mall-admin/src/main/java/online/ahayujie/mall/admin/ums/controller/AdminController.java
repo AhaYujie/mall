@@ -60,7 +60,14 @@ public class AdminController {
     @PostMapping("/role/update")
     public Result<Object> updateRole(@RequestParam("adminId") Long adminId,
                                      @RequestParam("roleIds") List<Long> roleIds) {
-        return Result.fail();
+        try {
+            adminService.updateRole(adminId, roleIds);
+            return Result.success();
+        } catch (UsernameNotFoundException e) {
+            return Result.fail("用户不存在");
+        } catch (IllegalArgumentException e) {
+            return Result.fail("角色不合法");
+        }
     }
 
 }
