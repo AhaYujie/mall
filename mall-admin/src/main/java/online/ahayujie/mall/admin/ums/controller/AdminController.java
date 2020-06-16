@@ -56,6 +56,17 @@ public class AdminController {
         }
     }
 
+    @ApiOperation(value = "刷新accessToken", notes = "用refreshToken刷新accessToken")
+    @PostMapping("/refreshAccessToken")
+    public Result<AdminLoginDTO> refreshAccessToken(@RequestParam String refreshToken) {
+        try {
+            AdminLoginDTO adminLoginDTO = adminService.refreshAccessToken(refreshToken);
+            return Result.data(adminLoginDTO);
+        } catch (IllegalArgumentException e) {
+            return Result.fail("refreshToken不合法");
+        }
+    }
+
     @ApiOperation(value = "给用户分配角色")
     @PostMapping("/role/update")
     public Result<Object> updateRole(@RequestParam("adminId") Long adminId,

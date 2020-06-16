@@ -93,6 +93,19 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     }
 
     @Override
+    public AdminLoginDTO refreshAccessToken(String refreshToken) {
+        if (!tokenProvider.validateRefreshToken(refreshToken)) {
+            throw new IllegalArgumentException("refreshToken不合法");
+        }
+        Claims refreshTokenClaims = tokenProvider.getClaimsFromRefreshToken(refreshToken);
+        String username = refreshTokenClaims.getSubject();
+        AdminUserDetailsDTO userDetails = (AdminUserDetailsDTO) loadUserByUsername(username);
+        Map<String, Object> claims = getAdminClaims(userDetails);
+        String accessToken = tokenProvider.createAccessToken(userDetails.getUsername(), claims);
+        return new AdminLoginDTO(accessToken, refreshToken, tokenProvider.getAccessTokenValidityInSeconds());
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateRole(Long adminId, List<Long> roleIdList)
             throws UsernameNotFoundException, IllegalArgumentException {

@@ -10,3 +10,4 @@ secure:
     urls:
       - /admin/register
       - /admin/login
+      - /admin/refreshAccessToken

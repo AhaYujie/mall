@@ -11,14 +11,12 @@ import online.ahayujie.mall.admin.ums.service.AdminService;
 import online.ahayujie.mall.admin.ums.service.RoleService;
 import online.ahayujie.mall.common.bean.model.Base;
 import online.ahayujie.mall.security.jwt.TokenProvider;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -105,6 +103,27 @@ class AdminServiceImplTest {
         adminLoginParam.setUsername(getRandomString(random.nextInt(16)));
         throwable = assertThrows(UsernameNotFoundException.class, () -> adminService.login(adminLoginParam));
         log.debug(throwable.getMessage());
+    }
+
+    @Test
+    void refreshToken() throws InterruptedException {
+        String refreshToken = null;
+
+        // null
+        Throwable throwable = assertThrows(IllegalArgumentException.class, () -> adminService.refreshAccessToken(refreshToken));
+        log.debug(throwable.getMessage());
+
+        // legal refreshToken
+        AdminLoginParam param = new AdminLoginParam();
+        param.setUsername("test");
+        param.setPassword("123456");
+        AdminLoginDTO adminLoginDTO = adminService.login(param);
+        Thread.sleep(2000);
+        AdminLoginDTO adminLoginDTO1 = adminService.refreshAccessToken(adminLoginDTO.getRefreshToken());
+        assertNotNull(adminLoginDTO1.getAccessToken());
+        assertEquals(adminLoginDTO.getRefreshToken(), adminLoginDTO1.getRefreshToken());
+        assertNotEquals(adminLoginDTO.getAccessToken(), adminLoginDTO1.getAccessToken());
+        log.debug("adminLoginDTO: " + adminLoginDTO1);
     }
 
     @Test

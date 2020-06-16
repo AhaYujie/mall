@@ -30,6 +30,14 @@ public interface AdminService extends IService<Admin>, JwtUserDetailService {
     Admin register(AdminRegisterParam param) throws DuplicateUsernameException;
 
     /**
+     * 刷新 accessToken
+     * @param refreshToken 旧的 accessToken
+     * @return 新的 accessToken
+     * @throws IllegalArgumentException refreshToken 不合法
+     */
+    AdminLoginDTO refreshAccessToken(String refreshToken) throws IllegalArgumentException;
+
+    /**
      * 用户登录
      * @param param 用户登录参数
      * @return 登录结果
