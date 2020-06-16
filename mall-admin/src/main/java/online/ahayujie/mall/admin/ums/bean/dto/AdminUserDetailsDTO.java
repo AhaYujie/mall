@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -96,5 +98,15 @@ public class AdminUserDetailsDTO implements UserDetails {
             stringBuilder.deleteCharAt(stringBuilder.length() - 1);
         }
         return stringBuilder.toString();
+    }
+
+    public static ConfigAttribute getConfigAttribute(Resource resource) {
+        return new SecurityConfig(resource.getId() + ":" + resource.getName());
+    }
+
+    public static Collection<ConfigAttribute> getConfigAttributes(Collection<? extends GrantedAuthority> authorities) {
+        return authorities.stream()
+                .map(authority -> new SecurityConfig(authority.getAuthority()))
+                .collect(Collectors.toList());
     }
 }

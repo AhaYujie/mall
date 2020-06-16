@@ -1,5 +1,7 @@
 package online.ahayujie.mall.security.config;
 
+import online.ahayujie.mall.security.component.DynamicSecurityFilter;
+import online.ahayujie.mall.security.component.DynamicSecurityService;
 import online.ahayujie.mall.security.component.JwtAccessDeniedHandler;
 import online.ahayujie.mall.security.component.JwtAuthenticationEntryPoint;
 import online.ahayujie.mall.security.jwt.JwtConfigurer;
@@ -8,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
 /**
  * spring security配置
@@ -25,6 +29,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtUserDetailService jwtUserDetailService;
 
+    @Autowired(required = false)
+    private DynamicSecurityFilter dynamicSecurityFilter;
+
+    @Autowired(required = false)
+    private DynamicSecurityService dynamicSecurityService;
+
     @Autowired
     private JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
@@ -39,11 +49,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity httpSecurity) throws Exception {
+        ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = httpSecurity
+                .authorizeRequests();
         // 不需要保护的资源路径允许访问
         for (String url: ignoreUrlsConfig.getUrls()) {
-            httpSecurity.authorizeRequests().antMatchers(url).permitAll();
+            registry.antMatchers(url).permitAll();
         }
-        httpSecurity
+        //有动态权限配置时添加动态权限校验过滤器
+        if (dynamicSecurityService != null) {
+            registry.and().addFilterBefore(dynamicSecurityFilter, FilterSecurityInterceptor.class);
+        }
+        registry
+                .and()
                 .csrf().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
