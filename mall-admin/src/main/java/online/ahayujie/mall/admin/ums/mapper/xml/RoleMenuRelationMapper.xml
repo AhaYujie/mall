@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.admin.ums.mapper.RoleMenuRelationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.ums.bean.model.RoleMenuRelation">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="is_deleted" property="isDeleted" />
+        <result column="role_id" property="roleId" />
+        <result column="menu_id" property="menuId" />
+    </resultMap>
+
+    <update id="deleteByRoleId">
+        update ums_role_menu_relation
+        set is_deleted = 1
+        where role_id = #{roleId}
+    </update>
+
+    <insert id="insert">
+        insert into ums_role_menu_relation (update_time, create_time, role_id, menu_id) values
+        <foreach collection="list" separator="," item="item" index="index">
+            (#{item.updateTime}, #{item.createTime}, #{item.roleId}, #{item.menuId})
+        </foreach>
+    </insert>
+
+</mapper>

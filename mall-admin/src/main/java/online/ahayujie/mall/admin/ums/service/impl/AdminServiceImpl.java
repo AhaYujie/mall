@@ -10,6 +10,7 @@ import online.ahayujie.mall.admin.ums.bean.model.AdminRoleRelation;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.admin.DuplicateUsernameException;
+import online.ahayujie.mall.admin.ums.exception.admin.IllegalRoleException;
 import online.ahayujie.mall.admin.ums.mapper.AdminMapper;
 import online.ahayujie.mall.admin.ums.mapper.AdminRoleRelationMapper;
 import online.ahayujie.mall.admin.ums.service.AdminService;
@@ -108,7 +109,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateRole(Long adminId, List<Long> roleIdList)
-            throws UsernameNotFoundException, IllegalArgumentException {
+            throws UsernameNotFoundException, IllegalRoleException {
         if (roleIdList == null) {
             return;
         }
@@ -117,12 +118,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
             throw new UsernameNotFoundException("用户不存在");
         }
         // 检查角色是否合法
-        List<Long> legalRoleIds = roleService.list().stream().map(Base::getId).collect(Collectors.toList());
-        for (Long roleId : roleIdList) {
-            if (!legalRoleIds.contains(roleId)) {
-                throw new IllegalArgumentException("角色不合法: " + roleId);
-            }
-        }
+        roleService.validateRole(roleIdList);
         // 删除用户原本的全部角色
         adminRoleRelationMapper.deleteByAdminId(adminId);
         // 添加新角色

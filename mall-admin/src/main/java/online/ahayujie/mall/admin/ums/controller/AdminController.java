@@ -7,8 +7,10 @@ import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginDTO;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginParam;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminRegisterParam;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
+import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.admin.DuplicateUsernameException;
 import online.ahayujie.mall.admin.ums.service.AdminService;
+import online.ahayujie.mall.admin.ums.service.RoleService;
 import online.ahayujie.mall.common.api.Result;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,9 +31,11 @@ import java.util.List;
 @RequestMapping("/admin")
 @Api(tags = "后台用户管理", value = "后台用户管理")
 public class AdminController {
+    private final RoleService roleService;
     private final AdminService adminService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(RoleService roleService, AdminService adminService) {
+        this.roleService = roleService;
         this.adminService = adminService;
     }
 
@@ -79,6 +83,12 @@ public class AdminController {
         } catch (IllegalArgumentException e) {
             return Result.fail("角色不合法");
         }
+    }
+
+    @ApiOperation(value = "获取指定用户的角色")
+    @GetMapping("/role/{adminId}")
+    public Result<List<Role>> getAdminRoleList(@PathVariable Long adminId) {
+        return Result.data(roleService.getRoleListByAdminId(adminId));
     }
 
 }

@@ -7,6 +7,7 @@ import online.ahayujie.mall.admin.ums.bean.dto.AdminRegisterParam;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.admin.DuplicateUsernameException;
+import online.ahayujie.mall.admin.ums.exception.admin.IllegalRoleException;
 import online.ahayujie.mall.admin.ums.service.AdminService;
 import online.ahayujie.mall.admin.ums.service.RoleService;
 import online.ahayujie.mall.common.bean.model.Base;
@@ -161,7 +162,7 @@ class AdminServiceImplTest {
         roleIds = Arrays.asList(-1L, 1L, 2L);
         Long finalAdminId1 = adminId;
         List<Long> finalRoleIds1 = roleIds;
-        throwable = assertThrows(IllegalArgumentException.class, () -> adminService.updateRole(finalAdminId1, finalRoleIds1));
+        throwable = assertThrows(IllegalRoleException.class, () -> adminService.updateRole(finalAdminId1, finalRoleIds1));
         log.debug(throwable.getMessage());
 
         // roleIds is not empty

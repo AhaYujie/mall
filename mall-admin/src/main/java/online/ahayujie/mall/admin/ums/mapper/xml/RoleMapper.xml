@@ -15,4 +15,44 @@
         <result column="sort" property="sort" />
     </resultMap>
 
+    <select id="queryByName" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, name, description, admin_count, status, sort
+        from ums_role
+        where name like concat('%', #{keyword}, '%')
+    </select>
+
+    <select id="selectMenusByRoleId" resultMap="online.ahayujie.mall.admin.ums.mapper.MenuMapper.BaseResultMap">
+        select
+        m.id id,
+        m.update_time update_time,
+        m.create_time create_time,
+        m.is_deleted is_deleted,
+        m.parent_id parent_id,
+        m.title title,
+        m.level level,
+        m.sort sort,
+        m.name name,
+        m.icon icon,
+        m.hidden hidden
+        from ums_role_menu_relation rmr
+        left join ums_menu m on rmr.menu_id = m.id and m.is_deleted = 0
+        where rmr.role_id = #{roleId} and rmr.is_deleted = 0
+    </select>
+
+    <select id="selectResourceByRoleId" resultMap="online.ahayujie.mall.admin.ums.mapper.ResourceMapper.BaseResultMap">
+        select
+        r.id id,
+        r.update_time update_time,
+        r.create_time create_time,
+        r.is_deleted is_deleted,
+        name,
+        url,
+        description,
+        category_id
+        from ums_role_resource_relation rrr
+        left join ums_resource r on r.id = rrr.resource_id and r.is_deleted = 0
+        where rrr.role_id = #{roleId} and rrr.is_deleted = 0
+    </select>
+
 </mapper>

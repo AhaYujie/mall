@@ -6,6 +6,7 @@ import online.ahayujie.mall.admin.ums.bean.dto.AdminRegisterParam;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
 import com.baomidou.mybatisplus.extension.service.IService;
 import online.ahayujie.mall.admin.ums.exception.admin.DuplicateUsernameException;
+import online.ahayujie.mall.admin.ums.exception.admin.IllegalRoleException;
 import online.ahayujie.mall.security.jwt.JwtUserDetailService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -53,7 +54,7 @@ public interface AdminService extends IService<Admin>, JwtUserDetailService {
      * @param adminId 用户id
      * @param roleIdList 角色id
      * @throws UsernameNotFoundException 用户不存在
-     * @throws IllegalArgumentException 角色id不合法
+     * @throws IllegalRoleException 角色id不合法
      */
-    void updateRole(Long adminId, List<Long> roleIdList) throws UsernameNotFoundException, IllegalArgumentException;
+    void updateRole(Long adminId, List<Long> roleIdList) throws UsernameNotFoundException, IllegalRoleException;
 }

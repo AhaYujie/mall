@@ -3,17 +3,17 @@ package online.ahayujie.mall.admin.ums.service.impl;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.bean.model.RoleResourceRelation;
+import online.ahayujie.mall.admin.ums.exception.admin.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.mapper.ResourceMapper;
 import online.ahayujie.mall.admin.ums.mapper.RoleResourceRelationMapper;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import online.ahayujie.mall.admin.ums.service.RoleService;
+import online.ahayujie.mall.common.bean.model.Base;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +46,21 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         return roleResourceRelations.stream()
                 .map(relation -> resourceMapper.selectById(relation.getResourceId()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void validateResource(Collection<Long> resourceIds) throws IllegalResourceException {
+        List<Long> legalResourceIds = list().stream().map(Base::getId).collect(Collectors.toList());
+        for (Long resourceId : resourceIds) {
+            if (!legalResourceIds.contains(resourceId)) {
+                throw new IllegalResourceException("资源不合法");
+            }
+        }
+    }
+
+    @Override
+    public void validateResource(Long resourceId) throws IllegalResourceException {
+        validateResource(Collections.singletonList(resourceId));
     }
 
     @Autowired

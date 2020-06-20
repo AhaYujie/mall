@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -36,6 +37,12 @@ public class RoleResourceRelation extends Base {
 
     @ApiModelProperty(value = "资源ID")
     private Long resourceId;
+
+    public RoleResourceRelation(Long id, Date updateTime, Date createTime, Long roleId, Long resourceId) {
+        super(id, updateTime, createTime);
+        this.roleId = roleId;
+        this.resourceId = resourceId;
+    }
 
     @Override
     public boolean equals(Object o) {

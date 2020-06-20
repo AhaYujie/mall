@@ -45,5 +45,27 @@ public class Role extends Base {
     @ApiModelProperty(value = "排序")
     private Integer sort;
 
+    public enum STATUS {
+        /**
+         * 禁用
+         */
+        UN_ACTIVE(0),
+
+        /**
+         * 启用
+         */
+        ACTIVE(1)
+        ;
+
+        private final int value;
+
+        STATUS(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 
 }
