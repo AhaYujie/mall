@@ -12,4 +12,18 @@
         <result column="sort" property="sort" />
     </resultMap>
 
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, name, sort
+        from ums_resource_category
+        where is_deleted = 0
+        order by sort desc
+    </select>
+
+    <update id="deleteById">
+        update ums_resource_category
+        set is_deleted = 1
+        where id = #{id}
+    </update>
+
 </mapper>

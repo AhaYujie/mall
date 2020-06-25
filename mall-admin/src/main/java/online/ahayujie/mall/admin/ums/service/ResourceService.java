@@ -1,7 +1,10 @@
 package online.ahayujie.mall.admin.ums.service;
 
+import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
+import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import com.baomidou.mybatisplus.extension.service.IService;
+import online.ahayujie.mall.admin.ums.exception.admin.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.exception.admin.IllegalResourceException;
 
 import java.util.Collection;
@@ -16,6 +19,21 @@ import java.util.List;
  * @since 2020-06-04
  */
 public interface ResourceService extends IService<Resource> {
+    /**
+     * 创建资源
+     * @param param 资源
+     * @throws IllegalResourceCategoryException 资源分类不存在
+     */
+    void createResource(CreateResourceParam param) throws IllegalResourceCategoryException;
+
+    /**
+     * 更新资源
+     * @param id 资源id
+     * @param param 资源
+     * @throws IllegalResourceCategoryException 资源分类不存在
+     */
+    void updateResource(Long id, UpdateResourceParam param) throws IllegalResourceCategoryException;
+
     /**
      * 根据用户id获取用户拥有的资源
      * @param adminId 用户id

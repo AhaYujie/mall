@@ -1,15 +1,20 @@
 package online.ahayujie.mall.admin.ums.service.impl;
 
+import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
+import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.bean.model.RoleResourceRelation;
+import online.ahayujie.mall.admin.ums.exception.admin.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.exception.admin.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.mapper.ResourceMapper;
 import online.ahayujie.mall.admin.ums.mapper.RoleResourceRelationMapper;
+import online.ahayujie.mall.admin.ums.service.ResourceCategoryService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import online.ahayujie.mall.admin.ums.service.RoleService;
 import online.ahayujie.mall.common.bean.model.Base;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,10 +35,36 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     private final RoleResourceRelationMapper roleResourceRelationMapper;
 
     private RoleService roleService;
+    private ResourceCategoryService resourceCategoryService;
 
     public ResourceServiceImpl(ResourceMapper resourceMapper, RoleResourceRelationMapper roleResourceRelationMapper) {
         this.resourceMapper = resourceMapper;
         this.roleResourceRelationMapper = roleResourceRelationMapper;
+    }
+
+    @Override
+    public void createResource(CreateResourceParam param) throws IllegalResourceCategoryException {
+        Long categoryId = param.getCategoryId();
+        if (categoryId != null && resourceCategoryService.getById(categoryId) == null) {
+            throw new IllegalResourceCategoryException("资源分类不存在");
+        }
+        Resource resource = new Resource();
+        BeanUtils.copyProperties(param, resource);
+        resource.setCreateTime(new Date());
+        resourceMapper.insert(resource);
+    }
+
+    @Override
+    public void updateResource(Long id, UpdateResourceParam param) throws IllegalResourceCategoryException {
+        Long categoryId = param.getCategoryId();
+        if (categoryId != null && resourceCategoryService.getById(categoryId) == null) {
+            throw new IllegalResourceCategoryException("资源分类不存在");
+        }
+        Resource resource = new Resource();
+        BeanUtils.copyProperties(param, resource);
+        resource.setId(id);
+        resource.setUpdateTime(new Date());
+        resourceMapper.updateById(resource);
     }
 
     @Override
@@ -66,5 +97,10 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     @Autowired
     public void setRoleService(RoleService roleService) {
         this.roleService = roleService;
+    }
+
+    @Autowired
+    public void setResourceCategoryService(ResourceCategoryService resourceCategoryService) {
+        this.resourceCategoryService = resourceCategoryService;
     }
 }
