@@ -3,6 +3,7 @@ package online.ahayujie.mall.admin.ums.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import online.ahayujie.mall.admin.ums.bean.dto.CreateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
@@ -37,8 +38,8 @@ public class RoleController {
 
     @ApiOperation(value = "添加角色")
     @PostMapping("/create")
-    public Result<Object> createRole(@RequestBody Role role) {
-        roleService.createRole(role);
+    public Result<Object> createRole(@RequestBody CreateRoleParam param) {
+        roleService.createRole(param);
         return Result.success();
     }
 

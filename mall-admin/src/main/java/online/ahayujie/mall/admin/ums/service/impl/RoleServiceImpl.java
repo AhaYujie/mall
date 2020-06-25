@@ -2,6 +2,7 @@ package online.ahayujie.mall.admin.ums.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import online.ahayujie.mall.admin.ums.bean.dto.CreateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.model.*;
 import online.ahayujie.mall.admin.ums.exception.admin.IllegalMenuException;
@@ -61,7 +62,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     }
 
     @Override
-    public void createRole(Role role) {
+    public void createRole(CreateRoleParam param) {
+        Role role = new Role();
+        BeanUtils.copyProperties(param, role);
         role.setCreateTime(new Date());
         role.setAdminCount(0);
         roleMapper.insert(role);

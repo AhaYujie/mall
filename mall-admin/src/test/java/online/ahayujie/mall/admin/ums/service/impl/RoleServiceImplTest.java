@@ -1,6 +1,7 @@
 package online.ahayujie.mall.admin.ums.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import online.ahayujie.mall.admin.ums.bean.dto.CreateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
@@ -61,7 +62,7 @@ class RoleServiceImplTest {
     void createRole() {
         List<Role> oldRoles = roleService.list();
 
-        Role role = new Role();
+        CreateRoleParam role = new CreateRoleParam();
         role.setName("test");
         role.setDescription("test Description");
         role.setStatus(Role.STATUS.ACTIVE.getValue());

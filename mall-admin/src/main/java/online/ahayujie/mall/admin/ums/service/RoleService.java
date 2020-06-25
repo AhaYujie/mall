@@ -1,5 +1,6 @@
 package online.ahayujie.mall.admin.ums.service;
 
+import online.ahayujie.mall.admin.ums.bean.dto.CreateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
@@ -31,9 +32,9 @@ public interface RoleService extends IService<Role> {
 
     /**
      * 添加角色
-     * @param role 角色信息
+     * @param param 角色信息
      */
-    void createRole(Role role);
+    void createRole(CreateRoleParam param);
 
     /**
      * 根据 id 更新角色
