@@ -1,6 +1,7 @@
 package online.ahayujie.mall.security.jwt;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -23,9 +24,11 @@ import java.io.IOException;
 @Component
 public class JwtFilter extends GenericFilterBean {
 
-    public static final String AUTHORIZATION_HEADER = "Authorization";
+    @Value("jwt.header")
+    private String jwtHeader;
 
-    private static final String AUTHORIZATION_PREFIX = "Bearer ";
+    @Value("jwt.header-prefix")
+    private String jwtHeaderPrefix;
 
     private final TokenProvider tokenProvider;
 
@@ -53,8 +56,8 @@ public class JwtFilter extends GenericFilterBean {
     }
 
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(AUTHORIZATION_PREFIX)) {
+        String bearerToken = request.getHeader(jwtHeader);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(jwtHeaderPrefix)) {
             return bearerToken.substring(7);
         }
         return null;
