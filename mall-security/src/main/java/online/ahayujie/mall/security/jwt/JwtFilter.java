@@ -24,10 +24,10 @@ import java.io.IOException;
 @Component
 public class JwtFilter extends GenericFilterBean {
 
-    @Value("jwt.header")
+    @Value("${jwt.header}")
     private String jwtHeader;
 
-    @Value("jwt.header-prefix")
+    @Value("${jwt.header-prefix}")
     private String jwtHeaderPrefix;
 
     private final TokenProvider tokenProvider;
