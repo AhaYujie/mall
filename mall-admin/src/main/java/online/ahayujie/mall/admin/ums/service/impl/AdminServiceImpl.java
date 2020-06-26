@@ -1,10 +1,7 @@
 package online.ahayujie.mall.admin.ums.service.impl;
 
 import io.jsonwebtoken.Claims;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginDTO;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginParam;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminRegisterParam;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminUserDetailsDTO;
+import online.ahayujie.mall.admin.ums.bean.dto.*;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
 import online.ahayujie.mall.admin.ums.bean.model.AdminRoleRelation;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
@@ -131,6 +128,11 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     }
 
     @Override
+    public AdminInfoDTO getAdminInfo() {
+        return null;
+    }
+
+    @Override
     public Collection<GrantedAuthority> getAuthorities(Claims claims) {
         String authoritiesString = claims.get("auth", String.class);
         return AdminUserDetailsDTO.getAuthorities(authoritiesString);
@@ -148,6 +150,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
 
     private Map<String, Object> getAdminClaims(AdminUserDetailsDTO userDetails) {
         Map<String, Object> claims = new HashMap<>(2);
+        claims.put("id", userDetails.getAdmin().getId());
         claims.put("username", userDetails.getUsername());
         claims.put("auth", AdminUserDetailsDTO.getAuthoritiesString(userDetails.getAuthorities()));
         return claims;

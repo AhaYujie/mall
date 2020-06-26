@@ -3,6 +3,7 @@ package online.ahayujie.mall.admin.ums.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import online.ahayujie.mall.admin.ums.bean.dto.AdminInfoDTO;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginDTO;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginParam;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminRegisterParam;
@@ -91,4 +92,9 @@ public class AdminController {
         return Result.data(roleService.getRoleListByAdminId(adminId));
     }
 
+    @ApiOperation(value = "获取当前登录用户信息")
+    @GetMapping("/info")
+    public Result<AdminInfoDTO> getAdminInfo() {
+        return Result.fail();
+    }
 }

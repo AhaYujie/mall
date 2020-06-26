@@ -1,5 +1,6 @@
 package online.ahayujie.mall.admin.ums.service;
 
+import online.ahayujie.mall.admin.ums.bean.dto.AdminInfoDTO;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginDTO;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginParam;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminRegisterParam;
@@ -57,4 +58,11 @@ public interface AdminService extends IService<Admin>, JwtUserDetailService {
      * @throws IllegalRoleException 角色id不合法
      */
     void updateRole(Long adminId, List<Long> roleIdList) throws UsernameNotFoundException, IllegalRoleException;
+
+    /**
+     * 获取当前登录的后台用户信息，
+     * 若未登录则返回 null
+     * @return 后台用户信息
+     */
+    AdminInfoDTO getAdminInfo();
 }
