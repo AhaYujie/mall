@@ -1,8 +1,11 @@
 package online.ahayujie.mall.admin.ums.mapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -16,5 +19,11 @@ import org.springframework.stereotype.Repository;
 @Mapper
 @Repository
 public interface MenuMapper extends BaseMapper<Menu> {
-
+    /**
+     * 根据上级菜单id分页查询
+     * @param page 上级菜单id
+     * @param parentId 分页
+     * @return 菜单
+     */
+    IPage<Menu> selectByParentId(@Param("page") Page<?> page, @Param("parentId") Long parentId);
 }

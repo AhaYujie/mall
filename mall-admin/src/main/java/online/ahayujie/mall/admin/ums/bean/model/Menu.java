@@ -27,6 +27,31 @@ public class Menu extends Base {
 
     private static final long serialVersionUID = 1L;
 
+    public static final long NON_PARENT_ID = 0L;
+
+    public enum VISIBILITY {
+        /**
+         * 显示
+         */
+        SHOW(0),
+
+        /**
+         * 隐藏
+         */
+        HIDDEN(1)
+        ;
+
+        private final Integer value;
+
+        VISIBILITY(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
+
     @ApiModelProperty(value = "是否删除，0->未删除，1->已删除")
     private Boolean isDeleted;
 
