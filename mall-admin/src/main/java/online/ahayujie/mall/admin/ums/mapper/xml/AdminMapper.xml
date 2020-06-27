@@ -24,4 +24,11 @@
         where username = #{username} and is_deleted = 0
     </select>
 
+    <select id="selectByUsernameAndNickName" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, username, password, icon, email, nick_name, note, login_time, status
+        from ums_admin
+        where username like concat('%', #{keyword}, '%') or nick_name like concat('%', #{keyword}, '%')
+    </select>
+
 </mapper>

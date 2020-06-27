@@ -1,15 +1,15 @@
 package online.ahayujie.mall.admin.ums.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginDTO;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginParam;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminRegisterParam;
+import online.ahayujie.mall.admin.ums.bean.dto.*;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.admin.DuplicateUsernameException;
+import online.ahayujie.mall.admin.ums.exception.admin.IllegalAdminStatusException;
 import online.ahayujie.mall.admin.ums.exception.admin.IllegalRoleException;
 import online.ahayujie.mall.admin.ums.service.AdminService;
 import online.ahayujie.mall.admin.ums.service.RoleService;
+import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
 import online.ahayujie.mall.security.jwt.TokenProvider;
 import org.junit.jupiter.api.BeforeAll;
@@ -185,5 +185,96 @@ class AdminServiceImplTest {
             sb.append(str.charAt(number));
         }
         return sb.toString();
+    }
+
+    @Test
+    void getAdminList() {
+        String keyword;
+        Integer pageNum, pageSize;
+
+        // not exist
+        keyword = getRandomString(20);
+        pageNum = 1;
+        pageSize = 20;
+        CommonPage<Admin> result1 = adminService.getAdminList(keyword, pageNum, pageSize);
+        assertEquals(0, result1.getTotal());
+        log.debug("result1: " + result1);
+
+        // exist
+        keyword = "";
+        pageNum = 1;
+        pageSize = 20;
+        CommonPage<Admin> result2 = adminService.getAdminList(keyword, pageNum, pageSize);
+        assertNotEquals(0, result2.getTotal());
+        log.debug("result2: " + result2);
+    }
+
+    @Test
+    void updateAdmin() {
+        Long id;
+        UpdateAdminParam param;
+
+        // illegal status
+        id = 1L;
+        param = new UpdateAdminParam();
+        param.setStatus(-1);
+        Long finalId = id;
+        UpdateAdminParam finalParam = param;
+        Throwable throwable1 = assertThrows(IllegalAdminStatusException.class, () -> adminService.updateAdmin(finalId, finalParam));
+        log.debug(throwable1.getMessage());
+
+        // legal
+        id = 1L;
+        param = new UpdateAdminParam();
+        param.setUsername("new username");
+        param.setPassword(getRandomString(16));
+        param.setEmail("new email");
+        param.setIcon("new icon");
+        param.setNickName("new nickname");
+        param.setNote("new note");
+        param.setStatus(Admin.UN_ACTIVE_STATUS);
+        Admin oldAdmin = adminService.getById(id);
+        adminService.updateAdmin(id, param);
+        Admin newAdmin = adminService.getById(id);
+        assertNotEquals(oldAdmin, newAdmin);
+        log.debug("oldAdmin: " + oldAdmin);
+        log.debug("newAdmin: " + newAdmin);
+    }
+
+    @Test
+    void updatePassword() {
+        UpdateAdminPasswordParam param;
+
+        // not exist user
+        param = new UpdateAdminPasswordParam();
+        param.setUsername(getRandomString(20));
+        param.setOldPassword(getRandomString(20));
+        param.setNewPassword(getRandomString(20));
+        UpdateAdminPasswordParam finalParam = param;
+        Throwable throwable1 = assertThrows(UsernameNotFoundException.class, () -> adminService.updatePassword(finalParam));
+        log.debug(throwable1.getMessage());
+
+        // old password wrong
+        param = new UpdateAdminPasswordParam();
+        param.setUsername("test");
+        param.setOldPassword(getRandomString(20));
+        param.setNewPassword(getRandomString(20));
+        UpdateAdminPasswordParam finalParam1 = param;
+        Throwable throwable2 = assertThrows(BadCredentialsException.class, () -> adminService.updatePassword(finalParam1));
+        log.debug(throwable2.getMessage());
+
+        // legal
+        String username = "test";
+        String newPassword = "newPassword";
+        param = new UpdateAdminPasswordParam();
+        param.setUsername(username);
+        param.setOldPassword("123456");
+        param.setNewPassword(newPassword);
+        adminService.updatePassword(param);
+        AdminLoginParam loginParam = new AdminLoginParam();
+        loginParam.setUsername(username);
+        loginParam.setPassword(newPassword);
+        AdminLoginDTO adminLoginDTO = adminService.login(loginParam);
+        log.debug("adminLoginDTO: " + adminLoginDTO);
     }
 }

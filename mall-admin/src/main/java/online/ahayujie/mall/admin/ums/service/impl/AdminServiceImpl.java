@@ -1,5 +1,7 @@
 package online.ahayujie.mall.admin.ums.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.jsonwebtoken.Claims;
 import online.ahayujie.mall.admin.ums.bean.dto.*;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
@@ -7,6 +9,7 @@ import online.ahayujie.mall.admin.ums.bean.model.AdminRoleRelation;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.admin.DuplicateUsernameException;
+import online.ahayujie.mall.admin.ums.exception.admin.IllegalAdminStatusException;
 import online.ahayujie.mall.admin.ums.exception.admin.IllegalRoleException;
 import online.ahayujie.mall.admin.ums.mapper.AdminMapper;
 import online.ahayujie.mall.admin.ums.mapper.AdminRoleRelationMapper;
@@ -14,24 +17,33 @@ import online.ahayujie.mall.admin.ums.service.AdminService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import online.ahayujie.mall.admin.ums.service.RoleService;
+import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
 import online.ahayujie.mall.common.exception.ApiException;
+import online.ahayujie.mall.security.jwt.JwtFilter;
 import online.ahayujie.mall.security.jwt.TokenProvider;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,6 +64,12 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     private RoleService roleService;
     private TokenProvider tokenProvider;
     private ResourceService resourceService;
+
+    @Value("${jwt.header}")
+    private String jwtHeader;
+
+    @Value("${jwt.header-prefix}")
+    private String jwtHeaderPrefix;
 
     public AdminServiceImpl(AdminMapper adminMapper, PasswordEncoder passwordEncoder,
                             AdminRoleRelationMapper adminRoleRelationMapper) {
@@ -81,6 +99,9 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         log.debug(userDetails.toString());
         if (!passwordEncoder.matches(param.getPassword(), userDetails.getPassword())) {
             throw new BadCredentialsException("密码错误");
+        }
+        if (!userDetails.isEnabled()) {
+            throw new DisabledException("用户被禁用");
         }
         Map<String, Object> claims = getAdminClaims(userDetails);
         String accessToken = tokenProvider.createAccessToken(userDetails.getUsername(), claims);
@@ -129,7 +150,94 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
 
     @Override
     public AdminInfoDTO getAdminInfo() {
+        Admin admin = getAdminFromToken();
+        if (admin == null) {
+            return null;
+        }
+        Long id = admin.getId();
+        admin = adminMapper.selectById(id);
+        List<Role> roles = roleService.getRoleListByAdminId(id);
+        AdminInfoDTO adminInfoDTO = new AdminInfoDTO();
+        BeanUtils.copyProperties(admin, adminInfoDTO);
+        adminInfoDTO.setRoles(roles);
+        return adminInfoDTO;
+    }
+
+    @Override
+    public Admin getAdminFromToken() {
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (servletRequestAttributes == null) {
+            return null;
+        }
+        HttpServletRequest request = servletRequestAttributes.getRequest();
+        String bearerToken = request.getHeader(jwtHeader);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(jwtHeaderPrefix)) {
+            return getAdminFromToken(bearerToken.substring(jwtHeaderPrefix.length()));
+        }
         return null;
+    }
+
+    @Override
+    public Admin getAdminFromToken(String token) {
+        Claims claims;
+        try {
+            claims = tokenProvider.getClaimsFromAccessToken(token);
+        }
+        catch (Exception e) {
+            try {
+                claims = tokenProvider.getClaimsFromRefreshToken(token);
+            }
+            catch (Exception e1) {
+                return null;
+            }
+        }
+        Admin admin = new Admin();
+        admin.setId(claims.get("id", Long.class));
+        admin.setUsername(claims.get("username", String.class));
+        return admin;
+    }
+
+    @Override
+    public CommonPage<Admin> getAdminList(String keyword, Integer pageNum, Integer pageSize) {
+        Page<Admin> page = new Page<>(pageNum, pageSize);
+        IPage<Admin> admins = adminMapper.selectByUsernameAndNickName(page, keyword);
+        return new CommonPage<>(admins);
+    }
+
+    @Override
+    public void updateAdmin(Long id, UpdateAdminParam param) throws DuplicateUsernameException, IllegalAdminStatusException {
+        Admin admin = new Admin();
+        BeanUtils.copyProperties(param, admin);
+        admin.setId(id);
+        if (admin.getPassword() != null) {
+            admin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        }
+        if (admin.getStatus() != null) {
+            Integer status = admin.getStatus();
+            if (!Admin.ACTIVE_STATUS.equals(status) && !Admin.UN_ACTIVE_STATUS.equals(status)) {
+                throw new IllegalAdminStatusException("用户状态不合法");
+            }
+        }
+        admin.setUpdateTime(new Date());
+        try {
+            adminMapper.updateById(admin);
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateUsernameException(e);
+        }
+    }
+
+    @Override
+    public void updatePassword(UpdateAdminPasswordParam param) throws UsernameNotFoundException, BadCredentialsException {
+        Admin oldAdmin = adminMapper.selectByUsername(param.getUsername());
+        if (oldAdmin == null) {
+            throw new UsernameNotFoundException("用户不存在");
+        }
+        if (!passwordEncoder.matches(param.getOldPassword(), oldAdmin.getPassword())) {
+            throw new BadCredentialsException("原密码错误");
+        }
+        UpdateAdminParam updateAdminParam = new UpdateAdminParam();
+        updateAdminParam.setPassword(param.getNewPassword());
+        updateAdmin(oldAdmin.getId(), updateAdminParam);
     }
 
     @Override

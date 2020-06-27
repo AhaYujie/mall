@@ -3,17 +3,17 @@ package online.ahayujie.mall.admin.ums.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminInfoDTO;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginDTO;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginParam;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminRegisterParam;
+import online.ahayujie.mall.admin.ums.bean.dto.*;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.admin.DuplicateUsernameException;
+import online.ahayujie.mall.admin.ums.exception.admin.IllegalAdminStatusException;
 import online.ahayujie.mall.admin.ums.service.AdminService;
 import online.ahayujie.mall.admin.ums.service.RoleService;
+import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.api.Result;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,6 +58,8 @@ public class AdminController {
             return Result.data(adminService.login(param));
         } catch (UsernameNotFoundException | BadCredentialsException e) {
             return Result.fail("用户名或密码错误");
+        } catch (DisabledException e) {
+            return Result.fail("用户被禁用");
         }
     }
 
@@ -95,6 +97,61 @@ public class AdminController {
     @ApiOperation(value = "获取当前登录用户信息")
     @GetMapping("/info")
     public Result<AdminInfoDTO> getAdminInfo() {
-        return Result.fail();
+        return Result.data(adminService.getAdminInfo());
+    }
+
+    @ApiOperation(value = "根据用户名或昵称分页获取用户列表")
+    @GetMapping("/list")
+    public Result<CommonPage<Admin>> getAdminList(@RequestParam(required = false) String keyword,
+                                                  @RequestParam(defaultValue = "5") Integer pageSize,
+                                                  @RequestParam(defaultValue = "1") Integer pageNum) {
+        return Result.data(adminService.getAdminList(keyword, pageNum, pageSize));
+    }
+
+    @ApiOperation(value = "获取指定用户信息")
+    @GetMapping("/{id}")
+    public Result<Admin> getAdmin(@PathVariable Long id) {
+        return Result.data(adminService.getById(id));
+    }
+
+    @ApiOperation(value = "修改指定用户信息")
+    @PostMapping("/update/{id}")
+    public Result<Object> updateAdmin(@PathVariable Long id, @RequestBody UpdateAdminParam param) {
+        try {
+            adminService.updateAdmin(id, param);
+            return Result.success();
+        } catch (DuplicateUsernameException e) {
+            return Result.fail("用户名重复");
+        } catch (IllegalAdminStatusException e) {
+            return Result.fail("用户状态不合法");
+        }
+    }
+
+    @ApiOperation(value = "修改指定用户密码")
+    @PostMapping("/updatePassword")
+    public Result<Object> updatePassword(@RequestBody @Valid UpdateAdminPasswordParam param) {
+        try {
+            adminService.updatePassword(param);
+            return Result.success();
+        } catch (UsernameNotFoundException e) {
+            return Result.fail("用户不存在");
+        } catch (BadCredentialsException e) {
+            return Result.fail("原密码错误");
+        }
+    }
+
+    @ApiOperation(value = "删除指定用户信息")
+    @PostMapping("/delete/{id}")
+    public Result<Object> deleteAdmin(@PathVariable Long id) {
+        adminService.removeById(id);
+        return Result.success();
+    }
+
+    @ApiOperation(value = "修改帐号状态")
+    @PostMapping("/updateStatus/{id}")
+    public Result<Object> updateAdminStatus(@PathVariable Long id, @RequestParam Integer status) {
+        UpdateAdminParam param = new UpdateAdminParam();
+        param.setStatus(status);
+        return updateAdmin(id, param);
     }
 }

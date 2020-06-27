@@ -1,15 +1,15 @@
 package online.ahayujie.mall.admin.ums.service;
 
-import online.ahayujie.mall.admin.ums.bean.dto.AdminInfoDTO;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginDTO;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginParam;
-import online.ahayujie.mall.admin.ums.bean.dto.AdminRegisterParam;
+import online.ahayujie.mall.admin.ums.bean.dto.*;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
 import com.baomidou.mybatisplus.extension.service.IService;
 import online.ahayujie.mall.admin.ums.exception.admin.DuplicateUsernameException;
+import online.ahayujie.mall.admin.ums.exception.admin.IllegalAdminStatusException;
 import online.ahayujie.mall.admin.ums.exception.admin.IllegalRoleException;
+import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.security.jwt.JwtUserDetailService;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
@@ -45,8 +45,9 @@ public interface AdminService extends IService<Admin>, JwtUserDetailService {
      * @return 登录结果
      * @throws UsernameNotFoundException 用户不存在
      * @throws BadCredentialsException 密码错误
+     * @throws DisabledException 用户被禁用
      */
-    AdminLoginDTO login(AdminLoginParam param) throws UsernameNotFoundException, BadCredentialsException;
+    AdminLoginDTO login(AdminLoginParam param) throws UsernameNotFoundException, BadCredentialsException, DisabledException;
 
     /**
      * 更新用户的角色，
@@ -65,4 +66,44 @@ public interface AdminService extends IService<Admin>, JwtUserDetailService {
      * @return 后台用户信息
      */
     AdminInfoDTO getAdminInfo();
+
+    /**
+     * 从request header中的accessToken获取后台用户信息，
+     * 若accessToken不存在则返回null
+     * @return 后台用户信息
+     */
+    Admin getAdminFromToken();
+
+    /**
+     * 从token中获取后台用户信息
+     * @param token accessToken或者refreshToken
+     * @return 后台用户信息
+     */
+    Admin getAdminFromToken(String token);
+
+    /**
+     * 根据用户名或昵称分页查询后台用户
+     * @param keyword 关键词
+     * @param pageNum 页索引
+     * @param pageSize 页大小
+     * @return 后台用户
+     */
+    CommonPage<Admin> getAdminList(String keyword, Integer pageNum, Integer pageSize);
+
+    /**
+     * 更新后台用户信息
+     * @param id 后台用户id
+     * @param param 后台用户信息
+     * @throws DuplicateUsernameException 用户名重复
+     * @throws IllegalAdminStatusException 用户状态不合法
+     */
+    void updateAdmin(Long id, UpdateAdminParam param) throws DuplicateUsernameException, IllegalAdminStatusException;
+
+    /**
+     * 更新后台用户密码
+     * @param param 参数
+     * @throws UsernameNotFoundException 用户不存在
+     * @throws BadCredentialsException 原密码错误
+     */
+    void updatePassword(UpdateAdminPasswordParam param) throws UsernameNotFoundException, BadCredentialsException;
 }
