@@ -3,7 +3,7 @@ package online.ahayujie.mall.admin.ums.service.impl;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceCategoryParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceCategoryParam;
 import online.ahayujie.mall.admin.ums.bean.model.ResourceCategory;
-import online.ahayujie.mall.admin.ums.exception.admin.IllegalResourceCategoryException;
+import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.mapper.ResourceCategoryMapper;
 import online.ahayujie.mall.admin.ums.service.ResourceCategoryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

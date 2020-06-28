@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
-import online.ahayujie.mall.admin.ums.exception.admin.IllegalResourceCategoryException;
+import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.service.ResourceCategoryService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import org.junit.jupiter.api.Test;

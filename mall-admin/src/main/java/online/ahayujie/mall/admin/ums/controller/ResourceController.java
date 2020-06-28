@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
-import online.ahayujie.mall.admin.ums.exception.admin.IllegalResourceCategoryException;
+import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import online.ahayujie.mall.common.api.Result;
 import org.springframework.web.bind.annotation.*;

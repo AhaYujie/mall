@@ -1,4 +1,4 @@
-package online.ahayujie.mall.admin.ums.exception.admin;
+package online.ahayujie.mall.admin.ums.exception;
 
 import online.ahayujie.mall.common.api.ResultCode;
 import online.ahayujie.mall.common.exception.ApiException;

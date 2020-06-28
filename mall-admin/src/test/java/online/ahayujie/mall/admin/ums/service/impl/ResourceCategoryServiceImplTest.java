@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceCategoryParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceCategoryParam;
 import online.ahayujie.mall.admin.ums.bean.model.ResourceCategory;
-import online.ahayujie.mall.admin.ums.exception.admin.IllegalResourceCategoryException;
+import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.service.ResourceCategoryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

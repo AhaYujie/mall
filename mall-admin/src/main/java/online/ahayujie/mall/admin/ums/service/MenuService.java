@@ -5,9 +5,9 @@ import online.ahayujie.mall.admin.ums.bean.dto.MenuNodeDTO;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateMenuParam;
 import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import com.baomidou.mybatisplus.extension.service.IService;
-import online.ahayujie.mall.admin.ums.exception.admin.IllegalMenuException;
-import online.ahayujie.mall.admin.ums.exception.admin.IllegalMenuVisibilityException;
-import online.ahayujie.mall.admin.ums.exception.admin.IllegalParentMenuException;
+import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
+import online.ahayujie.mall.admin.ums.exception.IllegalMenuVisibilityException;
+import online.ahayujie.mall.admin.ums.exception.IllegalParentMenuException;
 import online.ahayujie.mall.common.api.CommonPage;
 
 import java.util.Collection;

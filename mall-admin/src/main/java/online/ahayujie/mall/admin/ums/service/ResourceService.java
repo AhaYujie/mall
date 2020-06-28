@@ -4,8 +4,8 @@ import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import com.baomidou.mybatisplus.extension.service.IService;
-import online.ahayujie.mall.admin.ums.exception.admin.IllegalResourceCategoryException;
-import online.ahayujie.mall.admin.ums.exception.admin.IllegalResourceException;
+import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
+import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 
 import java.util.Collection;
 import java.util.List;
