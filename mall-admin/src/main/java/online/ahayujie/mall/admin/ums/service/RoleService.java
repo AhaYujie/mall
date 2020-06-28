@@ -6,9 +6,9 @@ import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import com.baomidou.mybatisplus.extension.service.IService;
-import online.ahayujie.mall.admin.ums.exception.admin.IllegalMenuException;
-import online.ahayujie.mall.admin.ums.exception.admin.IllegalResourceException;
-import online.ahayujie.mall.admin.ums.exception.admin.IllegalRoleException;
+import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
+import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
+import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
 import online.ahayujie.mall.common.api.CommonPage;
 
 import java.util.Collection;
