@@ -1,4 +1,4 @@
-package online.ahayujie.mall.admin.ums.config;
+package online.ahayujie.mall.admin.config;
 
 import online.ahayujie.mall.security.config.WebSecurityConfig;
 import online.ahayujie.mall.security.jwt.JwtUserDetailService;

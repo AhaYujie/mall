@@ -1,4 +1,4 @@
-package online.ahayujie.mall.admin.ums.config;
+package online.ahayujie.mall.admin.config;
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import org.springframework.context.annotation.Bean;
