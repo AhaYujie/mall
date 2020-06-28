@@ -43,7 +43,7 @@ class AdminServiceImplTest {
     static void beforeAll() {
         Random random = new Random();
         admin = new Admin();
-        admin.setUsername(getRandomString(random.nextInt(16)));
+        admin.setUsername(getRandomString(random.nextInt(16) + 1));
         admin.setPassword("123456");
         admin.setEmail("1234567@qq.com");
         admin.setNickName("aha");
