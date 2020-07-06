@@ -32,4 +32,10 @@
         </foreach>
     </insert>
 
+    <delete id="deleteByResourceId">
+        update ums_role_resource_relation
+        set is_deleted = 1
+        where resource_id = #{resourceId}
+    </delete>
+
 </mapper>

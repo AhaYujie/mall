@@ -5,6 +5,7 @@ import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
+import online.ahayujie.mall.admin.ums.mapper.ResourceMapper;
 import online.ahayujie.mall.admin.ums.service.ResourceCategoryService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 class ResourceServiceImplTest {
+    @Autowired
+    private ResourceMapper resourceMapper;
+
     @Autowired
     private ResourceService resourceService;
 
@@ -97,5 +101,38 @@ class ResourceServiceImplTest {
         assertNotEquals(oldResource, newResource);
         log.debug("oldResource: " + oldResource);
         log.debug("newResource: " + newResource);
+    }
+
+    @Test
+    void removeById() {
+        // exist
+        Resource resource = new Resource();
+        resource.setName("test resource");
+        resource.setUrl("test url");
+        resourceMapper.insert(resource);
+        List<Resource> oldResources = resourceService.list();
+        resourceService.removeById(resource.getId());
+        List<Resource> newResources = resourceService.list();
+        log.debug("oldResources: " + oldResources);
+        log.debug("newResources: " + newResources);
+        assertEquals(oldResources.size() - 1, newResources.size());
+
+        // null
+        Long id = null;
+        oldResources = resourceService.list();
+        resourceService.removeById(id);
+        newResources = resourceService.list();
+        log.debug("oldResources: " + oldResources);
+        log.debug("newResources: " + newResources);
+        assertEquals(oldResources.size(), newResources.size());
+
+        // not exist
+        id = -1L;
+        oldResources = resourceService.list();
+        resourceService.removeById(id);
+        newResources = resourceService.list();
+        log.debug("oldResources: " + oldResources);
+        log.debug("newResources: " + newResources);
+        assertEquals(oldResources.size(), newResources.size());
     }
 }

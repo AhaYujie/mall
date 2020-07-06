@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
+import org.springframework.context.ApplicationEventPublisherAware;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
  * @author aha
  * @since 2020-06-04
  */
-public interface ResourceService {
+public interface ResourceService extends ApplicationEventPublisherAware {
     /**
      * 创建资源
      * @param param 资源
@@ -72,6 +73,8 @@ public interface ResourceService {
 
     /**
      * 根据id删除资源
+     * 删除资源成功后用Spring事件机制发布
+     * {@link online.ahayujie.mall.admin.ums.event.DeleteResourceEvent} 事件
      * @param id 资源id
      * @return 删除的资源数量
      */

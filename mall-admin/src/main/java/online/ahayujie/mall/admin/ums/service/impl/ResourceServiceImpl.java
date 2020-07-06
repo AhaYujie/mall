@@ -5,6 +5,7 @@ import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.bean.model.RoleResourceRelation;
+import online.ahayujie.mall.admin.ums.event.DeleteResourceEvent;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.mapper.ResourceMapper;
@@ -16,6 +17,7 @@ import online.ahayujie.mall.admin.ums.service.RoleService;
 import online.ahayujie.mall.common.bean.model.Base;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -35,6 +37,7 @@ public class ResourceServiceImpl implements ResourceService {
     private final RoleResourceRelationMapper roleResourceRelationMapper;
 
     private ResourceCategoryService resourceCategoryService;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     public ResourceServiceImpl(ResourceMapper resourceMapper, RoleResourceRelationMapper roleResourceRelationMapper) {
         this.resourceMapper = resourceMapper;
@@ -105,7 +108,18 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public int removeById(Long id) {
         // TODO:处理与被删除的资源关联的数据
-        return resourceMapper.deleteById(id);
+        Resource resource = resourceMapper.selectById(id);
+        int count = resourceMapper.deleteById(id);
+        if (count > 0) {
+            applicationEventPublisher.publishEvent(new DeleteResourceEvent(resource));
+        }
+        return count;
+    }
+
+    @Override
+    @Autowired
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Autowired
