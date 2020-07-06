@@ -44,7 +44,7 @@ class AdminServiceImplTest {
     static void beforeAll() {
         Random random = new Random();
         admin = new Admin();
-        admin.setUsername(getRandomString(random.nextInt(16)));
+        admin.setUsername(getRandomString(random.nextInt(16) + 1));
         admin.setPassword("123456");
         admin.setEmail("1234567@qq.com");
         admin.setNickName("aha");
@@ -276,5 +276,31 @@ class AdminServiceImplTest {
         loginParam.setPassword(newPassword);
         AdminLoginDTO adminLoginDTO = adminService.login(loginParam);
         log.debug("adminLoginDTO: " + adminLoginDTO);
+    }
+
+    @Test
+    void removeById() {
+        // 删除存在的用户
+        AdminRegisterParam adminRegisterParam = new AdminRegisterParam();
+        adminRegisterParam.setUsername(admin.getUsername());
+        adminRegisterParam.setPassword(admin.getPassword());
+        adminRegisterParam.setEmail(admin.getEmail());
+        adminRegisterParam.setNickName(admin.getNickName());
+        adminRegisterParam.setNote(admin.getNote());
+        adminService.register(adminRegisterParam);
+        AdminLoginParam adminLoginParam = new AdminLoginParam();
+        adminLoginParam.setUsername(admin.getUsername());
+        adminLoginParam.setPassword(admin.getPassword());
+        AdminLoginDTO adminLoginDTO = adminService.login(adminLoginParam);
+        Admin admin = adminService.getAdminFromToken(adminLoginDTO.getAccessToken());
+        log.debug("admin: " + admin);
+        int count1 = adminService.removeById(admin.getId());
+        assertThrows(UsernameNotFoundException.class, () -> adminService.login(adminLoginParam));
+        log.debug("count1: " + count1);
+
+        // 删除不存在的用户
+        Long id = null;
+        int count2 = adminService.removeById(id);
+        assertEquals(0, count2);
     }
 }

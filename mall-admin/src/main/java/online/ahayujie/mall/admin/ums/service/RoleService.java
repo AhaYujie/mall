@@ -6,6 +6,7 @@ import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import com.baomidou.mybatisplus.extension.service.IService;
+import online.ahayujie.mall.admin.ums.event.DeleteAdminEvent;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
@@ -125,4 +126,10 @@ public interface RoleService {
      * @return 角色
      */
     Role getById(Long id);
+
+    /**
+     * 监听删除后台用户事件
+     * @param deleteAdminEvent 删除后台用户事件
+     */
+    void listenDeleteAdminEvent(DeleteAdminEvent deleteAdminEvent);
 }

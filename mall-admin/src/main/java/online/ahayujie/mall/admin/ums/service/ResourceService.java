@@ -36,6 +36,7 @@ public interface ResourceService {
 
     /**
      * 根据用户id获取用户拥有的资源
+     * // TODO:修改接口，将参数adminId修改为List<Role> roleList，减少接口的职责，并消除RoleService和ResourceService的循环引用
      * @param adminId 用户id
      * @return 用户拥有的资源
      */

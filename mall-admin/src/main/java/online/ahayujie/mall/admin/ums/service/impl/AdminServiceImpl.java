@@ -9,6 +9,7 @@ import online.ahayujie.mall.admin.ums.bean.model.Admin;
 import online.ahayujie.mall.admin.ums.bean.model.AdminRoleRelation;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
+import online.ahayujie.mall.admin.ums.event.DeleteAdminEvent;
 import online.ahayujie.mall.admin.ums.exception.DuplicateUsernameException;
 import online.ahayujie.mall.admin.ums.exception.IllegalAdminStatusException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
@@ -23,6 +24,7 @@ import online.ahayujie.mall.security.jwt.TokenProvider;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -61,6 +63,7 @@ public class AdminServiceImpl implements AdminService {
     private RoleService roleService;
     private TokenProvider tokenProvider;
     private ResourceService resourceService;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Value("${jwt.header}")
     private String jwtHeader;
@@ -126,6 +129,7 @@ public class AdminServiceImpl implements AdminService {
     @Transactional(rollbackFor = Exception.class)
     public void updateRole(Long adminId, List<Long> roleIdList)
             throws UsernameNotFoundException, IllegalRoleException {
+        // TODO:将具体逻辑放到RoleService
         if (roleIdList == null) {
             return;
         }
@@ -245,7 +249,10 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public int removeById(Long id) {
-        // TODO:处理被删除的后台用户与其他数据的关系
+        Admin admin = adminMapper.selectById(id);
+        if (admin != null) {
+            applicationEventPublisher.publishEvent(new DeleteAdminEvent(admin));
+        }
         return adminMapper.deleteById(id);
     }
 
@@ -286,5 +293,11 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     public void setResourceService(ResourceService resourceService) {
         this.resourceService = resourceService;
+    }
+
+    @Override
+    @Autowired
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 }

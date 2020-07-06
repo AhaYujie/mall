@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.model.*;
+import online.ahayujie.mall.admin.ums.event.DeleteAdminEvent;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
@@ -21,6 +22,8 @@ import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -176,6 +179,13 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role getById(Long id) {
         return roleMapper.selectById(id);
+    }
+
+    @Async
+    @Override
+    @EventListener
+    public void listenDeleteAdminEvent(DeleteAdminEvent deleteAdminEvent) {
+        adminRoleRelationMapper.deleteByAdminId(deleteAdminEvent.getSource().getId());
     }
 
     @Autowired

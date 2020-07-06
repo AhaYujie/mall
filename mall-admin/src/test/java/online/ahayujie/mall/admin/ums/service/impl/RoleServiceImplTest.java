@@ -3,12 +3,15 @@ package online.ahayujie.mall.admin.ums.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateRoleParam;
+import online.ahayujie.mall.admin.ums.bean.model.Admin;
 import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
+import online.ahayujie.mall.admin.ums.event.DeleteAdminEvent;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
+import online.ahayujie.mall.admin.ums.service.AdminService;
 import online.ahayujie.mall.admin.ums.service.MenuService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import online.ahayujie.mall.admin.ums.service.RoleService;
@@ -17,6 +20,7 @@ import online.ahayujie.mall.common.bean.model.Base;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -31,6 +35,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class RoleServiceImplTest {
     @Autowired
+    private AdminService adminService;
+
+    @Autowired
     private RoleService roleService;
 
     @Autowired
@@ -38,6 +45,9 @@ class RoleServiceImplTest {
 
     @Autowired
     private ResourceService resourceService;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Test
     void getRoleListByAdminId() {
@@ -304,5 +314,24 @@ class RoleServiceImplTest {
         newResources = roleService.listResource(roleId);
         assertEquals(resourceIds.size(), newResources.size());
         log.debug("newResources: " + newResources);
+    }
+
+    @Test
+    void listenDeleteAdminEvent() {
+        // admin not null
+        Long id = 1L;
+        Admin admin = adminService.getById(id);
+        List<Role> oldRoles = roleService.getRoleListByAdminId(admin.getId());
+        applicationEventPublisher.publishEvent(new DeleteAdminEvent(admin));
+        List<Role> newRoles = roleService.getRoleListByAdminId(id);
+        assertEquals(0, newRoles.size());
+        log.debug("oldRoles: " + oldRoles);
+        log.debug("newRoles: " + newRoles);
+
+        // admin null
+        id = -1L;
+        admin = adminService.getById(id);
+        Admin finalAdmin = admin;
+        assertThrows(NullPointerException.class, () -> roleService.getRoleListByAdminId(finalAdmin.getId()));
     }
 }

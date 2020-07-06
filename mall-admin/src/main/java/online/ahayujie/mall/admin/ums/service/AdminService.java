@@ -8,6 +8,7 @@ import online.ahayujie.mall.admin.ums.exception.IllegalAdminStatusException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.security.jwt.JwtUserDetailService;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +23,7 @@ import java.util.List;
  * @author aha
  * @since 2020-06-04
  */
-public interface AdminService extends JwtUserDetailService {
+public interface AdminService extends JwtUserDetailService, ApplicationEventPublisherAware {
     /**
      * 用户注册
      * @param param 用户注册参数
@@ -116,6 +117,8 @@ public interface AdminService extends JwtUserDetailService {
 
     /**
      * 根据id删除后台用户
+     * 删除用户后会通过Spring事件机制发布
+     * {@link online.ahayujie.mall.admin.ums.event.DeleteAdminEvent} 事件
      * @param id 主键id
      * @return 删除后台用户的数量
      */

@@ -106,7 +106,12 @@ class AdminUserDetailsDTOTest {
         }
         String result3 = AdminUserDetailsDTO.getAuthoritiesString(authorityList);
         assertNotNull(result3);
-        assertEquals(result3.split(",").length, authorityList.size());
+        if (authorityList.isEmpty()) {
+            assertEquals("", result3);
+        }
+        else {
+            assertEquals(result3.split(",").length, authorityList.size());
+        }
         log.debug(authorityList.toString());
         log.debug(result3);
     }
