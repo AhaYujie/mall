@@ -25,4 +25,10 @@
         </foreach>
     </insert>
 
+    <update id="deleteByMenuId">
+        update ums_role_menu_relation
+        set is_deleted = 1
+        where menu_id = #{menuId}
+    </update>
+
 </mapper>

@@ -7,6 +7,7 @@ import online.ahayujie.mall.admin.ums.bean.dto.CreateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.model.*;
 import online.ahayujie.mall.admin.ums.event.DeleteAdminEvent;
+import online.ahayujie.mall.admin.ums.event.DeleteMenuEvent;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
@@ -207,6 +208,13 @@ public class RoleServiceImpl implements RoleService {
         if (!CollectionUtils.isEmpty(adminRoleRelations)) {
             adminRoleRelationMapper.insert(adminRoleRelations);
         }
+    }
+
+    @Override
+    @EventListener
+    public void listenDeleteMenuEvent(DeleteMenuEvent deleteMenuEvent) {
+        log.debug("监听删除菜单事件");
+        roleMenuRelationMapper.deleteByMenuId(deleteMenuEvent.getSource().getId());
     }
 
     @Autowired

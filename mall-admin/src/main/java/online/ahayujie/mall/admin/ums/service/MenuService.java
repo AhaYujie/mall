@@ -9,6 +9,7 @@ import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuVisibilityException;
 import online.ahayujie.mall.admin.ums.exception.IllegalParentMenuException;
 import online.ahayujie.mall.common.api.CommonPage;
+import org.springframework.context.ApplicationEventPublisherAware;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.List;
  * @author aha
  * @since 2020-06-04
  */
-public interface MenuService {
+public interface MenuService extends ApplicationEventPublisherAware {
     /**
      * 判断菜单合法性
      * @param menuIds 菜单id
@@ -84,7 +85,9 @@ public interface MenuService {
     List<Menu> list();
 
     /**
-     * 根据id删除菜单
+     * 根据id删除菜单，
+     * 删除菜单成功后，通过Spring 事件机制发布
+     * {@link online.ahayujie.mall.admin.ums.event.DeleteMenuEvent} 事件
      * @param id 主键id
      * @return 删除菜单的数量
      */
