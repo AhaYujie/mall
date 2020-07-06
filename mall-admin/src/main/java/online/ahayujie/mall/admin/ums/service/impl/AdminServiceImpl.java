@@ -250,10 +250,11 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public int removeById(Long id) {
         Admin admin = adminMapper.selectById(id);
-        if (admin != null) {
+        int count = adminMapper.deleteById(id);
+        if (count != 0) {
             applicationEventPublisher.publishEvent(new DeleteAdminEvent(admin));
         }
-        return adminMapper.deleteById(id);
+        return count;
     }
 
     @Override

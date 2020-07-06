@@ -117,7 +117,7 @@ public interface AdminService extends JwtUserDetailService, ApplicationEventPubl
 
     /**
      * 根据id删除后台用户
-     * 删除用户后会通过Spring事件机制发布
+     * 删除用户成功后会通过Spring事件机制发布
      * {@link online.ahayujie.mall.admin.ums.event.DeleteAdminEvent} 事件
      * @param id 主键id
      * @return 删除后台用户的数量
