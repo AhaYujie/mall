@@ -25,4 +25,10 @@
         order by sort desc
     </select>
 
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, parent_id, title, level, sort, name, icon, hidden
+        from ums_menu
+    </select>
+
 </mapper>

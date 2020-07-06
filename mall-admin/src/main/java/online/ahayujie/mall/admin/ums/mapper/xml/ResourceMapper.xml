@@ -14,4 +14,10 @@
         <result column="category_id" property="categoryId" />
     </resultMap>
 
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, name, url, description, category_id
+        from ums_resource
+    </select>
+
 </mapper>

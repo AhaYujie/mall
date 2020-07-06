@@ -2,6 +2,7 @@ package online.ahayujie.mall.admin.ums.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.model.*;
@@ -35,8 +36,9 @@ import java.util.stream.Collectors;
  * @author aha
  * @since 2020-06-04
  */
+@Slf4j
 @Service
-public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
+public class RoleServiceImpl implements RoleService {
     private final RoleMapper roleMapper;
     private final RoleMenuRelationMapper roleMenuRelationMapper;
     private final AdminRoleRelationMapper adminRoleRelationMapper;
@@ -55,6 +57,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
     @Override
     public List<Role> getRoleListByAdminId(Long adminId) {
+        // TODO:判断角色的状态是否启用
         List<AdminRoleRelation> adminRoleRelations = adminRoleRelationMapper.selectByAdminId(adminId);
         return adminRoleRelations.stream()
                 .map(relation -> roleMapper.selectById(relation.getRoleId()))
@@ -89,6 +92,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
     @Override
     public void deleteRoles(List<Long> ids) {
+        // TODO:处理与被删除的角色关联的数据
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
@@ -162,6 +166,16 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     @Override
     public void validateRole(Long roleId) throws IllegalRoleException {
         validateRole(Collections.singletonList(roleId));
+    }
+
+    @Override
+    public List<Role> list() {
+        return roleMapper.selectAll();
+    }
+
+    @Override
+    public Role getById(Long id) {
+        return roleMapper.selectById(id);
     }
 
     @Autowired

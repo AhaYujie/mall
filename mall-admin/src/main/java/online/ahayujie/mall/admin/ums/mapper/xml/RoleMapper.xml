@@ -55,4 +55,10 @@
         where rrr.role_id = #{roleId} and rrr.is_deleted = 0
     </select>
 
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, name, description, admin_count, status, sort
+        from ums_role
+    </select>
+
 </mapper>

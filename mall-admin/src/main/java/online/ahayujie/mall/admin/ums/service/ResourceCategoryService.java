@@ -16,7 +16,7 @@ import java.util.List;
  * @author aha
  * @since 2020-06-04
  */
-public interface ResourceCategoryService extends IService<ResourceCategory> {
+public interface ResourceCategoryService {
     /**
      * 获取全部资源分类，
      * 根据 sort 从大到小排序
@@ -44,4 +44,11 @@ public interface ResourceCategoryService extends IService<ResourceCategory> {
      * @param id 资源分类id
      */
     void delete(Long id);
+
+    /**
+     * 根据id获取资源分类
+     * @param id 主键id
+     * @return 资源分类
+     */
+    ResourceCategory getById(Long id);
 }

@@ -18,7 +18,7 @@ import java.util.List;
  * @author aha
  * @since 2020-06-04
  */
-public interface ResourceService extends IService<Resource> {
+public interface ResourceService {
     /**
      * 创建资源
      * @param param 资源
@@ -54,4 +54,24 @@ public interface ResourceService extends IService<Resource> {
      * @throws IllegalResourceException 资源不合法
      */
     void validateResource(Long resourceId) throws IllegalResourceException;
+
+    /**
+     * 获取全部资源，如果没有资源则返回空列表
+     * @return 资源
+     */
+    List<Resource> list();
+
+    /**
+     * 根据id获取资源
+     * @param id 主键id
+     * @return 资源
+     */
+    Resource getById(Long id);
+
+    /**
+     * 根据id删除资源
+     * @param id 资源id
+     * @return 删除的资源数量
+     */
+    int removeById(Long id);
 }

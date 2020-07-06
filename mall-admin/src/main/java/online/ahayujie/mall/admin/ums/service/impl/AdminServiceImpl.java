@@ -3,6 +3,7 @@ package online.ahayujie.mall.admin.ums.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.jsonwebtoken.Claims;
+import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.*;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
 import online.ahayujie.mall.admin.ums.bean.model.AdminRoleRelation;
@@ -50,8 +51,9 @@ import java.util.stream.Collectors;
  * @author aha
  * @since 2020-06-04
  */
+@Slf4j
 @Service
-public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements AdminService {
+public class AdminServiceImpl implements AdminService {
     private final AdminMapper adminMapper;
     private final PasswordEncoder passwordEncoder;
     private final AdminRoleRelationMapper adminRoleRelationMapper;
@@ -90,6 +92,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
 
     @Override
     public AdminLoginDTO login(AdminLoginParam param) throws UsernameNotFoundException, BadCredentialsException {
+        // TODO:用户登录日志收集
         AdminUserDetailsDTO userDetails = (AdminUserDetailsDTO) loadUserByUsername(param.getUsername());
         log.debug(userDetails.toString());
         if (!passwordEncoder.matches(param.getPassword(), userDetails.getPassword())) {
@@ -233,6 +236,17 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         UpdateAdminParam updateAdminParam = new UpdateAdminParam();
         updateAdminParam.setPassword(param.getNewPassword());
         updateAdmin(oldAdmin.getId(), updateAdminParam);
+    }
+
+    @Override
+    public Admin getById(Long id) {
+        return adminMapper.selectById(id);
+    }
+
+    @Override
+    public int removeById(Long id) {
+        // TODO:处理被删除的后台用户与其他数据的关系
+        return adminMapper.deleteById(id);
     }
 
     @Override

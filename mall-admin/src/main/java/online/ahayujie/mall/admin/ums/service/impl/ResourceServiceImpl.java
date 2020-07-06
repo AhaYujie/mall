@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * @since 2020-06-04
  */
 @Service
-public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> implements ResourceService {
+public class ResourceServiceImpl implements ResourceService {
     private final ResourceMapper resourceMapper;
     private final RoleResourceRelationMapper roleResourceRelationMapper;
 
@@ -92,6 +92,22 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     @Override
     public void validateResource(Long resourceId) throws IllegalResourceException {
         validateResource(Collections.singletonList(resourceId));
+    }
+
+    @Override
+    public List<Resource> list() {
+        return resourceMapper.selectAll();
+    }
+
+    @Override
+    public Resource getById(Long id) {
+        return resourceMapper.selectById(id);
+    }
+
+    @Override
+    public int removeById(Long id) {
+        // TODO:处理与被删除的资源关联的数据
+        return resourceMapper.deleteById(id);
     }
 
     @Autowired

@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * <p>
  * 后台菜单表 Mapper 接口
@@ -26,4 +28,10 @@ public interface MenuMapper extends BaseMapper<Menu> {
      * @return 菜单
      */
     IPage<Menu> selectByParentId(@Param("page") Page<?> page, @Param("parentId") Long parentId);
+
+    /**
+     * 查询全部菜单
+     * @return 全部菜单
+     */
+    List<Menu> selectAll();
 }

@@ -44,4 +44,10 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @return 资源
      */
     List<Resource> selectResourceByRoleId(Long roleId);
+
+    /**
+     * 查询全部角色
+     * @return 全部角色
+     */
+    List<Role> selectAll();
 }

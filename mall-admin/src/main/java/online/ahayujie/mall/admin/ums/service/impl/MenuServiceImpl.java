@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @since 2020-06-04
  */
 @Service
-public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements MenuService {
+public class MenuServiceImpl implements MenuService {
     private final MenuMapper menuMapper;
 
     public MenuServiceImpl(MenuMapper menuMapper) {
@@ -91,6 +91,22 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
     public List<MenuNodeDTO> getTreeList() {
         List<Menu> menus = list();
         return convertToMenuTree(menus);
+    }
+
+    @Override
+    public Menu getById(Long id) {
+        return menuMapper.selectById(id);
+    }
+
+    @Override
+    public List<Menu> list() {
+        return menuMapper.selectAll();
+    }
+
+    @Override
+    public int removeById(Long id) {
+        // TODO:处理与被删除的菜单关联的其他数据
+        return menuMapper.deleteById(id);
     }
 
     private List<MenuNodeDTO> convertToMenuTree(List<Menu> menus) {

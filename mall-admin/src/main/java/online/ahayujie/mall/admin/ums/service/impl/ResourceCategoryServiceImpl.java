@@ -22,7 +22,7 @@ import java.util.List;
  * @since 2020-06-04
  */
 @Service
-public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMapper, ResourceCategory> implements ResourceCategoryService {
+public class ResourceCategoryServiceImpl implements ResourceCategoryService {
     private final ResourceCategoryMapper resourceCategoryMapper;
 
     public ResourceCategoryServiceImpl(ResourceCategoryMapper resourceCategoryMapper) {
@@ -55,6 +55,12 @@ public class ResourceCategoryServiceImpl extends ServiceImpl<ResourceCategoryMap
 
     @Override
     public void delete(Long id) {
+        // TODO:处理被删除的资源分类下的资源
         resourceCategoryMapper.deleteById(id);
+    }
+
+    @Override
+    public ResourceCategory getById(Long id) {
+        return resourceCategoryMapper.selectById(id);
     }
 }

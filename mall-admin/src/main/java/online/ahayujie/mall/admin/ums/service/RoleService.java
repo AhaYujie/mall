@@ -22,7 +22,7 @@ import java.util.List;
  * @author aha
  * @since 2020-06-04
  */
-public interface RoleService extends IService<Role> {
+public interface RoleService {
     /**
      * 根据用户id获取用户拥有的角色
      * @param adminId 用户id
@@ -112,4 +112,17 @@ public interface RoleService extends IService<Role> {
      * @throws IllegalRoleException 角色不合法
      */
     void validateRole(Long roleId) throws IllegalRoleException;
+
+    /**
+     * 获取全部角色，如果没有角色则返回空列表
+     * @return 角色
+     */
+    List<Role> list();
+
+    /**
+     * 根据id获取角色
+     * @param id 主键id
+     * @return 角色
+     */
+    Role getById(Long id);
 }

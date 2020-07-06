@@ -22,7 +22,7 @@ import java.util.List;
  * @author aha
  * @since 2020-06-04
  */
-public interface AdminService extends IService<Admin>, JwtUserDetailService {
+public interface AdminService extends JwtUserDetailService {
     /**
      * 用户注册
      * @param param 用户注册参数
@@ -106,4 +106,18 @@ public interface AdminService extends IService<Admin>, JwtUserDetailService {
      * @throws BadCredentialsException 原密码错误
      */
     void updatePassword(UpdateAdminPasswordParam param) throws UsernameNotFoundException, BadCredentialsException;
+
+    /**
+     * 根据id获取后台用户
+     * @param id 主键id
+     * @return 后台用户
+     */
+    Admin getById(Long id);
+
+    /**
+     * 根据id删除后台用户
+     * @param id 主键id
+     * @return 删除后台用户的数量
+     */
+    int removeById(Long id);
 }
