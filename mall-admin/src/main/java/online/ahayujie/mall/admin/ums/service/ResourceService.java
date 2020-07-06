@@ -4,6 +4,7 @@ import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import com.baomidou.mybatisplus.extension.service.IService;
+import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 
@@ -35,12 +36,12 @@ public interface ResourceService {
     void updateResource(Long id, UpdateResourceParam param) throws IllegalResourceCategoryException;
 
     /**
-     * 根据用户id获取用户拥有的资源
-     * // TODO:修改接口，将参数adminId修改为List<Role> roleList，减少接口的职责，并消除RoleService和ResourceService的循环引用
-     * @param adminId 用户id
+     * 根据角色id获取角色拥有的资源，返回的资源是没有重复的
+     * roleIds为null则抛出NPE，为空则返回空列表
+     * @param roleIds 角色id
      * @return 用户拥有的资源
      */
-    List<Resource> getResourceListByAdminId(Long adminId);
+    List<Resource> getResourceListByRoleIds(List<Long> roleIds);
 
     /**
      * 判断资源合法性

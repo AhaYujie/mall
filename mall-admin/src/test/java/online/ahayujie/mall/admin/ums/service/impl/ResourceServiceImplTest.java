@@ -12,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,20 +28,21 @@ class ResourceServiceImplTest {
 
     @Test
     void getResourceListByAdminId() {
-        Long adminId = null;
+        List<Long> roleIds;
 
-        // 用 null 查询不存在的用户
-        List<Resource> result1 = resourceService.getResourceListByAdminId(adminId);
-        assertEquals(0, result1.size());
+        // null
+        roleIds = null;
+        List<Long> finalRoleIds = roleIds;
+        assertThrows(NullPointerException.class, () -> resourceService.getResourceListByRoleIds(finalRoleIds));
 
-        // 查询存在的用户但没有 resource
-        adminId = 2L;
-        List<Resource> result2 = resourceService.getResourceListByAdminId(adminId);
+        // empty
+        roleIds = new ArrayList<>();
+        List<Resource> result2 = resourceService.getResourceListByRoleIds(roleIds);
         assertEquals(0, result2.size());
 
-        // 查询存在的用户且有 resource
-        adminId = 1L;
-        List<Resource> result3 = resourceService.getResourceListByAdminId(adminId);
+        // not empty
+        roleIds = Arrays.asList(1L, 2L);
+        List<Resource> result3 = resourceService.getResourceListByRoleIds(roleIds);
         assertNotEquals(0, result3.size());
         log.debug(result3.toString());
         // 检查是否存在重复 resource

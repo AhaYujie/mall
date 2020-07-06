@@ -34,7 +34,6 @@ public class ResourceServiceImpl implements ResourceService {
     private final ResourceMapper resourceMapper;
     private final RoleResourceRelationMapper roleResourceRelationMapper;
 
-    private RoleService roleService;
     private ResourceCategoryService resourceCategoryService;
 
     public ResourceServiceImpl(ResourceMapper resourceMapper, RoleResourceRelationMapper roleResourceRelationMapper) {
@@ -68,11 +67,10 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public List<Resource> getResourceListByAdminId(Long adminId) {
-        List<Role> roleList = roleService.getRoleListByAdminId(adminId);
+    public List<Resource> getResourceListByRoleIds(List<Long> roleIds) {
         Set<RoleResourceRelation> roleResourceRelations = new HashSet<>();
-        for (Role role : roleList) {
-            roleResourceRelations.addAll(roleResourceRelationMapper.selectByRoleId(role.getId()));
+        for (Long roleId : roleIds) {
+            roleResourceRelations.addAll(roleResourceRelationMapper.selectByRoleId(roleId));
         }
         return roleResourceRelations.stream()
                 .map(relation -> resourceMapper.selectById(relation.getResourceId()))
@@ -108,11 +106,6 @@ public class ResourceServiceImpl implements ResourceService {
     public int removeById(Long id) {
         // TODO:处理与被删除的资源关联的数据
         return resourceMapper.deleteById(id);
-    }
-
-    @Autowired
-    public void setRoleService(RoleService roleService) {
-        this.roleService = roleService;
     }
 
     @Autowired

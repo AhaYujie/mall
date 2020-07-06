@@ -24,7 +24,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -186,6 +188,25 @@ public class RoleServiceImpl implements RoleService {
     @EventListener
     public void listenDeleteAdminEvent(DeleteAdminEvent deleteAdminEvent) {
         adminRoleRelationMapper.deleteByAdminId(deleteAdminEvent.getSource().getId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateAdminRole(Long adminId, List<Long> roleIdList) throws UsernameNotFoundException, IllegalRoleException {
+        if (roleIdList == null) {
+            return;
+        }
+        // 检查角色是否合法
+        validateRole(roleIdList);
+        // 删除用户原本的全部角色
+        adminRoleRelationMapper.deleteByAdminId(adminId);
+        // 添加新角色
+        List<AdminRoleRelation> adminRoleRelations = roleIdList.stream()
+                .map(roleId -> new AdminRoleRelation(null, null, new Date(), adminId, roleId))
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(adminRoleRelations)) {
+            adminRoleRelationMapper.insert(adminRoleRelations);
+        }
     }
 
     @Autowired

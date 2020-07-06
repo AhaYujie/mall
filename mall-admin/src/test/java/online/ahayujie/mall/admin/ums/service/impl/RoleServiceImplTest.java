@@ -1,8 +1,7 @@
 package online.ahayujie.mall.admin.ums.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import online.ahayujie.mall.admin.ums.bean.dto.CreateRoleParam;
-import online.ahayujie.mall.admin.ums.bean.dto.UpdateRoleParam;
+import online.ahayujie.mall.admin.ums.bean.dto.*;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
 import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
@@ -26,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -314,24 +314,5 @@ class RoleServiceImplTest {
         newResources = roleService.listResource(roleId);
         assertEquals(resourceIds.size(), newResources.size());
         log.debug("newResources: " + newResources);
-    }
-
-    @Test
-    void listenDeleteAdminEvent() {
-        // admin not null
-        Long id = 1L;
-        Admin admin = adminService.getById(id);
-        List<Role> oldRoles = roleService.getRoleListByAdminId(admin.getId());
-        applicationEventPublisher.publishEvent(new DeleteAdminEvent(admin));
-        List<Role> newRoles = roleService.getRoleListByAdminId(id);
-        assertEquals(0, newRoles.size());
-        log.debug("oldRoles: " + oldRoles);
-        log.debug("newRoles: " + newRoles);
-
-        // admin null
-        id = -1L;
-        admin = adminService.getById(id);
-        Admin finalAdmin = admin;
-        assertThrows(NullPointerException.class, () -> roleService.getRoleListByAdminId(finalAdmin.getId()));
     }
 }

@@ -6,7 +6,6 @@ import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.*;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
-import online.ahayujie.mall.admin.ums.bean.model.AdminRoleRelation;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.event.DeleteAdminEvent;
@@ -16,10 +15,10 @@ import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
 import online.ahayujie.mall.admin.ums.mapper.AdminMapper;
 import online.ahayujie.mall.admin.ums.mapper.AdminRoleRelationMapper;
 import online.ahayujie.mall.admin.ums.service.AdminService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import online.ahayujie.mall.admin.ums.service.RoleService;
 import online.ahayujie.mall.common.api.CommonPage;
+import online.ahayujie.mall.common.bean.model.Base;
 import online.ahayujie.mall.security.jwt.TokenProvider;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -129,25 +127,11 @@ public class AdminServiceImpl implements AdminService {
     @Transactional(rollbackFor = Exception.class)
     public void updateRole(Long adminId, List<Long> roleIdList)
             throws UsernameNotFoundException, IllegalRoleException {
-        // TODO:将具体逻辑放到RoleService
-        if (roleIdList == null) {
-            return;
-        }
         // 检查用户是否存在
         if (adminMapper.selectById(adminId) == null) {
             throw new UsernameNotFoundException("用户不存在");
         }
-        // 检查角色是否合法
-        roleService.validateRole(roleIdList);
-        // 删除用户原本的全部角色
-        adminRoleRelationMapper.deleteByAdminId(adminId);
-        // 添加新角色
-        List<AdminRoleRelation> adminRoleRelations = roleIdList.stream()
-                .map(roleId -> new AdminRoleRelation(null, null, new Date(), adminId, roleId))
-                .collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(adminRoleRelations)) {
-            adminRoleRelationMapper.insert(adminRoleRelations);
-        }
+        roleService.updateAdminRole(adminId, roleIdList);
     }
 
     @Override
@@ -269,7 +253,9 @@ public class AdminServiceImpl implements AdminService {
         if (admin == null) {
             throw new UsernameNotFoundException("用户名不存在");
         }
-        List<Resource> resourceList = resourceService.getResourceListByAdminId(admin.getId());
+        List<Role> roles = roleService.getRoleListByAdminId(admin.getId());
+        List<Long> roleIds = roles.stream().map(Base::getId).collect(Collectors.toList());
+        List<Resource> resourceList = resourceService.getResourceListByRoleIds(roleIds);
         return new AdminUserDetailsDTO(admin, resourceList);
     }
 

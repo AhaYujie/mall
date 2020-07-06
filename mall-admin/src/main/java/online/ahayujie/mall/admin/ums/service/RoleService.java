@@ -11,6 +11,7 @@ import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
 import online.ahayujie.mall.common.api.CommonPage;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Collection;
 import java.util.List;
@@ -132,4 +133,14 @@ public interface RoleService {
      * @param deleteAdminEvent 删除后台用户事件
      */
     void listenDeleteAdminEvent(DeleteAdminEvent deleteAdminEvent);
+
+    /**
+     * 更新后台用户的角色，
+     * 如果 roleIdList 为 null，则不做任何处理，
+     * 如果 roleIdList 为空，则删除用户的所有角色
+     * @param adminId 用户id
+     * @param roleIdList 角色id
+     * @throws IllegalRoleException 角色id不合法
+     */
+    void updateAdminRole(Long adminId, List<Long> roleIdList) throws IllegalRoleException;
 }
