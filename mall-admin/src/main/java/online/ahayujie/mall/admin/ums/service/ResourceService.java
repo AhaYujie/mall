@@ -23,6 +23,7 @@ import java.util.List;
 public interface ResourceService extends ApplicationEventPublisherAware {
     /**
      * 创建资源
+     * 若categoryId参数为null，则默认设置为0，即没有分类
      * @param param 资源
      * @throws IllegalResourceCategoryException 资源分类不存在
      */

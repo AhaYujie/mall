@@ -27,6 +27,8 @@ public class Resource extends Base {
 
     private static final long serialVersionUID = 1L;
 
+    public static final long NON_CATEGORY_ID = 0L;
+
     @ApiModelProperty(value = "是否删除，0->未删除，1->已删除")
     private Boolean isDeleted;
 

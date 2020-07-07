@@ -61,7 +61,8 @@ class ResourceServiceImplTest {
         // illegal resource category
         resource = new CreateResourceParam();
         resource.setCategoryId(-1L);
-        Throwable throwable1 = assertThrows(IllegalResourceCategoryException.class, () -> resourceService.createResource(resource));
+        CreateResourceParam finalResource = resource;
+        Throwable throwable1 = assertThrows(IllegalResourceCategoryException.class, () -> resourceService.createResource(finalResource));
         log.debug(throwable1.getMessage());
 
         // legal
@@ -72,6 +73,18 @@ class ResourceServiceImplTest {
         List<Resource> oldResources = resourceService.list();
         resourceService.createResource(resource);
         List<Resource> newResources = resourceService.list();
+        assertEquals(oldResources.size() + 1, newResources.size());
+        log.debug("oldResources: " + oldResources);
+        log.debug("newResources: " + newResources);
+
+        // legal, null categoryId
+        resource = new CreateResourceParam();
+        resource.setName("test2");
+        resource.setUrl("/test2/**");
+        resource.setDescription("setDescription2");
+        oldResources = resourceService.list();
+        resourceService.createResource(resource);
+        newResources = resourceService.list();
         assertEquals(oldResources.size() + 1, newResources.size());
         log.debug("oldResources: " + oldResources);
         log.debug("newResources: " + newResources);

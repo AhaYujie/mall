@@ -50,6 +50,9 @@ public class ResourceServiceImpl implements ResourceService {
         if (categoryId != null && resourceCategoryService.getById(categoryId) == null) {
             throw new IllegalResourceCategoryException("资源分类不存在");
         }
+        if (categoryId == null) {
+            param.setCategoryId(Resource.NON_CATEGORY_ID);
+        }
         Resource resource = new Resource();
         BeanUtils.copyProperties(param, resource);
         resource.setCreateTime(new Date());
@@ -107,7 +110,6 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public int removeById(Long id) {
-        // TODO:处理与被删除的资源关联的数据
         Resource resource = resourceMapper.selectById(id);
         int count = resourceMapper.deleteById(id);
         if (count > 0) {
