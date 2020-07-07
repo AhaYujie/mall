@@ -64,10 +64,10 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<Role> getRoleListByAdminId(Long adminId) {
-        // TODO:判断角色的状态是否启用
         List<AdminRoleRelation> adminRoleRelations = adminRoleRelationMapper.selectByAdminId(adminId);
         return adminRoleRelations.stream()
                 .map(relation -> roleMapper.selectById(relation.getRoleId()))
+                .filter(role -> role.getStatus().equals(Role.STATUS.ACTIVE.getValue()))
                 .collect(Collectors.toList());
     }
 

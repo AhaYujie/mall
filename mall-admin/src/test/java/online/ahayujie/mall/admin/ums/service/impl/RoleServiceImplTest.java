@@ -65,6 +65,9 @@ class RoleServiceImplTest {
         adminId = 1L;
         List<Role> result3 = roleService.getRoleListByAdminId(adminId);
         assertNotEquals(0, result3.size());
+        for (Role role : result3) {
+            assertEquals(Role.STATUS.ACTIVE.getValue(), role.getStatus());
+        }
         log.debug(result3.toString());
     }
 
@@ -148,8 +151,8 @@ class RoleServiceImplTest {
 
     @Test
     void list() {
-        Integer pageNum;
-        Integer pageSize;
+        int pageNum;
+        int pageSize;
         String keyword;
         List<Role> allRoles = roleService.list();
 

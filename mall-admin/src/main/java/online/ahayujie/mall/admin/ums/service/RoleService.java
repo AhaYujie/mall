@@ -28,7 +28,7 @@ import java.util.List;
  */
 public interface RoleService {
     /**
-     * 根据用户id获取用户拥有的角色
+     * 根据用户id获取用户拥有的角色, 且角色状态是启用的
      * @param adminId 用户id
      * @return 用户拥有的角色
      */
