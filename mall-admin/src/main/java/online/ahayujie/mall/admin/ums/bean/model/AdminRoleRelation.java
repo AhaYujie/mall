@@ -35,6 +35,9 @@ public class AdminRoleRelation extends Base {
     @ApiModelProperty(value = "角色id")
     private Long roleId;
 
+    public AdminRoleRelation() {
+    }
+
     public AdminRoleRelation(Long id, Date updateTime, Date createTime, Long adminId, Long roleId) {
         super(id, updateTime, createTime);
         this.adminId = adminId;

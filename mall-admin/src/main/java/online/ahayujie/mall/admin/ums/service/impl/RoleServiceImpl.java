@@ -104,6 +104,12 @@ public class RoleServiceImpl implements RoleService {
             return;
         }
         roleMapper.deleteBatchIds(ids);
+        // 删除后台用户角色关系
+        ids.forEach(adminRoleRelationMapper::deleteByRoleId);
+        // 删除菜单角色关系
+        ids.forEach(roleMenuRelationMapper::deleteByRoleId);
+        // 删除资源角色关系
+        ids.forEach(roleResourceRelationMapper::deleteByRoleId);
     }
 
     @Override

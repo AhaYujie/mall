@@ -23,6 +23,7 @@ import java.util.Objects;
  */
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @TableName("ums_role_resource_relation")
 @ApiModel(value="RoleResourceRelation对象", description="后台角色资源关系表")
 public class RoleResourceRelation extends Base {
@@ -38,31 +39,12 @@ public class RoleResourceRelation extends Base {
     @ApiModelProperty(value = "资源ID")
     private Long resourceId;
 
+    public RoleResourceRelation() {
+    }
+
     public RoleResourceRelation(Long id, Date updateTime, Date createTime, Long roleId, Long resourceId) {
         super(id, updateTime, createTime);
         this.roleId = roleId;
         this.resourceId = resourceId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof RoleResourceRelation)) {
-            return false;
-        }
-        RoleResourceRelation that = (RoleResourceRelation) o;
-        return Objects.equals(getId(), that.getId()) &&
-                Objects.equals(getCreateTime(), that.getCreateTime()) &&
-                Objects.equals(getUpdateTime(), that.getUpdateTime()) &&
-                Objects.equals(isDeleted, that.isDeleted) &&
-                Objects.equals(roleId, that.roleId) &&
-                Objects.equals(resourceId, that.resourceId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getCreateTime(), getUpdateTime(), isDeleted, roleId, resourceId);
     }
 }

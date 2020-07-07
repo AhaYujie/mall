@@ -2,14 +2,15 @@ package online.ahayujie.mall.admin.ums.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.*;
-import online.ahayujie.mall.admin.ums.bean.model.Admin;
-import online.ahayujie.mall.admin.ums.bean.model.Menu;
-import online.ahayujie.mall.admin.ums.bean.model.Resource;
-import online.ahayujie.mall.admin.ums.bean.model.Role;
+import online.ahayujie.mall.admin.ums.bean.model.*;
 import online.ahayujie.mall.admin.ums.event.DeleteAdminEvent;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
+import online.ahayujie.mall.admin.ums.mapper.AdminRoleRelationMapper;
+import online.ahayujie.mall.admin.ums.mapper.RoleMapper;
+import online.ahayujie.mall.admin.ums.mapper.RoleMenuRelationMapper;
+import online.ahayujie.mall.admin.ums.mapper.RoleResourceRelationMapper;
 import online.ahayujie.mall.admin.ums.service.AdminService;
 import online.ahayujie.mall.admin.ums.service.MenuService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
@@ -22,10 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +32,18 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 class RoleServiceImplTest {
+    @Autowired
+    private RoleMapper roleMapper;
+
+    @Autowired
+    private AdminRoleRelationMapper adminRoleRelationMapper;
+
+    @Autowired
+    private RoleMenuRelationMapper roleMenuRelationMapper;
+
+    @Autowired
+    private RoleResourceRelationMapper roleResourceRelationMapper;
+
     @Autowired
     private AdminService adminService;
 
@@ -147,6 +157,54 @@ class RoleServiceImplTest {
         assertNotEquals(oldRoles.size(), updateRoles.size());
         log.debug("oldRoles: " + oldRoles);
         log.debug("updateRoles: " + updateRoles);
+
+        // test relationship
+        List<Role> testRoles = new ArrayList<>();
+        Random random = new Random();
+        for (int i = 0; i < random.nextInt(20) + 1; i++) {
+            Role role = new Role();
+            role.setName("test role");
+            role.setDescription("for test");
+            role.setStatus(Role.STATUS.ACTIVE.getValue());
+            role.setSort(0);
+            role.setCreateTime(new Date());
+            testRoles.add(role);
+        }
+        testRoles.forEach(roleMapper::insert);
+        List<AdminRoleRelation> adminRoleRelations = new ArrayList<>();
+        for (int i = 0; i < random.nextInt(20) + 1; i++) {
+            AdminRoleRelation relation = new AdminRoleRelation();
+            relation.setRoleId(testRoles.get(random.nextInt(testRoles.size())).getId());
+            relation.setAdminId(random.nextLong());
+            relation.setCreateTime(new Date());
+            adminRoleRelations.add(relation);
+        }
+        adminRoleRelationMapper.insert(adminRoleRelations);
+        List<RoleMenuRelation> roleMenuRelations = new ArrayList<>();
+        for (int i = 0; i < random.nextInt(20) + 1; i++) {
+            RoleMenuRelation relation = new RoleMenuRelation();
+            relation.setRoleId(testRoles.get(random.nextInt(testRoles.size())).getId());
+            relation.setMenuId(random.nextLong());
+            relation.setCreateTime(new Date());
+            roleMenuRelations.add(relation);
+        }
+        roleMenuRelationMapper.insert(roleMenuRelations);
+        List<RoleResourceRelation> roleResourceRelations = new ArrayList<>();
+        for (int i = 0; i < random.nextInt(20) + 1; i++) {
+            RoleResourceRelation relation = new RoleResourceRelation();
+            relation.setRoleId(testRoles.get(random.nextInt(testRoles.size())).getId());
+            relation.setResourceId(random.nextLong());
+            relation.setCreateTime(new Date());
+            roleResourceRelations.add(relation);
+        }
+        roleResourceRelationMapper.insert(roleResourceRelations);
+        List<Long> roleIds = testRoles.stream().map(Base::getId).collect(Collectors.toList());
+        roleService.deleteRoles(roleIds);
+        for (Long roleId : roleIds) {
+            assertEquals(0, adminRoleRelationMapper.selectByRoleId(roleId).size());
+            assertEquals(0, roleMenuRelationMapper.selectByRoleId(roleId).size());
+            assertEquals(0, roleResourceRelationMapper.selectByRoleId(roleId).size());
+        }
     }
 
     @Test

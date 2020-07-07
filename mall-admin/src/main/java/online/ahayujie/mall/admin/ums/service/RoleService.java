@@ -52,7 +52,8 @@ public interface RoleService {
 
     /**
      * 批量删除角色
-     * 如果 code 是 null 则不做处理
+     * 如果 ids 是 null 则不做处理
+     * 删除角色成功后，会删除相关的后台用户角色关系，菜单角色关系，资源角色关系
      * @param ids 角色id
      */
     void deleteRoles(List<Long> ids);
@@ -140,6 +141,7 @@ public interface RoleService {
      * 更新后台用户的角色，
      * 如果 roleIdList 为 null，则不做任何处理，
      * 如果 roleIdList 为空，则删除用户的所有角色
+     * // TODO:判断角色是否启用
      * @param adminId 用户id
      * @param roleIdList 角色id
      * @throws IllegalRoleException 角色id不合法
