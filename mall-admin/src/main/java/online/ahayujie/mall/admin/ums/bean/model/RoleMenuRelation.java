@@ -38,6 +38,9 @@ public class RoleMenuRelation extends Base {
     @ApiModelProperty(value = "菜单ID")
     private Long menuId;
 
+    public RoleMenuRelation() {
+    }
+
     public RoleMenuRelation(Long id, Date updateTime, Date createTime, Long roleId, Long menuId) {
         super(id, updateTime, createTime);
         this.roleId = roleId;

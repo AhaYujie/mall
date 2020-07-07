@@ -7,6 +7,7 @@ import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuVisibilityException;
 import online.ahayujie.mall.admin.ums.exception.IllegalParentMenuException;
+import online.ahayujie.mall.admin.ums.mapper.MenuMapper;
 import online.ahayujie.mall.admin.ums.service.MenuService;
 import online.ahayujie.mall.common.api.CommonPage;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 class MenuServiceImplTest {
+    @Autowired
+    private MenuMapper menuMapper;
+
     @Autowired
     private MenuService menuService;
 
@@ -111,7 +115,7 @@ class MenuServiceImplTest {
     @Test
     void queryByParentId() {
         Long parentId;
-        Integer pageNum, pageSize;
+        int pageNum, pageSize;
 
         // not exist parentId
         parentId = null;
@@ -128,5 +132,40 @@ class MenuServiceImplTest {
         CommonPage<Menu> result2 = menuService.queryByParentId(parentId, pageSize, pageNum);
         assertNotEquals(0, result2.getTotal());
         log.debug("result2: " + result2);
+    }
+
+    @Test
+    void removeById() {
+        // exist
+        Menu menu = new Menu();
+        menu.setName("test menu");
+        menu.setParentId(Menu.NON_PARENT_ID);
+        menu.setHidden(Menu.VISIBILITY.SHOW.getValue());
+        menuMapper.insert(menu);
+        List<Menu> oldMenus = menuService.list();
+        menuService.removeById(menu.getId());
+        List<Menu> newMenus = menuService.list();
+        log.debug("oldMenus: " + oldMenus);
+        log.debug("newMenus: " + newMenus);
+        assertEquals(oldMenus.size() - 1, newMenus.size());
+
+        // null
+        Long id = null;
+        oldMenus = menuService.list();
+        menuService.removeById(id);
+        newMenus = menuService.list();
+        log.debug("oldMenus: " + oldMenus);
+        log.debug("newMenus: " + newMenus);
+        assertEquals(oldMenus.size(), newMenus.size());
+
+
+        // not exist
+        id = -1L;
+        oldMenus = menuService.list();
+        menuService.removeById(id);
+        newMenus = menuService.list();
+        log.debug("oldMenus: " + oldMenus);
+        log.debug("newMenus: " + newMenus);
+        assertEquals(oldMenus.size(), newMenus.size());
     }
 }

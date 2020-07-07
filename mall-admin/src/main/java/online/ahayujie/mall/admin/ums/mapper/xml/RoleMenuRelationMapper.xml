@@ -25,4 +25,17 @@
         </foreach>
     </insert>
 
+    <update id="deleteByMenuId">
+        update ums_role_menu_relation
+        set is_deleted = 1
+        where menu_id = #{menuId}
+    </update>
+
+    <select id="selectByRoleId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, role_id, menu_id
+        from ums_role_menu_relation
+        where role_id = #{roleId} and is_deleted = 0
+    </select>
+
 </mapper>

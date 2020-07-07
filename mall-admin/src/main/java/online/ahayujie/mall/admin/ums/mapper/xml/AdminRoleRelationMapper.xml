@@ -31,4 +31,17 @@
         </foreach>
     </insert>
 
+    <delete id="deleteByRoleId">
+        delete
+        from ums_admin_role_relation
+        where role_id = #{roleId}
+    </delete>
+
+    <select id="selectByRoleId" resultMap="BaseResultMap">
+        select
+            id, update_time, create_time, admin_id, role_id
+        from ums_admin_role_relation
+        where role_id = #{roleId}
+    </select>
+
 </mapper>

@@ -8,6 +8,7 @@ import online.ahayujie.mall.admin.ums.exception.IllegalAdminStatusException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.security.jwt.JwtUserDetailService;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +23,7 @@ import java.util.List;
  * @author aha
  * @since 2020-06-04
  */
-public interface AdminService extends IService<Admin>, JwtUserDetailService {
+public interface AdminService extends JwtUserDetailService, ApplicationEventPublisherAware {
     /**
      * 用户注册
      * @param param 用户注册参数
@@ -56,7 +57,7 @@ public interface AdminService extends IService<Admin>, JwtUserDetailService {
      * @param adminId 用户id
      * @param roleIdList 角色id
      * @throws UsernameNotFoundException 用户不存在
-     * @throws IllegalRoleException 角色id不合法
+     * @throws IllegalRoleException 角色不存在或角色未启用
      */
     void updateRole(Long adminId, List<Long> roleIdList) throws UsernameNotFoundException, IllegalRoleException;
 
@@ -106,4 +107,20 @@ public interface AdminService extends IService<Admin>, JwtUserDetailService {
      * @throws BadCredentialsException 原密码错误
      */
     void updatePassword(UpdateAdminPasswordParam param) throws UsernameNotFoundException, BadCredentialsException;
+
+    /**
+     * 根据id获取后台用户
+     * @param id 主键id
+     * @return 后台用户
+     */
+    Admin getById(Long id);
+
+    /**
+     * 根据id删除后台用户
+     * 删除用户成功后会通过Spring事件机制发布
+     * {@link online.ahayujie.mall.admin.ums.event.DeleteAdminEvent} 事件
+     * @param id 主键id
+     * @return 删除后台用户的数量
+     */
+    int removeById(Long id);
 }

@@ -3,25 +3,27 @@ package online.ahayujie.mall.admin.ums.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.jsonwebtoken.Claims;
+import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.*;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
-import online.ahayujie.mall.admin.ums.bean.model.AdminRoleRelation;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
+import online.ahayujie.mall.admin.ums.event.DeleteAdminEvent;
 import online.ahayujie.mall.admin.ums.exception.DuplicateUsernameException;
 import online.ahayujie.mall.admin.ums.exception.IllegalAdminStatusException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
 import online.ahayujie.mall.admin.ums.mapper.AdminMapper;
 import online.ahayujie.mall.admin.ums.mapper.AdminRoleRelationMapper;
 import online.ahayujie.mall.admin.ums.service.AdminService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import online.ahayujie.mall.admin.ums.service.RoleService;
 import online.ahayujie.mall.common.api.CommonPage;
+import online.ahayujie.mall.common.bean.model.Base;
 import online.ahayujie.mall.security.jwt.TokenProvider;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -33,7 +35,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -50,8 +51,9 @@ import java.util.stream.Collectors;
  * @author aha
  * @since 2020-06-04
  */
+@Slf4j
 @Service
-public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements AdminService {
+public class AdminServiceImpl implements AdminService {
     private final AdminMapper adminMapper;
     private final PasswordEncoder passwordEncoder;
     private final AdminRoleRelationMapper adminRoleRelationMapper;
@@ -59,6 +61,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     private RoleService roleService;
     private TokenProvider tokenProvider;
     private ResourceService resourceService;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Value("${jwt.header}")
     private String jwtHeader;
@@ -90,6 +93,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
 
     @Override
     public AdminLoginDTO login(AdminLoginParam param) throws UsernameNotFoundException, BadCredentialsException {
+        // TODO:用户登录日志收集
         AdminUserDetailsDTO userDetails = (AdminUserDetailsDTO) loadUserByUsername(param.getUsername());
         log.debug(userDetails.toString());
         if (!passwordEncoder.matches(param.getPassword(), userDetails.getPassword())) {
@@ -123,24 +127,11 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     @Transactional(rollbackFor = Exception.class)
     public void updateRole(Long adminId, List<Long> roleIdList)
             throws UsernameNotFoundException, IllegalRoleException {
-        if (roleIdList == null) {
-            return;
-        }
         // 检查用户是否存在
         if (adminMapper.selectById(adminId) == null) {
             throw new UsernameNotFoundException("用户不存在");
         }
-        // 检查角色是否合法
-        roleService.validateRole(roleIdList);
-        // 删除用户原本的全部角色
-        adminRoleRelationMapper.deleteByAdminId(adminId);
-        // 添加新角色
-        List<AdminRoleRelation> adminRoleRelations = roleIdList.stream()
-                .map(roleId -> new AdminRoleRelation(null, null, new Date(), adminId, roleId))
-                .collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(adminRoleRelations)) {
-            adminRoleRelationMapper.insert(adminRoleRelations);
-        }
+        roleService.updateAdminRole(adminId, roleIdList);
     }
 
     @Override
@@ -236,6 +227,21 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     }
 
     @Override
+    public Admin getById(Long id) {
+        return adminMapper.selectById(id);
+    }
+
+    @Override
+    public int removeById(Long id) {
+        Admin admin = adminMapper.selectById(id);
+        int count = adminMapper.deleteById(id);
+        if (count != 0) {
+            applicationEventPublisher.publishEvent(new DeleteAdminEvent(admin));
+        }
+        return count;
+    }
+
+    @Override
     public Collection<GrantedAuthority> getAuthorities(Claims claims) {
         String authoritiesString = claims.get("auth", String.class);
         return AdminUserDetailsDTO.getAuthorities(authoritiesString);
@@ -247,7 +253,9 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         if (admin == null) {
             throw new UsernameNotFoundException("用户名不存在");
         }
-        List<Resource> resourceList = resourceService.getResourceListByAdminId(admin.getId());
+        List<Role> roles = roleService.getRoleListByAdminId(admin.getId());
+        List<Long> roleIds = roles.stream().map(Base::getId).collect(Collectors.toList());
+        List<Resource> resourceList = resourceService.getResourceListByRoleIds(roleIds);
         return new AdminUserDetailsDTO(admin, resourceList);
     }
 
@@ -272,5 +280,11 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     @Autowired
     public void setResourceService(ResourceService resourceService) {
         this.resourceService = resourceService;
+    }
+
+    @Override
+    @Autowired
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 }

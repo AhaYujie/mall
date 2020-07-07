@@ -39,4 +39,18 @@ public interface AdminRoleRelationMapper extends BaseMapper<AdminRoleRelation> {
      * @return 插入数量
      */
     int insert(@Param("list") List<AdminRoleRelation> adminRoleRelations);
+
+    /**
+     * 根据角色id删除
+     * @param roleId 角色id
+     * @return 删除数量
+     */
+    int deleteByRoleId(Long roleId);
+
+    /**
+     * 根据角色id查询
+     * @param roleId 角色id
+     * @return 后台用户角色关系
+     */
+    List<AdminRoleRelation> selectByRoleId(Long roleId);
 }

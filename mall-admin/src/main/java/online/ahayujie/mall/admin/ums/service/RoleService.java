@@ -6,10 +6,14 @@ import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import com.baomidou.mybatisplus.extension.service.IService;
+import online.ahayujie.mall.admin.ums.event.DeleteAdminEvent;
+import online.ahayujie.mall.admin.ums.event.DeleteMenuEvent;
+import online.ahayujie.mall.admin.ums.event.DeleteResourceEvent;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
 import online.ahayujie.mall.common.api.CommonPage;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,9 +26,9 @@ import java.util.List;
  * @author aha
  * @since 2020-06-04
  */
-public interface RoleService extends IService<Role> {
+public interface RoleService {
     /**
-     * 根据用户id获取用户拥有的角色
+     * 根据用户id获取用户拥有的角色, 且角色状态是启用的
      * @param adminId 用户id
      * @return 用户拥有的角色
      */
@@ -48,7 +52,8 @@ public interface RoleService extends IService<Role> {
 
     /**
      * 批量删除角色
-     * 如果 code 是 null 则不做处理
+     * 如果 ids 是 null 则不做处理
+     * 删除角色成功后，会删除相关的后台用户角色关系，菜单角色关系，资源角色关系
      * @param ids 角色id
      */
     void deleteRoles(List<Long> ids);
@@ -112,4 +117,51 @@ public interface RoleService extends IService<Role> {
      * @throws IllegalRoleException 角色不合法
      */
     void validateRole(Long roleId) throws IllegalRoleException;
+
+    /**
+     * 获取全部角色，如果没有角色则返回空列表
+     * @return 角色
+     */
+    List<Role> list();
+
+    /**
+     * 根据id获取角色
+     * @param id 主键id
+     * @return 角色
+     */
+    Role getById(Long id);
+
+    /**
+     * 监听删除后台用户事件
+     * @param deleteAdminEvent 删除后台用户事件
+     */
+    void listenDeleteAdminEvent(DeleteAdminEvent deleteAdminEvent);
+
+    /**
+     * 更新后台用户的角色，
+     * 如果 roleIdList 为 null，则不做任何处理，
+     * 如果 roleIdList 为空，则删除用户的所有角色
+     * @param adminId 用户id
+     * @param roleIdList 角色id
+     * @throws IllegalRoleException 角色id不合法
+     */
+    void updateAdminRole(Long adminId, List<Long> roleIdList) throws IllegalRoleException;
+
+    /**
+     * 监听删除菜单事件
+     * @param deleteMenuEvent 删除菜单事件
+     */
+    void listenDeleteMenuEvent(DeleteMenuEvent deleteMenuEvent);
+
+    /**
+     * 监听删除资源事件
+     * @param deleteResourceEvent 删除资源事件
+     */
+    void listenDeleteResourceEvent(DeleteResourceEvent deleteResourceEvent);
+
+    /**
+     * 获取全部启用的角色
+     * @return 全部启用的角色
+     */
+    List<Role> getActiveRoles();
 }

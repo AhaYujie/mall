@@ -2,9 +2,13 @@ package online.ahayujie.mall.admin.ums.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.model.*;
+import online.ahayujie.mall.admin.ums.event.DeleteAdminEvent;
+import online.ahayujie.mall.admin.ums.event.DeleteMenuEvent;
+import online.ahayujie.mall.admin.ums.event.DeleteResourceEvent;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
@@ -20,7 +24,11 @@ import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -35,8 +43,9 @@ import java.util.stream.Collectors;
  * @author aha
  * @since 2020-06-04
  */
+@Slf4j
 @Service
-public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
+public class RoleServiceImpl implements RoleService {
     private final RoleMapper roleMapper;
     private final RoleMenuRelationMapper roleMenuRelationMapper;
     private final AdminRoleRelationMapper adminRoleRelationMapper;
@@ -58,6 +67,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         List<AdminRoleRelation> adminRoleRelations = adminRoleRelationMapper.selectByAdminId(adminId);
         return adminRoleRelations.stream()
                 .map(relation -> roleMapper.selectById(relation.getRoleId()))
+                .filter(role -> role.getStatus().equals(Role.STATUS.ACTIVE.getValue()))
                 .collect(Collectors.toList());
     }
 
@@ -93,6 +103,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
             return;
         }
         roleMapper.deleteBatchIds(ids);
+        // 删除后台用户角色关系
+        ids.forEach(adminRoleRelationMapper::deleteByRoleId);
+        // 删除菜单角色关系
+        ids.forEach(roleMenuRelationMapper::deleteByRoleId);
+        // 删除资源角色关系
+        ids.forEach(roleResourceRelationMapper::deleteByRoleId);
     }
 
     @Override
@@ -162,6 +178,66 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     @Override
     public void validateRole(Long roleId) throws IllegalRoleException {
         validateRole(Collections.singletonList(roleId));
+    }
+
+    @Override
+    public List<Role> list() {
+        return roleMapper.selectAll();
+    }
+
+    @Override
+    public Role getById(Long id) {
+        return roleMapper.selectById(id);
+    }
+
+    @Async
+    @Override
+    @EventListener
+    public void listenDeleteAdminEvent(DeleteAdminEvent deleteAdminEvent) {
+        adminRoleRelationMapper.deleteByAdminId(deleteAdminEvent.getSource().getId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateAdminRole(Long adminId, List<Long> roleIdList) throws UsernameNotFoundException, IllegalRoleException {
+        if (roleIdList == null) {
+            return;
+        }
+        // 检查角色是否合法
+        List<Long> legalRoleIds = getActiveRoles().stream().map(Base::getId).collect(Collectors.toList());
+        for (Long roleId : roleIdList) {
+            if (!legalRoleIds.contains(roleId)) {
+                throw new IllegalRoleException("角色不合法: " + roleId);
+            }
+        }
+        // 删除用户原本的全部角色
+        adminRoleRelationMapper.deleteByAdminId(adminId);
+        // 添加新角色
+        List<AdminRoleRelation> adminRoleRelations = roleIdList.stream()
+                .map(roleId -> new AdminRoleRelation(null, null, new Date(), adminId, roleId))
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(adminRoleRelations)) {
+            adminRoleRelationMapper.insert(adminRoleRelations);
+        }
+    }
+
+    @Async
+    @Override
+    @EventListener
+    public void listenDeleteMenuEvent(DeleteMenuEvent deleteMenuEvent) {
+        roleMenuRelationMapper.deleteByMenuId(deleteMenuEvent.getSource().getId());
+    }
+
+    @Async
+    @Override
+    @EventListener
+    public void listenDeleteResourceEvent(DeleteResourceEvent deleteResourceEvent) {
+        roleResourceRelationMapper.deleteByResourceId(deleteResourceEvent.getSource().getId());
+    }
+
+    @Override
+    public List<Role> getActiveRoles() {
+        return roleMapper.selectByStatus(Role.STATUS.ACTIVE.getValue());
     }
 
     @Autowired

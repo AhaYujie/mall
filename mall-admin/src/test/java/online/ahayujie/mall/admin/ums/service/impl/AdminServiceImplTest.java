@@ -129,7 +129,6 @@ class AdminServiceImplTest {
 
     @Test
     void updateRole() {
-        List<Role> roles = roleService.list();
         Long adminId = null;
         List<Long> roleIds = new ArrayList<>();
 
@@ -166,7 +165,7 @@ class AdminServiceImplTest {
         log.debug(throwable.getMessage());
 
         // roleIds is not empty
-        roleIds = roles.stream().map(Base::getId).collect(Collectors.toList());
+        roleIds = roleService.getActiveRoles().stream().map(Base::getId).collect(Collectors.toList());
         adminService.updateRole(adminId, roleIds);
         updateAdminRoles = roleService.getRoleListByAdminId(adminId);
         assertEquals(roleIds.size(), updateAdminRoles.size());
@@ -179,7 +178,7 @@ class AdminServiceImplTest {
     private static String getRandomString(int length) {
         String str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         Random random=new Random();
-        StringBuffer sb=new StringBuffer();
+        StringBuilder sb=new StringBuilder();
         for(int i=0;i<length;i++){
             int number=random.nextInt(62);
             sb.append(str.charAt(number));
@@ -190,7 +189,7 @@ class AdminServiceImplTest {
     @Test
     void getAdminList() {
         String keyword;
-        Integer pageNum, pageSize;
+        int pageNum, pageSize;
 
         // not exist
         keyword = getRandomString(20);
@@ -211,7 +210,7 @@ class AdminServiceImplTest {
 
     @Test
     void updateAdmin() {
-        Long id;
+        long id;
         UpdateAdminParam param;
 
         // illegal status
@@ -276,5 +275,31 @@ class AdminServiceImplTest {
         loginParam.setPassword(newPassword);
         AdminLoginDTO adminLoginDTO = adminService.login(loginParam);
         log.debug("adminLoginDTO: " + adminLoginDTO);
+    }
+
+    @Test
+    void removeById() {
+        // 删除存在的用户
+        AdminRegisterParam adminRegisterParam = new AdminRegisterParam();
+        adminRegisterParam.setUsername(admin.getUsername());
+        adminRegisterParam.setPassword(admin.getPassword());
+        adminRegisterParam.setEmail(admin.getEmail());
+        adminRegisterParam.setNickName(admin.getNickName());
+        adminRegisterParam.setNote(admin.getNote());
+        adminService.register(adminRegisterParam);
+        AdminLoginParam adminLoginParam = new AdminLoginParam();
+        adminLoginParam.setUsername(admin.getUsername());
+        adminLoginParam.setPassword(admin.getPassword());
+        AdminLoginDTO adminLoginDTO = adminService.login(adminLoginParam);
+        Admin admin = adminService.getAdminFromToken(adminLoginDTO.getAccessToken());
+        log.debug("admin: " + admin);
+        int count1 = adminService.removeById(admin.getId());
+        assertThrows(UsernameNotFoundException.class, () -> adminService.login(adminLoginParam));
+        log.debug("count1: " + count1);
+
+        // 删除不存在的用户
+        Long id = null;
+        int count2 = adminService.removeById(id);
+        assertEquals(0, count2);
     }
 }

@@ -2,6 +2,7 @@ package online.ahayujie.mall.admin.ums.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginParam;
+import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.service.AdminService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
@@ -38,14 +39,14 @@ class DynamicSecurityServiceImplTest {
     @Test
     void getAttributes() {
         String path = null;
-        Resource resource = new Resource();
+        CreateResourceParam resource = new CreateResourceParam();
         resource.setName("test");
         resource.setUrl("/test/**");
-        resourceService.save(resource);
-        Resource resource1 = new Resource();
+        resourceService.createResource(resource);
+        CreateResourceParam resource1 = new CreateResourceParam();
         resource1.setName("test1");
         resource1.setUrl("/test/test2");
-        resourceService.save(resource1);
+        resourceService.createResource(resource1);
 
         // null
         Collection<ConfigAttribute> configAttributes = dynamicSecurityService.getAttributes(path);

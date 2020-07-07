@@ -4,17 +4,19 @@ import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
+import online.ahayujie.mall.admin.ums.bean.model.ResourceCategory;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
+import online.ahayujie.mall.admin.ums.mapper.ResourceCategoryMapper;
+import online.ahayujie.mall.admin.ums.mapper.ResourceMapper;
 import online.ahayujie.mall.admin.ums.service.ResourceCategoryService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,6 +25,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class ResourceServiceImplTest {
     @Autowired
+    private ResourceMapper resourceMapper;
+
+    @Autowired
+    private ResourceCategoryMapper resourceCategoryMapper;
+
+    @Autowired
     private ResourceService resourceService;
 
     @Autowired
@@ -30,20 +38,21 @@ class ResourceServiceImplTest {
 
     @Test
     void getResourceListByAdminId() {
-        Long adminId = null;
+        List<Long> roleIds;
 
-        // 用 null 查询不存在的用户
-        List<Resource> result1 = resourceService.getResourceListByAdminId(adminId);
-        assertEquals(0, result1.size());
+        // null
+        roleIds = null;
+        List<Long> finalRoleIds = roleIds;
+        assertThrows(NullPointerException.class, () -> resourceService.getResourceListByRoleIds(finalRoleIds));
 
-        // 查询存在的用户但没有 resource
-        adminId = 2L;
-        List<Resource> result2 = resourceService.getResourceListByAdminId(adminId);
+        // empty
+        roleIds = new ArrayList<>();
+        List<Resource> result2 = resourceService.getResourceListByRoleIds(roleIds);
         assertEquals(0, result2.size());
 
-        // 查询存在的用户且有 resource
-        adminId = 1L;
-        List<Resource> result3 = resourceService.getResourceListByAdminId(adminId);
+        // not empty
+        roleIds = Arrays.asList(1L, 2L);
+        List<Resource> result3 = resourceService.getResourceListByRoleIds(roleIds);
         assertNotEquals(0, result3.size());
         log.debug(result3.toString());
         // 检查是否存在重复 resource
@@ -58,7 +67,8 @@ class ResourceServiceImplTest {
         // illegal resource category
         resource = new CreateResourceParam();
         resource.setCategoryId(-1L);
-        Throwable throwable1 = assertThrows(IllegalResourceCategoryException.class, () -> resourceService.createResource(resource));
+        CreateResourceParam finalResource = resource;
+        Throwable throwable1 = assertThrows(IllegalResourceCategoryException.class, () -> resourceService.createResource(finalResource));
         log.debug(throwable1.getMessage());
 
         // legal
@@ -69,6 +79,18 @@ class ResourceServiceImplTest {
         List<Resource> oldResources = resourceService.list();
         resourceService.createResource(resource);
         List<Resource> newResources = resourceService.list();
+        assertEquals(oldResources.size() + 1, newResources.size());
+        log.debug("oldResources: " + oldResources);
+        log.debug("newResources: " + newResources);
+
+        // legal, null categoryId
+        resource = new CreateResourceParam();
+        resource.setName("test2");
+        resource.setUrl("/test2/**");
+        resource.setDescription("setDescription2");
+        oldResources = resourceService.list();
+        resourceService.createResource(resource);
+        newResources = resourceService.list();
         assertEquals(oldResources.size() + 1, newResources.size());
         log.debug("oldResources: " + oldResources);
         log.debug("newResources: " + newResources);
@@ -98,5 +120,67 @@ class ResourceServiceImplTest {
         assertNotEquals(oldResource, newResource);
         log.debug("oldResource: " + oldResource);
         log.debug("newResource: " + newResource);
+    }
+
+    @Test
+    void removeById() {
+        // exist
+        Resource resource = new Resource();
+        resource.setName("test resource");
+        resource.setUrl("test url");
+        resourceMapper.insert(resource);
+        List<Resource> oldResources = resourceService.list();
+        resourceService.removeById(resource.getId());
+        List<Resource> newResources = resourceService.list();
+        log.debug("oldResources: " + oldResources);
+        log.debug("newResources: " + newResources);
+        assertEquals(oldResources.size() - 1, newResources.size());
+
+        // null
+        Long id = null;
+        oldResources = resourceService.list();
+        resourceService.removeById(id);
+        newResources = resourceService.list();
+        log.debug("oldResources: " + oldResources);
+        log.debug("newResources: " + newResources);
+        assertEquals(oldResources.size(), newResources.size());
+
+        // not exist
+        id = -1L;
+        oldResources = resourceService.list();
+        resourceService.removeById(id);
+        newResources = resourceService.list();
+        log.debug("oldResources: " + oldResources);
+        log.debug("newResources: " + newResources);
+        assertEquals(oldResources.size(), newResources.size());
+    }
+
+    @Test
+    void getByCategoryId() {
+        // not exist category
+        Long categoryId = null;
+        List<Resource> result1 = resourceService.getByCategoryId(categoryId);
+        assertEquals(0, result1.size());
+
+        // exist category
+        ResourceCategory resourceCategory = new ResourceCategory();
+        resourceCategory.setName("new category");
+        resourceCategory.setSort(0);
+        resourceCategory.setCreateTime(new Date());
+        resourceCategoryMapper.insert(resourceCategory);
+        int size = new Random().nextInt(20) + 1;
+        List<CreateResourceParam> params = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            CreateResourceParam param = new CreateResourceParam();
+            param.setName("test");
+            param.setUrl("test");
+            param.setDescription("test");
+            param.setCategoryId(resourceCategory.getId());
+            params.add(param);
+        }
+        params.forEach(resourceService::createResource);
+        List<Resource> resources = resourceService.getByCategoryId(resourceCategory.getId());
+        log.debug("resources: " + resources);
+        assertEquals(size, resources.size());
     }
 }

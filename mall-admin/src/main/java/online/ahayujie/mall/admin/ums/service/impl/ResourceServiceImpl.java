@@ -5,6 +5,7 @@ import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.bean.model.RoleResourceRelation;
+import online.ahayujie.mall.admin.ums.event.DeleteResourceEvent;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.mapper.ResourceMapper;
@@ -16,6 +17,7 @@ import online.ahayujie.mall.admin.ums.service.RoleService;
 import online.ahayujie.mall.common.bean.model.Base;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -30,12 +32,12 @@ import java.util.stream.Collectors;
  * @since 2020-06-04
  */
 @Service
-public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> implements ResourceService {
+public class ResourceServiceImpl implements ResourceService {
     private final ResourceMapper resourceMapper;
     private final RoleResourceRelationMapper roleResourceRelationMapper;
 
-    private RoleService roleService;
     private ResourceCategoryService resourceCategoryService;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     public ResourceServiceImpl(ResourceMapper resourceMapper, RoleResourceRelationMapper roleResourceRelationMapper) {
         this.resourceMapper = resourceMapper;
@@ -47,6 +49,9 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         Long categoryId = param.getCategoryId();
         if (categoryId != null && resourceCategoryService.getById(categoryId) == null) {
             throw new IllegalResourceCategoryException("资源分类不存在");
+        }
+        if (categoryId == null) {
+            param.setCategoryId(Resource.NON_CATEGORY_ID);
         }
         Resource resource = new Resource();
         BeanUtils.copyProperties(param, resource);
@@ -68,11 +73,10 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
     }
 
     @Override
-    public List<Resource> getResourceListByAdminId(Long adminId) {
-        List<Role> roleList = roleService.getRoleListByAdminId(adminId);
+    public List<Resource> getResourceListByRoleIds(List<Long> roleIds) {
         Set<RoleResourceRelation> roleResourceRelations = new HashSet<>();
-        for (Role role : roleList) {
-            roleResourceRelations.addAll(roleResourceRelationMapper.selectByRoleId(role.getId()));
+        for (Long roleId : roleIds) {
+            roleResourceRelations.addAll(roleResourceRelationMapper.selectByRoleId(roleId));
         }
         return roleResourceRelations.stream()
                 .map(relation -> resourceMapper.selectById(relation.getResourceId()))
@@ -94,9 +98,35 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         validateResource(Collections.singletonList(resourceId));
     }
 
+    @Override
+    public List<Resource> list() {
+        return resourceMapper.selectAll();
+    }
+
+    @Override
+    public Resource getById(Long id) {
+        return resourceMapper.selectById(id);
+    }
+
+    @Override
+    public int removeById(Long id) {
+        Resource resource = resourceMapper.selectById(id);
+        int count = resourceMapper.deleteById(id);
+        if (count > 0) {
+            applicationEventPublisher.publishEvent(new DeleteResourceEvent(resource));
+        }
+        return count;
+    }
+
+    @Override
+    public List<Resource> getByCategoryId(Long categoryId) {
+        return resourceMapper.selectByCategoryId(categoryId);
+    }
+
+    @Override
     @Autowired
-    public void setRoleService(RoleService roleService) {
-        this.roleService = roleService;
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Autowired

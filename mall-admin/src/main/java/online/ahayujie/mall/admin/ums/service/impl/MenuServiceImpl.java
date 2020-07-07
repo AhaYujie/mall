@@ -6,6 +6,7 @@ import online.ahayujie.mall.admin.ums.bean.dto.CreateMenuParam;
 import online.ahayujie.mall.admin.ums.bean.dto.MenuNodeDTO;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateMenuParam;
 import online.ahayujie.mall.admin.ums.bean.model.Menu;
+import online.ahayujie.mall.admin.ums.event.DeleteMenuEvent;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuVisibilityException;
 import online.ahayujie.mall.admin.ums.exception.IllegalParentMenuException;
@@ -15,6 +16,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,8 +32,10 @@ import java.util.stream.Collectors;
  * @since 2020-06-04
  */
 @Service
-public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements MenuService {
+public class MenuServiceImpl implements MenuService {
     private final MenuMapper menuMapper;
+
+    private ApplicationEventPublisher applicationEventPublisher;
 
     public MenuServiceImpl(MenuMapper menuMapper) {
         this.menuMapper = menuMapper;
@@ -91,6 +96,32 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
     public List<MenuNodeDTO> getTreeList() {
         List<Menu> menus = list();
         return convertToMenuTree(menus);
+    }
+
+    @Override
+    public Menu getById(Long id) {
+        return menuMapper.selectById(id);
+    }
+
+    @Override
+    public List<Menu> list() {
+        return menuMapper.selectAll();
+    }
+
+    @Override
+    public int removeById(Long id) {
+        Menu menu = menuMapper.selectById(id);
+        int count = menuMapper.deleteById(id);
+        if (count > 0) {
+            applicationEventPublisher.publishEvent(new DeleteMenuEvent(menu));
+        }
+        return count;
+    }
+
+    @Override
+    @Autowired
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     private List<MenuNodeDTO> convertToMenuTree(List<Menu> menus) {

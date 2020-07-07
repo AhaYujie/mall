@@ -14,4 +14,23 @@
         <result column="category_id" property="categoryId" />
     </resultMap>
 
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, name, url, description, category_id
+        from ums_resource
+    </select>
+
+    <update id="deleteCategoryByCategoryId">
+        update ums_resource
+        set category_id = 0
+        where category_id = #{categoryId}
+    </update>
+
+    <select id="selectByCategoryId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, name, url, description, category_id
+        from ums_resource
+        where category_id = #{categoryId}
+    </select>
+
 </mapper>
