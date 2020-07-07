@@ -2,11 +2,12 @@ package online.ahayujie.mall.admin.ums.service.impl;
 
 import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceCategoryParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceCategoryParam;
+import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.ResourceCategory;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.mapper.ResourceCategoryMapper;
+import online.ahayujie.mall.admin.ums.mapper.ResourceMapper;
 import online.ahayujie.mall.admin.ums.service.ResourceCategoryService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +24,11 @@ import java.util.List;
  */
 @Service
 public class ResourceCategoryServiceImpl implements ResourceCategoryService {
+    private final ResourceMapper resourceMapper;
     private final ResourceCategoryMapper resourceCategoryMapper;
 
-    public ResourceCategoryServiceImpl(ResourceCategoryMapper resourceCategoryMapper) {
+    public ResourceCategoryServiceImpl(ResourceMapper resourceMapper, ResourceCategoryMapper resourceCategoryMapper) {
+        this.resourceMapper = resourceMapper;
         this.resourceCategoryMapper = resourceCategoryMapper;
     }
 
@@ -55,8 +58,8 @@ public class ResourceCategoryServiceImpl implements ResourceCategoryService {
 
     @Override
     public void delete(Long id) {
-        // TODO:处理被删除的资源分类下的资源
         resourceCategoryMapper.deleteById(id);
+        resourceMapper.deleteCategoryByCategoryId(id);
     }
 
     @Override

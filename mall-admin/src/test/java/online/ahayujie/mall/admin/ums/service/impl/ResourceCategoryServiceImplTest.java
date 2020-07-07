@@ -2,16 +2,23 @@ package online.ahayujie.mall.admin.ums.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceCategoryParam;
+import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceCategoryParam;
+import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.ResourceCategory;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
+import online.ahayujie.mall.admin.ums.mapper.ResourceCategoryMapper;
 import online.ahayujie.mall.admin.ums.service.ResourceCategoryService;
+import online.ahayujie.mall.admin.ums.service.ResourceService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,6 +26,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 class ResourceCategoryServiceImplTest {
+    @Autowired
+    private ResourceCategoryMapper resourceCategoryMapper;
+
+    @Autowired
+    private ResourceService resourceService;
+
     @Autowired
     private ResourceCategoryService resourceCategoryService;
 
@@ -87,10 +100,26 @@ class ResourceCategoryServiceImplTest {
         assertEquals(oldResourceCategories.size(), newResourceCategories.size());
 
         // id not null
-        id = 1L;
-        oldResourceCategories = resourceCategoryService.listAll();
-        resourceCategoryService.delete(id);
-        newResourceCategories = resourceCategoryService.listAll();
-        assertEquals(oldResourceCategories.size() - 1, newResourceCategories.size());
+        ResourceCategory resourceCategory = new ResourceCategory();
+        resourceCategory.setName("new category");
+        resourceCategory.setSort(0);
+        resourceCategory.setCreateTime(new Date());
+        resourceCategoryMapper.insert(resourceCategory);
+        int size = new Random().nextInt(20) + 1;
+        List<CreateResourceParam> params = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            CreateResourceParam param = new CreateResourceParam();
+            param.setName("test");
+            param.setUrl("test");
+            param.setDescription("test");
+            param.setCategoryId(resourceCategory.getId());
+            params.add(param);
+        }
+        params.forEach(resourceService::createResource);
+        List<Resource> newResources = resourceService.getByCategoryId(resourceCategory.getId());
+        assertEquals(size, newResources.size());
+        resourceCategoryService.delete(resourceCategory.getId());
+        List<Resource> oldResources = resourceService.getByCategoryId(resourceCategory.getId());
+        assertEquals(0, oldResources.size());
     }
 }
