@@ -119,6 +119,11 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
+    public List<Resource> getByCategoryId(Long categoryId) {
+        return resourceMapper.selectByCategoryId(categoryId);
+    }
+
+    @Override
     @Autowired
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;

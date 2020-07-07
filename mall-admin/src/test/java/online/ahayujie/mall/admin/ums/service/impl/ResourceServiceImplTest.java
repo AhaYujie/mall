@@ -4,13 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
+import online.ahayujie.mall.admin.ums.bean.model.ResourceCategory;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
+import online.ahayujie.mall.admin.ums.mapper.ResourceCategoryMapper;
 import online.ahayujie.mall.admin.ums.mapper.ResourceMapper;
 import online.ahayujie.mall.admin.ums.service.ResourceCategoryService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -23,6 +26,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class ResourceServiceImplTest {
     @Autowired
     private ResourceMapper resourceMapper;
+
+    @Autowired
+    private ResourceCategoryMapper resourceCategoryMapper;
 
     @Autowired
     private ResourceService resourceService;
@@ -147,5 +153,34 @@ class ResourceServiceImplTest {
         log.debug("oldResources: " + oldResources);
         log.debug("newResources: " + newResources);
         assertEquals(oldResources.size(), newResources.size());
+    }
+
+    @Test
+    void getByCategoryId() {
+        // not exist category
+        Long categoryId = null;
+        List<Resource> result1 = resourceService.getByCategoryId(categoryId);
+        assertEquals(0, result1.size());
+
+        // exist category
+        ResourceCategory resourceCategory = new ResourceCategory();
+        resourceCategory.setName("new category");
+        resourceCategory.setSort(0);
+        resourceCategory.setCreateTime(new Date());
+        resourceCategoryMapper.insert(resourceCategory);
+        int size = new Random().nextInt(20) + 1;
+        List<CreateResourceParam> params = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            CreateResourceParam param = new CreateResourceParam();
+            param.setName("test");
+            param.setUrl("test");
+            param.setDescription("test");
+            param.setCategoryId(resourceCategory.getId());
+            params.add(param);
+        }
+        params.forEach(resourceService::createResource);
+        List<Resource> resources = resourceService.getByCategoryId(resourceCategory.getId());
+        log.debug("resources: " + resources);
+        assertEquals(size, resources.size());
     }
 }

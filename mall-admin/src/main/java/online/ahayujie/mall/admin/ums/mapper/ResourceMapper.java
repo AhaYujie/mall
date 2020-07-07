@@ -23,4 +23,18 @@ public interface ResourceMapper extends BaseMapper<Resource> {
      * @return 资源
      */
     List<Resource> selectAll();
+
+    /**
+     * 根据资源分类id删除资源的分类，即设置category_id为0
+     * @param categoryId 资源分类id
+     * @return 更新数量
+     */
+    int deleteCategoryByCategoryId(Long categoryId);
+
+    /**
+     * 根据分类id查询
+     * @param categoryId 分类id
+     * @return 资源
+     */
+    List<Resource> selectByCategoryId(Long categoryId);
 }

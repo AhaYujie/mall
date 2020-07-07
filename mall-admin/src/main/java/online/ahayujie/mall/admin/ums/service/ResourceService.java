@@ -80,4 +80,11 @@ public interface ResourceService extends ApplicationEventPublisherAware {
      * @return 删除的资源数量
      */
     int removeById(Long id);
+
+    /**
+     * 根据分类id获取资源
+     * @param categoryId 分类id
+     * @return 资源
+     */
+    List<Resource> getByCategoryId(Long categoryId);
 }
