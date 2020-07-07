@@ -141,7 +141,6 @@ public interface RoleService {
      * 更新后台用户的角色，
      * 如果 roleIdList 为 null，则不做任何处理，
      * 如果 roleIdList 为空，则删除用户的所有角色
-     * // TODO:判断角色是否启用
      * @param adminId 用户id
      * @param roleIdList 角色id
      * @throws IllegalRoleException 角色id不合法
@@ -159,4 +158,10 @@ public interface RoleService {
      * @param deleteResourceEvent 删除资源事件
      */
     void listenDeleteResourceEvent(DeleteResourceEvent deleteResourceEvent);
+
+    /**
+     * 获取全部启用的角色
+     * @return 全部启用的角色
+     */
+    List<Role> getActiveRoles();
 }

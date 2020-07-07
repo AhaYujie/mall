@@ -99,7 +99,6 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void deleteRoles(List<Long> ids) {
-        // TODO:处理与被删除的角色关联的数据
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
@@ -205,7 +204,12 @@ public class RoleServiceImpl implements RoleService {
             return;
         }
         // 检查角色是否合法
-        validateRole(roleIdList);
+        List<Long> legalRoleIds = getActiveRoles().stream().map(Base::getId).collect(Collectors.toList());
+        for (Long roleId : roleIdList) {
+            if (!legalRoleIds.contains(roleId)) {
+                throw new IllegalRoleException("角色不合法: " + roleId);
+            }
+        }
         // 删除用户原本的全部角色
         adminRoleRelationMapper.deleteByAdminId(adminId);
         // 添加新角色
@@ -229,6 +233,11 @@ public class RoleServiceImpl implements RoleService {
     @EventListener
     public void listenDeleteResourceEvent(DeleteResourceEvent deleteResourceEvent) {
         roleResourceRelationMapper.deleteByResourceId(deleteResourceEvent.getSource().getId());
+    }
+
+    @Override
+    public List<Role> getActiveRoles() {
+        return roleMapper.selectByStatus(Role.STATUS.ACTIVE.getValue());
     }
 
     @Autowired

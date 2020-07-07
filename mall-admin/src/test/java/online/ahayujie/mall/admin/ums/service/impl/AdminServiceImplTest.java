@@ -129,7 +129,6 @@ class AdminServiceImplTest {
 
     @Test
     void updateRole() {
-        List<Role> roles = roleService.list();
         Long adminId = null;
         List<Long> roleIds = new ArrayList<>();
 
@@ -166,7 +165,7 @@ class AdminServiceImplTest {
         log.debug(throwable.getMessage());
 
         // roleIds is not empty
-        roleIds = roles.stream().map(Base::getId).collect(Collectors.toList());
+        roleIds = roleService.getActiveRoles().stream().map(Base::getId).collect(Collectors.toList());
         adminService.updateRole(adminId, roleIds);
         updateAdminRoles = roleService.getRoleListByAdminId(adminId);
         assertEquals(roleIds.size(), updateAdminRoles.size());
@@ -179,7 +178,7 @@ class AdminServiceImplTest {
     private static String getRandomString(int length) {
         String str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         Random random=new Random();
-        StringBuffer sb=new StringBuffer();
+        StringBuilder sb=new StringBuilder();
         for(int i=0;i<length;i++){
             int number=random.nextInt(62);
             sb.append(str.charAt(number));
@@ -190,7 +189,7 @@ class AdminServiceImplTest {
     @Test
     void getAdminList() {
         String keyword;
-        Integer pageNum, pageSize;
+        int pageNum, pageSize;
 
         // not exist
         keyword = getRandomString(20);
@@ -211,7 +210,7 @@ class AdminServiceImplTest {
 
     @Test
     void updateAdmin() {
-        Long id;
+        long id;
         UpdateAdminParam param;
 
         // illegal status

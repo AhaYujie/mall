@@ -57,7 +57,7 @@ public interface AdminService extends JwtUserDetailService, ApplicationEventPubl
      * @param adminId 用户id
      * @param roleIdList 角色id
      * @throws UsernameNotFoundException 用户不存在
-     * @throws IllegalRoleException 角色id不合法
+     * @throws IllegalRoleException 角色不存在或角色未启用
      */
     void updateRole(Long adminId, List<Long> roleIdList) throws UsernameNotFoundException, IllegalRoleException;
 

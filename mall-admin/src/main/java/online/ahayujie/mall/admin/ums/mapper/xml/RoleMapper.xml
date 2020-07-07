@@ -61,4 +61,11 @@
         from ums_role
     </select>
 
+    <select id="selectByStatus" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, name, description, admin_count, status, sort
+        from ums_role
+        where status = #{status}
+    </select>
+
 </mapper>

@@ -50,4 +50,11 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @return 全部角色
      */
     List<Role> selectAll();
+
+    /**
+     * 根据角色状态查询
+     * @param status 角色状态
+     * @return 角色
+     */
+    List<Role> selectByStatus(Integer status);
 }
