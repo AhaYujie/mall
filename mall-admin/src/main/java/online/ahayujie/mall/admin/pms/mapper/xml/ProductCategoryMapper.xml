@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.admin.pms.mapper.ProductCategoryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.pms.bean.model.ProductCategory">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="parent_id" property="parentId" />
+        <result column="name" property="name" />
+        <result column="level" property="level" />
+        <result column="product_count" property="productCount" />
+        <result column="product_unit" property="productUnit" />
+        <result column="is_nav" property="isNav" />
+        <result column="is_show" property="isShow" />
+        <result column="sort" property="sort" />
+        <result column="icon" property="icon" />
+        <result column="keywords" property="keywords" />
+        <result column="description" property="description" />
+    </resultMap>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, parent_id, name, level, product_count, product_unit, is_nav, is_show, sort, icon, keywords, description
+        from pms_product_category
+    </select>
+
+    <select id="selectByParentId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, parent_id, name, level, product_count, product_unit, is_nav, is_show, sort, icon, keywords, description
+        from pms_product_category
+        where parent_id = #{parentId}
+        order by sort desc
+    </select>
+
+    <select id="selectAllByParentId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, parent_id, name, level, product_count, product_unit, is_nav, is_show, sort, icon, keywords, description
+        from pms_product_category
+        where parent_id = #{parentId}
+        order by sort desc
+    </select>
+
+</mapper>
