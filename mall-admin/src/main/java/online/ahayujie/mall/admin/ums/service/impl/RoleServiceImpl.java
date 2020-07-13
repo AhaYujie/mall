@@ -19,7 +19,6 @@ import online.ahayujie.mall.admin.ums.mapper.RoleResourceRelationMapper;
 import online.ahayujie.mall.admin.ums.service.MenuService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import online.ahayujie.mall.admin.ums.service.RoleService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
 import org.springframework.beans.BeanUtils;
@@ -145,7 +144,7 @@ public class RoleServiceImpl implements RoleService {
                 .map(menuId -> new RoleMenuRelation(null, null, new Date(), roleId, menuId))
                 .collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(relations)) {
-            roleMenuRelationMapper.insert(relations);
+            roleMenuRelationMapper.insertList(relations);
         }
     }
 
@@ -161,7 +160,7 @@ public class RoleServiceImpl implements RoleService {
                 .map(resourceId -> new RoleResourceRelation(null, null, new Date(), roleId, resourceId))
                 .collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(relations)) {
-            roleResourceRelationMapper.insert(relations);
+            roleResourceRelationMapper.insertList(relations);
         }
     }
 
@@ -217,7 +216,7 @@ public class RoleServiceImpl implements RoleService {
                 .map(roleId -> new AdminRoleRelation(null, null, new Date(), adminId, roleId))
                 .collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(adminRoleRelations)) {
-            adminRoleRelationMapper.insert(adminRoleRelations);
+            adminRoleRelationMapper.insertList(adminRoleRelations);
         }
     }
 

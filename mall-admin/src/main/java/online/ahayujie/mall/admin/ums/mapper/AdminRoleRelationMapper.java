@@ -38,7 +38,7 @@ public interface AdminRoleRelationMapper extends BaseMapper<AdminRoleRelation> {
      * @param adminRoleRelations 用户角色关系
      * @return 插入数量
      */
-    int insert(@Param("list") List<AdminRoleRelation> adminRoleRelations);
+    int insertList(@Param("list") List<AdminRoleRelation> adminRoleRelations);
 
     /**
      * 根据角色id删除

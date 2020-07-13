@@ -3,7 +3,6 @@ package online.ahayujie.mall.admin.ums.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.*;
 import online.ahayujie.mall.admin.ums.bean.model.*;
-import online.ahayujie.mall.admin.ums.event.DeleteAdminEvent;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
@@ -179,7 +178,7 @@ class RoleServiceImplTest {
             relation.setCreateTime(new Date());
             adminRoleRelations.add(relation);
         }
-        adminRoleRelationMapper.insert(adminRoleRelations);
+        adminRoleRelationMapper.insertList(adminRoleRelations);
         List<RoleMenuRelation> roleMenuRelations = new ArrayList<>();
         for (int i = 0; i < random.nextInt(20) + 1; i++) {
             RoleMenuRelation relation = new RoleMenuRelation();
@@ -188,7 +187,7 @@ class RoleServiceImplTest {
             relation.setCreateTime(new Date());
             roleMenuRelations.add(relation);
         }
-        roleMenuRelationMapper.insert(roleMenuRelations);
+        roleMenuRelationMapper.insertList(roleMenuRelations);
         List<RoleResourceRelation> roleResourceRelations = new ArrayList<>();
         for (int i = 0; i < random.nextInt(20) + 1; i++) {
             RoleResourceRelation relation = new RoleResourceRelation();
@@ -197,7 +196,7 @@ class RoleServiceImplTest {
             relation.setCreateTime(new Date());
             roleResourceRelations.add(relation);
         }
-        roleResourceRelationMapper.insert(roleResourceRelations);
+        roleResourceRelationMapper.insertList(roleResourceRelations);
         List<Long> roleIds = testRoles.stream().map(Base::getId).collect(Collectors.toList());
         roleService.deleteRoles(roleIds);
         for (Long roleId : roleIds) {

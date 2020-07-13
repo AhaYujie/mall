@@ -38,7 +38,7 @@ public interface RoleResourceRelationMapper extends BaseMapper<RoleResourceRelat
      * @param relations 角色资源关系
      * @return 插入数量
      */
-    int insert(@Param("list") List<RoleResourceRelation> relations);
+    int insertList(@Param("list") List<RoleResourceRelation> relations);
 
     /**
      * 根据资源id删除
