@@ -175,7 +175,7 @@ class RoleServiceImplTest {
         for (int i = 0; i < random.nextInt(20) + 1; i++) {
             AdminRoleRelation relation = new AdminRoleRelation();
             relation.setRoleId(testRoles.get(random.nextInt(testRoles.size())).getId());
-            relation.setAdminId(random.nextLong());
+            relation.setAdminId((long) i);
             relation.setCreateTime(new Date());
             adminRoleRelations.add(relation);
         }
@@ -184,7 +184,7 @@ class RoleServiceImplTest {
         for (int i = 0; i < random.nextInt(20) + 1; i++) {
             RoleMenuRelation relation = new RoleMenuRelation();
             relation.setRoleId(testRoles.get(random.nextInt(testRoles.size())).getId());
-            relation.setMenuId(random.nextLong());
+            relation.setMenuId((long) i);
             relation.setCreateTime(new Date());
             roleMenuRelations.add(relation);
         }
@@ -193,7 +193,7 @@ class RoleServiceImplTest {
         for (int i = 0; i < random.nextInt(20) + 1; i++) {
             RoleResourceRelation relation = new RoleResourceRelation();
             relation.setRoleId(testRoles.get(random.nextInt(testRoles.size())).getId());
-            relation.setResourceId(random.nextLong());
+            relation.setResourceId((long) i);
             relation.setCreateTime(new Date());
             roleResourceRelations.add(relation);
         }
