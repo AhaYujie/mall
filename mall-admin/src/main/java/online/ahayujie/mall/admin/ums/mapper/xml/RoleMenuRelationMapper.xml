@@ -18,7 +18,7 @@
         where role_id = #{roleId}
     </update>
 
-    <insert id="insert">
+    <insert id="insertList">
         insert into ums_role_menu_relation (update_time, create_time, role_id, menu_id) values
         <foreach collection="list" separator="," item="item" index="index">
             (#{item.updateTime}, #{item.createTime}, #{item.roleId}, #{item.menuId})

@@ -31,7 +31,7 @@ public interface RoleMenuRelationMapper extends BaseMapper<RoleMenuRelation> {
      * @param relations 角色菜单关系
      * @return 插入数量
      */
-    int insert(@Param("list") List<RoleMenuRelation> relations);
+    int insertList(@Param("list") List<RoleMenuRelation> relations);
 
     /**
      * 根据菜单id删除
