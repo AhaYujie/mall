@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 数据对象基类
@@ -61,5 +62,20 @@ public class Base {
                 ", updateTime=" + updateTime +
                 ", createTime=" + createTime +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Base base = (Base) o;
+        return Objects.equals(id, base.id) &&
+                Objects.equals(updateTime, base.updateTime) &&
+                Objects.equals(createTime, base.createTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, updateTime, createTime);
     }
 }
