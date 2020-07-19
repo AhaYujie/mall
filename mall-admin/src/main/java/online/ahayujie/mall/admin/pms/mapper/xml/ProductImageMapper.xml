@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.admin.pms.mapper.ProductImageMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.pms.bean.model.ProductImage">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="product_id" property="productId" />
+        <result column="image" property="image" />
+    </resultMap>
+
+    <select id="selectByProductId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, product_id, image
+        from pms_product_image
+        where product_id = #{productId}
+    </select>
+
+    <insert id="insertList">
+        insert into pms_product_image (update_time, create_time, product_id, image) values
+        <foreach collection="list" separator="," item="item" index="index">
+            (#{item.updateTime}, #{item.createTime}, #{item.productId}, #{item.image})
+        </foreach>
+    </insert>
+
+</mapper>

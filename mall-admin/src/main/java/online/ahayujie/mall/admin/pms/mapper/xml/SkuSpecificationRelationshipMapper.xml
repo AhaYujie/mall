@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.admin.pms.mapper.SkuSpecificationRelationshipMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.pms.bean.model.SkuSpecificationRelationship">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="sku_id" property="skuId" />
+        <result column="specification_id" property="specificationId" />
+        <result column="specification_value_id" property="specificationValueId" />
+    </resultMap>
+
+    <insert id="insertList">
+        insert into pms_sku_specification_relationship (update_time, create_time, sku_id, specification_id, specification_value_id) values
+        <foreach collection="list" separator="," item="item" index="index">
+            (#{item.updateTime}, #{item.createTime}, #{item.skuId}, #{item.specificationId}, #{item.specificationValueId})
+        </foreach>
+    </insert>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, sku_id, specification_id, specification_value_id
+        from pms_sku_specification_relationship
+    </select>
+
+    <select id="selectBySkuId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, sku_id, specification_id, specification_value_id
+        from pms_sku_specification_relationship
+        where sku_id = #{skuId}
+    </select>
+
+</mapper>

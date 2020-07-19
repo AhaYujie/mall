@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.admin.pms.mapper.SkuMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.pms.bean.model.Sku">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="product_id" property="productId" />
+        <result column="sku_code" property="skuCode" />
+        <result column="price" property="price" />
+        <result column="promotion_price" property="promotionPrice" />
+        <result column="stock" property="stock" />
+        <result column="lock_stock" property="lockStock" />
+        <result column="low_stock" property="lowStock" />
+        <result column="sale" property="sale" />
+        <result column="pic" property="pic" />
+        <result column="specification" property="specification" />
+    </resultMap>
+
+    <select id="selectByProductId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, product_id, sku_code, price, promotion_price, stock,
+        lock_stock, low_stock, sale, pic, specification
+        from pms_sku
+        where product_id = #{productId}
+    </select>
+
+</mapper>
