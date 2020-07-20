@@ -31,4 +31,38 @@
         where product_id = #{productId}
     </select>
 
+    <resultMap id="specificationDTOResultMap" type="online.ahayujie.mall.admin.pms.bean.dto.ProductDTO$SpecificationDTO">
+        <id property="id" column="specification_id"/>
+        <result property="productId" column="specification_product_id"/>
+        <result property="name" column="specification_name"/>
+        <result property="updateTime" column="specification_update_time"/>
+        <result property="createTime" column="specification_create_time"/>
+        <collection property="specificationValues" ofType="online.ahayujie.mall.admin.pms.bean.model.ProductSpecificationValue">
+            <id property="id" column="value_id"/>
+            <result property="productSpecificationId" column="value_product_specification_id"/>
+            <result property="value" column="value_value"/>
+            <result property="type" column="value_type"/>
+            <result property="updateTime" column="value_update_time"/>
+            <result property="createTime" column="value_create_time"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectDTOByProductId" resultMap="specificationDTOResultMap">
+        select
+        s.id as specification_id,
+        s.product_id as specification_product_id,
+        s.name as specification_name,
+        s.update_time as specification_update_time,
+        s.create_time as specification_create_time,
+        v.id as value_id,
+        v.product_specification_id as value_product_specification_id,
+        v.value as value_value,
+        v.type as value_type,
+        v.update_time as value_update_time,
+        v.create_time as value_create_time
+        from pms_product_specification s
+        left join pms_product_specification_value v on s.id = v.product_specification_id
+        where s.product_id = #{productId}
+    </select>
+
 </mapper>

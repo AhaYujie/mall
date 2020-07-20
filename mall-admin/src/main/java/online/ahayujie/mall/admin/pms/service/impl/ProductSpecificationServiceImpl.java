@@ -1,5 +1,6 @@
 package online.ahayujie.mall.admin.pms.service.impl;
 
+import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
 import online.ahayujie.mall.admin.pms.bean.model.ProductSpecification;
 import online.ahayujie.mall.admin.pms.bean.model.ProductSpecificationValue;
 import online.ahayujie.mall.admin.pms.exception.IllegalProductSpecificationException;
@@ -9,6 +10,7 @@ import online.ahayujie.mall.admin.pms.service.ProductSpecificationService;
 import online.ahayujie.mall.admin.pms.service.SpecificationValueStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,6 +63,15 @@ public class ProductSpecificationServiceImpl implements ProductSpecificationServ
     public List<ProductSpecificationValue> saveSpecificationValues(List<ProductSpecificationValue> specificationValues) {
         productSpecificationValueMapper.insertList(specificationValues);
         return specificationValues;
+    }
+
+    @Override
+    public List<ProductDTO.SpecificationDTO> getByProductId(Long productId) {
+        List<ProductDTO.SpecificationDTO> specificationDTOS = productSpecificationMapper.selectDTOByProductId(productId);
+        if (CollectionUtils.isEmpty(specificationDTOS)) {
+            return null;
+        }
+        return specificationDTOS;
     }
 
     @Autowired

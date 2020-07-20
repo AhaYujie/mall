@@ -1,6 +1,7 @@
 package online.ahayujie.mall.admin.pms.service;
 
 import online.ahayujie.mall.admin.pms.bean.dto.CreateProductParam;
+import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
 import online.ahayujie.mall.admin.pms.bean.model.Product;
 import online.ahayujie.mall.admin.pms.exception.*;
 
@@ -36,4 +37,13 @@ public interface ProductService {
      */
     void validateProduct(Product product) throws IllegalProductException, IllegalProductCategoryException,
             IllegalBrandException;
+
+    /**
+     * 根据商品id获取商品信息。
+     * 若商品不存在则返回null。
+     * 若无商品参数信息或商品规格信息或商品sku信息则均设置字段为null。
+     * @param id 商品id
+     * @return 商品信息
+     */
+    ProductDTO getProductById(Long id);
 }

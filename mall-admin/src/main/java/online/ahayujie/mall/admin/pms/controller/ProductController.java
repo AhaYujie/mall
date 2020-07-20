@@ -3,14 +3,11 @@ package online.ahayujie.mall.admin.pms.controller;
 
 import io.swagger.annotations.ApiOperation;
 import online.ahayujie.mall.admin.pms.bean.dto.CreateProductParam;
+import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
 import online.ahayujie.mall.admin.pms.service.ProductService;
 import online.ahayujie.mall.common.api.Result;
 import online.ahayujie.mall.common.exception.ApiException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -38,5 +35,11 @@ public class ProductController {
         } catch (ApiException e) {
             return Result.fail(e.getResultCode(), e.getMessage());
         }
+    }
+
+    @ApiOperation(value = "根据商品id获取商品信息")
+    @GetMapping("/info/{id}")
+    public Result<ProductDTO> getProductById(@PathVariable Long id) {
+        return Result.data(productService.getProductById(id));
     }
 }

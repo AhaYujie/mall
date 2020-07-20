@@ -1,5 +1,6 @@
 package online.ahayujie.mall.admin.pms.mapper;
 
+import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
 import online.ahayujie.mall.admin.pms.bean.model.ProductSpecification;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -38,4 +39,11 @@ public interface ProductSpecificationMapper extends BaseMapper<ProductSpecificat
      * @return 商品规格
      */
     List<ProductSpecification> selectByProductId(Long productId);
+
+    /**
+     * 根据商品id查询商品规格详细信息
+     * @param productId 商品id
+     * @return 商品规格详细信息
+     */
+    List<ProductDTO.SpecificationDTO> selectDTOByProductId(Long productId);
 }

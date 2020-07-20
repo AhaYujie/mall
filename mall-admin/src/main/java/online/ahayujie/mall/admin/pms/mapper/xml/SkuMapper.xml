@@ -27,4 +27,52 @@
         where product_id = #{productId}
     </select>
 
+    <resultMap id="DTOResultMap" type="online.ahayujie.mall.admin.pms.bean.dto.ProductDTO$SkuDTO">
+        <result column="sku_id" property="id" />
+        <result column="sku_update_time" property="updateTime" />
+        <result column="sku_create_time" property="createTime" />
+        <result column="sku_product_id" property="productId" />
+        <result column="sku_code" property="skuCode" />
+        <result column="sku_price" property="price" />
+        <result column="sku_promotion_price" property="promotionPrice" />
+        <result column="sku_stock" property="stock" />
+        <result column="sku_lock_stock" property="lockStock" />
+        <result column="sku_low_stock" property="lowStock" />
+        <result column="sku_sale" property="sale" />
+        <result column="sku_pic" property="pic" />
+        <result column="sku_specification" property="specification" />
+        <collection property="skuImages" ofType="online.ahayujie.mall.admin.pms.bean.model.SkuImage">
+            <result column="image_id" property="id" />
+            <result column="image_update_time" property="updateTime" />
+            <result column="image_create_time" property="createTime" />
+            <result column="image_sku_id" property="skuId" />
+            <result column="image" property="image" />
+        </collection>
+    </resultMap>
+
+    <select id="selectDTOByProductId" resultMap="DTOResultMap">
+        select
+        s.id as sku_id,
+        s.product_id as sku_product_id,
+        s.update_time as sku_update_time,
+        s.create_time as sku_create_time,
+        s.lock_stock as sku_lock_stock,
+        s.low_stock as sku_low_stock,
+        s.pic as sku_pic,
+        s.price as sku_price,
+        s.promotion_price as sku_promotion_price,
+        s.sale as sku_sale,
+        s.sku_code as sku_code,
+        s.specification as sku_specification,
+        s.stock as sku_stock,
+        i.id as image_id,
+        i.sku_id as image_sku_id,
+        i.update_time as image_update_time,
+        i.create_time as image_create_time,
+        i.image as image
+        from pms_sku s
+        left join pms_sku_image i on s.id = i.sku_id
+        where s.product_id = #{productId}
+    </select>
+
 </mapper>

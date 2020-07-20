@@ -1,5 +1,6 @@
 package online.ahayujie.mall.admin.pms.mapper;
 
+import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
 import online.ahayujie.mall.admin.pms.bean.model.Sku;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -24,4 +25,11 @@ public interface SkuMapper extends BaseMapper<Sku> {
      * @return sku
      */
     List<Sku> selectByProductId(Long productId);
+
+    /**
+     * 根据商品id查询
+     * @param productId 商品id
+     * @return sku
+     */
+    List<ProductDTO.SkuDTO> selectDTOByProductId(Long productId);
 }

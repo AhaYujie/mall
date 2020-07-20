@@ -2,6 +2,7 @@ package online.ahayujie.mall.admin.pms.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.pms.bean.dto.CreateProductParam;
+import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
 import online.ahayujie.mall.admin.pms.bean.model.*;
 import online.ahayujie.mall.admin.pms.exception.IllegalProductParamException;
 import online.ahayujie.mall.admin.pms.exception.IllegalProductSpecificationException;
@@ -557,5 +558,26 @@ class ProductServiceImplTest {
         }
         createProduct.setImages(createProductImages);
         return createProduct;
+    }
+
+    @Test
+    void getProductById() {
+        // not exist
+        ProductDTO productDTO1 = productService.getProductById(-1L);
+        assertNull(productDTO1);
+
+        // exist
+        List<Product> oldProducts = productMapper.selectAll();
+        testSaveCreateSkus();
+        List<Product> newProducts = productMapper.selectAll();
+        Product product = null;
+        for (Product newProduct : newProducts) {
+            if (!oldProducts.contains(newProduct)) {
+                product = newProduct;
+            }
+        }
+        assertNotNull(product);
+        ProductDTO productDTO = productService.getProductById(product.getId());
+        log.debug("商品信息：" + productDTO);
     }
 }

@@ -28,4 +28,12 @@ public interface ProductParamService {
      * @return 保存后的商品参数
      */
     List<ProductParam> save(List<ProductParam> productParams);
+
+    /**
+     * 根据商品id获取该商品的参数信息。
+     * 若该商品不存在或者该商品没有参数信息则返回null。
+     * @param productId 商品id
+     * @return 商品参数
+     */
+    List<ProductParam> getByProductId(Long productId);
 }

@@ -1,5 +1,6 @@
 package online.ahayujie.mall.admin.pms.service;
 
+import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
 import online.ahayujie.mall.admin.pms.bean.model.ProductSpecification;
 import online.ahayujie.mall.admin.pms.bean.model.ProductSpecificationValue;
 import online.ahayujie.mall.admin.pms.exception.IllegalProductSpecificationException;
@@ -35,4 +36,12 @@ public interface ProductSpecificationService {
      * @return 保存成功后的商品规格选项信息
      */
     List<ProductSpecificationValue> saveSpecificationValues(List<ProductSpecificationValue> specificationValues);
+
+    /**
+     * 根据商品id获取商品的规格信息。
+     * 若该商品不存在或该商品无规格信息则返回null。
+     * @param productId 商品id
+     * @return 商品规格信息
+     */
+    List<ProductDTO.SpecificationDTO> getByProductId(Long productId);
 }

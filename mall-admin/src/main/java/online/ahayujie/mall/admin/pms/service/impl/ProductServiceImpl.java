@@ -2,6 +2,7 @@ package online.ahayujie.mall.admin.pms.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.pms.bean.dto.CreateProductParam;
+import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
 import online.ahayujie.mall.admin.pms.bean.dto.ProductSpecificationDTO;
 import online.ahayujie.mall.admin.pms.bean.model.*;
 import online.ahayujie.mall.admin.pms.exception.*;
@@ -156,6 +157,27 @@ public class ProductServiceImpl implements ProductService {
                 .contains(isPreview)) {
             throw new IllegalProductException("预告状态不合法: " + isPreview);
         }
+    }
+
+    @Override
+    public ProductDTO getProductById(Long id) {
+        // 商品信息
+        Product product = productMapper.selectById(id);
+        if (product == null) {
+            return null;
+        }
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setProduct(product);
+        // 商品参数
+        List<ProductParam> productParams = productParamService.getByProductId(id);
+        productDTO.setProductParams(productParams);
+        // 商品规格
+        List<ProductDTO.SpecificationDTO> specificationDTOS = productSpecificationService.getByProductId(id);
+        productDTO.setSpecifications(specificationDTOS);
+        // sku
+        List<ProductDTO.SkuDTO> skuDTOList = skuService.getByProductId(id);
+        productDTO.setSkus(skuDTOList);
+        return productDTO;
     }
 
     /**

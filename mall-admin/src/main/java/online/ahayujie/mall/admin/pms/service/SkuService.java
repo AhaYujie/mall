@@ -1,5 +1,6 @@
 package online.ahayujie.mall.admin.pms.service;
 
+import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
 import online.ahayujie.mall.admin.pms.bean.dto.ProductSpecificationDTO;
 import online.ahayujie.mall.admin.pms.bean.model.Sku;
 import online.ahayujie.mall.admin.pms.bean.model.SkuImage;
@@ -55,4 +56,11 @@ public interface SkuService {
      * @param relationships sku和商品规格关系
      */
     void saveSkuSpecificationRelationships(List<SkuSpecificationRelationship> relationships);
+
+    /**
+     * 根据商品id获取sku信息，若该商品不存在或该商品无sku信息则返回null。
+     * @param productId 商品id
+     * @return sku信息
+     */
+    List<ProductDTO.SkuDTO> getByProductId(Long productId);
 }

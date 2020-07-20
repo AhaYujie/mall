@@ -7,6 +7,7 @@ import online.ahayujie.mall.admin.pms.service.ProductParamService;
 import online.ahayujie.mall.admin.pms.service.ProductParamValueStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +50,15 @@ public class ProductParamServiceImpl implements ProductParamService {
     @Override
     public List<ProductParam> save(List<ProductParam> productParams) {
         productParamMapper.insertList(productParams);
+        return productParams;
+    }
+
+    @Override
+    public List<ProductParam> getByProductId(Long productId) {
+        List<ProductParam> productParams = productParamMapper.selectByProductId(productId);
+        if (CollectionUtils.isEmpty(productParams)) {
+            return null;
+        }
         return productParams;
     }
 

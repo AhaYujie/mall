@@ -4,12 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
 import online.ahayujie.mall.admin.pms.bean.dto.ProductSpecificationDTO;
 import online.ahayujie.mall.admin.pms.bean.model.Sku;
 import online.ahayujie.mall.admin.pms.bean.model.SkuImage;
 import online.ahayujie.mall.admin.pms.bean.model.SkuSpecificationRelationship;
 import online.ahayujie.mall.admin.pms.exception.IllegalSkuException;
 import online.ahayujie.mall.admin.pms.mapper.SkuImageMapper;
+import online.ahayujie.mall.admin.pms.mapper.SkuMapper;
 import online.ahayujie.mall.admin.pms.mapper.SkuSpecificationRelationshipMapper;
 import online.ahayujie.mall.admin.pms.service.SkuService;
 import online.ahayujie.mall.admin.pms.service.SpecificationValueStrategy;
@@ -37,12 +39,14 @@ import java.util.stream.Collectors;
 public class SkuServiceImpl implements SkuService {
     private SpecificationValueStrategyFactory specificationValueStrategyFactory;
 
+    private final SkuMapper skuMapper;
     private final ObjectMapper objectMapper;
     private final SkuImageMapper skuImageMapper;
     private final SkuSpecificationRelationshipMapper skuSpecificationRelationshipMapper;
 
-    public SkuServiceImpl(ObjectMapper objectMapper, SkuImageMapper skuImageMapper,
+    public SkuServiceImpl(SkuMapper skuMapper, ObjectMapper objectMapper, SkuImageMapper skuImageMapper,
                           SkuSpecificationRelationshipMapper skuSpecificationRelationshipMapper) {
+        this.skuMapper = skuMapper;
         this.objectMapper = objectMapper;
         this.skuImageMapper = skuImageMapper;
         this.skuSpecificationRelationshipMapper = skuSpecificationRelationshipMapper;
@@ -138,6 +142,15 @@ public class SkuServiceImpl implements SkuService {
             return;
         }
         skuSpecificationRelationshipMapper.insertList(relationships);
+    }
+
+    @Override
+    public List<ProductDTO.SkuDTO> getByProductId(Long productId) {
+        List<ProductDTO.SkuDTO> skuDTOList = skuMapper.selectDTOByProductId(productId);
+        if (CollectionUtils.isEmpty(skuDTOList)) {
+            return null;
+        }
+        return skuDTOList;
     }
 
     @Data
