@@ -63,4 +63,10 @@ public interface SkuService {
      * @return sku信息
      */
     List<ProductDTO.SkuDTO> getByProductId(Long productId);
+
+    /**
+     * 根据sku主键删除sku的图片
+     * @param skuId sku主键
+     */
+    void deleteSkuImage(Long skuId);
 }

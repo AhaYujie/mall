@@ -153,6 +153,11 @@ public class SkuServiceImpl implements SkuService {
         return skuDTOList;
     }
 
+    @Override
+    public void deleteSkuImage(Long skuId) {
+        skuImageMapper.deleteBySkuId(skuId);
+    }
+
     @Data
     private static class SpecificationItemJson {
         private String key;

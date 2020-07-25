@@ -55,12 +55,18 @@ public class ProductSpecificationServiceImpl implements ProductSpecificationServ
 
     @Override
     public List<ProductSpecification> saveSpecifications(List<ProductSpecification> productSpecifications) {
+        if (CollectionUtils.isEmpty(productSpecifications)) {
+            return null;
+        }
         productSpecificationMapper.insertList(productSpecifications);
         return productSpecifications;
     }
 
     @Override
     public List<ProductSpecificationValue> saveSpecificationValues(List<ProductSpecificationValue> specificationValues) {
+        if (CollectionUtils.isEmpty(specificationValues)) {
+            return null;
+        }
         productSpecificationValueMapper.insertList(specificationValues);
         return specificationValues;
     }
@@ -72,6 +78,16 @@ public class ProductSpecificationServiceImpl implements ProductSpecificationServ
             return null;
         }
         return specificationDTOS;
+    }
+
+    @Override
+    public ProductSpecification getSpecificationById(Long id) {
+        return productSpecificationMapper.selectById(id);
+    }
+
+    @Override
+    public ProductSpecificationValue getSpecificationValueById(Long id) {
+        return productSpecificationValueMapper.selectById(id);
     }
 
     @Autowired

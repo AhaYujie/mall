@@ -2,6 +2,7 @@ package online.ahayujie.mall.admin.pms.bean.model;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
+import lombok.ToString;
 import online.ahayujie.mall.common.bean.model.Base;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
@@ -19,6 +20,7 @@ import lombok.experimental.Accessors;
  * @since 2020-07-14
  */
 @Data
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("pms_product_param")

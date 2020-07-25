@@ -32,4 +32,11 @@ public interface ProductImageMapper extends BaseMapper<ProductImage> {
      * @return 插入数量
      */
     int insertList(@Param("list") List<ProductImage> productImages);
+
+    /**
+     * 根据商品id删除
+     * @param productId 商品id
+     * @return 删除数量
+     */
+    int deleteByProductId(Long productId);
 }

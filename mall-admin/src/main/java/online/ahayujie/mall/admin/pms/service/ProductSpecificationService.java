@@ -24,14 +24,15 @@ public interface ProductSpecificationService {
     void validate(ProductSpecificationValue specificationValue) throws IllegalProductSpecificationException;
 
     /**
-     * 保存商品规格信息
+     * 保存商品规格信息。
+     * 若 {@code productSpecifications} 为null或空则返回null。
      * @param productSpecifications 商品规格信息
      * @return 保存成功后的商品规格信息
      */
     List<ProductSpecification> saveSpecifications(List<ProductSpecification> productSpecifications);
 
     /**
-     * 保存商品规格选项信息
+     * 保存商品规格选项信息，如果 {@code specificationValues} 为空则返回null。
      * @param specificationValues 商品规格选项信息
      * @return 保存成功后的商品规格选项信息
      */
@@ -44,4 +45,18 @@ public interface ProductSpecificationService {
      * @return 商品规格信息
      */
     List<ProductDTO.SpecificationDTO> getByProductId(Long productId);
+
+    /**
+     * 根据商品规格id获取商品规格，若不存在则返回null。
+     * @param id 商品规格id
+     * @return 商品规格
+     */
+    ProductSpecification getSpecificationById(Long id);
+
+    /**
+     * 根据商品规格选项id获取商品规格选项，若不存在则返回null。
+     * @param id 商品规格选项id
+     * @return 商品规格选项
+     */
+    ProductSpecificationValue getSpecificationValueById(Long id);
 }

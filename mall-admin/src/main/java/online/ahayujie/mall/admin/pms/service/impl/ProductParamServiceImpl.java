@@ -49,6 +49,9 @@ public class ProductParamServiceImpl implements ProductParamService {
 
     @Override
     public List<ProductParam> save(List<ProductParam> productParams) {
+        if (CollectionUtils.isEmpty(productParams)) {
+            return null;
+        }
         productParamMapper.insertList(productParams);
         return productParams;
     }
@@ -60,6 +63,20 @@ public class ProductParamServiceImpl implements ProductParamService {
             return null;
         }
         return productParams;
+    }
+
+    @Override
+    public void delete(List<Long> ids) {
+        if (!CollectionUtils.isEmpty(ids)) {
+            productParamMapper.deleteBatchIds(ids);
+        }
+    }
+
+    @Override
+    public void update(List<ProductParam> productParams) {
+        if (!CollectionUtils.isEmpty(productParams)) {
+            productParams.forEach(productParamMapper::updateById);
+        }
     }
 
     @Autowired

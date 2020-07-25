@@ -38,4 +38,11 @@ public interface SkuImageMapper extends BaseMapper<SkuImage> {
      * @return sku图片
      */
     List<SkuImage> selectBySkuId(Long skuId);
+
+    /**
+     * 根据sku主键删除
+     * @param skuId sku主键
+     * @return 删除数量
+     */
+    int deleteBySkuId(Long skuId);
 }

@@ -1,25 +1,21 @@
 package online.ahayujie.mall.admin.pms.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import online.ahayujie.mall.admin.pms.bean.dto.CreateProductParam;
-import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
-import online.ahayujie.mall.admin.pms.bean.dto.ProductSpecificationDTO;
+import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.*;
 import online.ahayujie.mall.admin.pms.exception.*;
 import online.ahayujie.mall.admin.pms.mapper.ProductImageMapper;
 import online.ahayujie.mall.admin.pms.mapper.ProductMapper;
 import online.ahayujie.mall.admin.pms.mapper.SkuMapper;
 import online.ahayujie.mall.admin.pms.service.*;
+import online.ahayujie.mall.common.bean.model.Base;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -160,6 +156,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public void validateProduct(Long id) throws IllegalProductException {
+        if (productMapper.selectById(id) == null) {
+            throw new IllegalProductException("商品不存在：" + id);
+        }
+    }
+
+    @Override
     public ProductDTO getProductById(Long id) {
         // 商品信息
         Product product = productMapper.selectById(id);
@@ -178,6 +181,231 @@ public class ProductServiceImpl implements ProductService {
         List<ProductDTO.SkuDTO> skuDTOList = skuService.getByProductId(id);
         productDTO.setSkus(skuDTOList);
         return productDTO;
+    }
+
+    @Override
+    public void updateProduct(Long id, UpdateProductParam param) throws IllegalProductException,
+            IllegalProductCategoryException, IllegalBrandException {
+        validateProduct(id);
+        Product product = new Product();
+        product.setId(id);
+        product.setUpdateTime(new Date());
+        BeanUtils.copyProperties(param, product);
+        validateProduct(product);
+        completeProduct(product);
+        productMapper.updateById(product);
+        // 更新商品图片
+        productImageMapper.deleteByProductId(id);
+        if (!CollectionUtils.isEmpty(param.getImages())) {
+            List<ProductImage> productImages = param.getImages().stream()
+                    .map(source -> {
+                        ProductImage target = new ProductImage();
+                        BeanUtils.copyProperties(source, target);
+                        target.setProductId(id);
+                        target.setCreateTime(new Date());
+                        return target;
+                    }).collect(Collectors.toList());
+            productImageMapper.insertList(productImages);
+        }
+    }
+
+    @Override
+    public void updateParam(Long id, UpdateProductParamParam param) throws IllegalProductException, IllegalProductParamException {
+        validateProduct(id);
+        // 检查商品参数合法性
+        List<ProductParam> productParams = param.getProductParams().stream()
+                .map(source -> {
+                    ProductParam target = new ProductParam();
+                    BeanUtils.copyProperties(source, target);
+                    return target;
+                }).collect(Collectors.toList());
+        productParams.forEach(productParamService::validate);
+
+        List<ProductParam> oldProductParams = productParamService.getByProductId(id);
+        if (oldProductParams == null) oldProductParams = new ArrayList<>();
+        List<Long> oldParamIds = oldProductParams.stream().map(Base::getId).collect(Collectors.toList());
+        List<Long> paramIds = productParams.stream().map(Base::getId).collect(Collectors.toList());
+        // 删除商品参数
+        List<Long> deleteParamIds = oldParamIds.stream()
+                .filter(paramId -> !paramIds.contains(paramId))
+                .collect(Collectors.toList());
+        productParamService.delete(deleteParamIds);
+        // 更新商品参数
+        List<ProductParam> updateProductParams = productParams.stream()
+                .filter(productParam -> productParam.getId() != null)
+                .filter(productParam -> oldParamIds.contains(productParam.getId()))
+                .collect(Collectors.toList());
+        updateProductParams.forEach(productParam -> productParam.setUpdateTime(new Date()));
+        productParamService.update(updateProductParams);
+        // 新增商品参数
+        List<ProductParam> addProductParams = productParams.stream()
+                .filter(productParam -> productParam.getId() == null)
+                .collect(Collectors.toList());
+        addProductParams.forEach(productParam -> {
+            productParam.setProductId(id);
+            productParam.setCreateTime(new Date());
+        });
+        productParamService.save(addProductParams);
+    }
+
+    @Override
+    public void updateSpecification(Long id, UpdateProductSpecificationParam param) throws IllegalProductException,
+            IllegalProductSpecificationException {
+        validateProduct(id);
+        List<ProductSpecificationValue> allSpecificationValues = new ArrayList<>();
+        // 检查商品规格合法性
+        for (UpdateProductSpecificationParam.UpdateSpecification updateSpecification : param.getSpecifications()) {
+            Long specificationId = updateSpecification.getId();
+            ProductSpecification specification = productSpecificationService.getSpecificationById(specificationId);
+            if (specification == null) {
+                throw new IllegalProductSpecificationException("商品规格不存在：" + specificationId);
+            }
+            if (!Objects.equals(id, specification.getProductId())) {
+                throw new IllegalProductSpecificationException("规格不属于该商品");
+            }
+            if (!CollectionUtils.isEmpty(updateSpecification.getValues())) {
+                List<ProductSpecificationValue> specificationValues = updateSpecification.getValues().stream().map(source -> {
+                    ProductSpecificationValue target = new ProductSpecificationValue();
+                    target.setProductSpecificationId(specificationId);
+                    target.setCreateTime(new Date());
+                    BeanUtils.copyProperties(source, target);
+                    return target;
+                }).collect(Collectors.toList());
+                specificationValues.forEach(productSpecificationService::validate);
+                allSpecificationValues.addAll(specificationValues);
+            }
+        }
+        productSpecificationService.saveSpecificationValues(allSpecificationValues);
+    }
+
+    @Override
+    public void updateSku(Long id, UpdateSkuParam param) throws IllegalProductException, IllegalSkuException, IllegalProductSpecificationException {
+        validateProduct(id);
+        // 新增的sku
+        List<UpdateSkuParam.UpdateSku> addSkuParams = param.getSkus().stream()
+                .filter(sku -> sku.getId() == null).collect(Collectors.toList());
+        List<Sku> addSkus = new ArrayList<>();
+        for (int index = 0; index < addSkuParams.size(); index++) {
+            UpdateSkuParam.UpdateSku source = addSkuParams.get(index);
+            Sku target = new Sku();
+            target.setProductId(id);
+            target.setCreateTime(new Date());
+            BeanUtils.copyProperties(source, target);
+            if (target.getSkuCode() == null) {
+                target.setSkuCode(skuService.generateSkuCode(target, index));
+            }
+            addSkus.add(target);
+        }
+        // 更新的sku
+        List<UpdateSkuParam.UpdateSku> updateSkuParams = param.getSkus().stream()
+                .filter(sku -> sku.getId() != null).collect(Collectors.toList());
+        List<Sku> updateSkus = new ArrayList<>();
+        for (UpdateSkuParam.UpdateSku source : updateSkuParams) {
+            Sku target = new Sku();
+            target.setUpdateTime(new Date());
+            BeanUtils.copyProperties(source, target);
+            updateSkus.add(target);
+        }
+        // 检查sku合法性
+        addSkus.forEach(skuService::validate);
+        updateSkus.forEach(skuService::validate);
+        // 检查新增的sku的商品规格合法性
+        if (!CollectionUtils.isEmpty(addSkus)) {
+            List<ProductDTO.SpecificationDTO> specificationDTOS = productSpecificationService.getByProductId(id);
+            for (UpdateSkuParam.UpdateSku updateSku : addSkuParams) {
+                if (CollectionUtils.isEmpty(updateSku.getSpecifications())) {
+                    throw new IllegalProductSpecificationException("sku的商品规格为空");
+                }
+                if (updateSku.getSpecifications().size() != specificationDTOS.size()) {
+                    throw new IllegalProductSpecificationException("sku的商品规格数量不合法");
+                }
+                for (ProductDTO.SpecificationDTO specificationDTO : specificationDTOS) {
+                    boolean isSpecificationExist = false;
+                    for (UpdateSkuParam.UpdateSkuSpecificationRelationship relationship : updateSku.getSpecifications()) {
+                        Long specificationId = relationship.getSpecificationId();
+                        Long specificationValueId = relationship.getSpecificationValueId();
+                        if (specificationDTO.getId().equals(specificationId)) {
+                            isSpecificationExist = true;
+                            boolean isSpecificationValueExist = false;
+                            for (ProductSpecificationValue specificationValue : specificationDTO.getSpecificationValues()) {
+                                if (specificationValue.getId().equals(specificationValueId)) {
+                                    isSpecificationValueExist = true;
+                                    break;
+                                }
+                            }
+                            if (!isSpecificationValueExist) {
+                                throw new IllegalProductSpecificationException("商品规格" + specificationId + "选项不存在：" + specificationValueId);
+                            }
+                            break;
+                        }
+                    }
+                    if (!isSpecificationExist) {
+                        throw new IllegalProductSpecificationException("缺少商品规格");
+                    }
+                }
+            }
+        }
+
+        // 保存新增的sku
+        List<SkuImage> allAddSkuImages = new ArrayList<>();
+        List<SkuSpecificationRelationship> allAddSkuSpecificationRelationships = new ArrayList<>();
+        for (int index = 0; index < addSkus.size(); index++) {
+            UpdateSkuParam.UpdateSku updateSku = addSkuParams.get(index);
+            List<ProductSpecificationDTO> specificationDTOS = updateSku.getSpecifications().stream().map(source -> {
+                ProductSpecificationDTO target = new ProductSpecificationDTO();
+                target.setSpecification(productSpecificationService.getSpecificationById(source.getSpecificationId()));
+                target.setSpecificationValue(productSpecificationService.getSpecificationValueById(source.getSpecificationValueId()));
+                return target;
+            }).collect(Collectors.toList());
+            Sku sku = addSkus.get(index);
+            sku.setSpecification(skuService.generateSpecification(specificationDTOS));
+            skuMapper.insert(sku);
+            if (!CollectionUtils.isEmpty(updateSku.getImages())) {
+                List<SkuImage> skuImages = updateSku.getImages().stream().map(source -> {
+                    SkuImage target = new SkuImage();
+                    target.setSkuId(sku.getId());
+                    target.setCreateTime(new Date());
+                    BeanUtils.copyProperties(source, target);
+                    return target;
+                }).collect(Collectors.toList());
+                allAddSkuImages.addAll(skuImages);
+            }
+            if (!CollectionUtils.isEmpty(updateSku.getSpecifications())) {
+                List<SkuSpecificationRelationship> relationships = updateSku.getSpecifications().stream().map(source -> {
+                    SkuSpecificationRelationship target = new SkuSpecificationRelationship();
+                    target.setSkuId(sku.getId());
+                    target.setCreateTime(new Date());
+                    BeanUtils.copyProperties(source, target);
+                    return target;
+                }).collect(Collectors.toList());
+                allAddSkuSpecificationRelationships.addAll(relationships);
+            }
+        }
+        skuService.saveSkuImages(allAddSkuImages);
+        skuService.saveSkuSpecificationRelationships(allAddSkuSpecificationRelationships);
+        // 保存更新的sku
+        List<SkuImage> allUpdateSkuImages = new ArrayList<>();
+        for (int index = 0; index < updateSkus.size(); index++) {
+            UpdateSkuParam.UpdateSku updateSku = updateSkuParams.get(index);
+            Sku sku = updateSkus.get(index);
+            skuMapper.updateById(sku);
+            // 图片列表不为null时用新图片替换旧图片
+            List<UpdateSkuParam.UpdateSkuImage> updateSkuImages = updateSku.getImages();
+            if (updateSkuImages != null) {
+                // 删除旧图片
+                skuService.deleteSkuImage(sku.getId());
+                // 获取新图片
+                List<SkuImage> skuImages = updateSkuImages.stream().map(source -> {
+                    SkuImage target = new SkuImage();
+                    target.setSkuId(sku.getId());
+                    target.setCreateTime(new Date());
+                    BeanUtils.copyProperties(source, target);
+                    return target;
+                }).collect(Collectors.toList());
+                allUpdateSkuImages.addAll(skuImages);
+            }
+        }
+        skuService.saveSkuImages(allUpdateSkuImages);
     }
 
     /**

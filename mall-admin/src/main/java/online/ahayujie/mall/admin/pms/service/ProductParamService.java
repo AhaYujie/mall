@@ -23,7 +23,8 @@ public interface ProductParamService {
     void validate(ProductParam productParam) throws IllegalProductParamException;
 
     /**
-     * 保存商品参数
+     * 保存商品参数。
+     * 若 {@code ids} 为null或空则不做处理并返回null。
      * @param productParams 商品参数
      * @return 保存后的商品参数
      */
@@ -36,4 +37,20 @@ public interface ProductParamService {
      * @return 商品参数
      */
     List<ProductParam> getByProductId(Long productId);
+
+    /**
+     * 根据商品参数id删除。
+     * 若 {@code ids} 为null或空则不做处理。
+     * 若某商品参数不存在则忽略。
+     * @param ids 商品参数id
+     */
+    void delete(List<Long> ids);
+
+    /**
+     * 根据商品参数id更新。
+     * 若 {@code productParams} 为null或空则不做处理。
+     * 若某商品参数不存在则忽略。
+     * @param productParams 商品参数
+     */
+    void update(List<ProductParam> productParams);
 }

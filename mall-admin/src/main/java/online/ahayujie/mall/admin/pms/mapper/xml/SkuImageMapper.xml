@@ -31,4 +31,9 @@
         where sku_id = #{skuId}
     </select>
 
+    <delete id="deleteBySkuId">
+        delete from pms_sku_image
+        where sku_id = #{skuId}
+    </delete>
+
 </mapper>

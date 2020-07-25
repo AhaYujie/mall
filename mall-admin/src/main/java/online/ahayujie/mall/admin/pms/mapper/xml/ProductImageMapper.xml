@@ -25,4 +25,9 @@
         </foreach>
     </insert>
 
+    <delete id="deleteByProductId">
+        delete from pms_product_image
+        where product_id = #{productId}
+    </delete>
+
 </mapper>

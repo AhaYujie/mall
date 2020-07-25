@@ -1,22 +1,22 @@
 package online.ahayujie.mall.admin.pms.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import online.ahayujie.mall.admin.pms.bean.dto.CreateProductParam;
-import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
+import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.*;
-import online.ahayujie.mall.admin.pms.exception.IllegalProductParamException;
-import online.ahayujie.mall.admin.pms.exception.IllegalProductSpecificationException;
-import online.ahayujie.mall.admin.pms.exception.IllegalSkuException;
+import online.ahayujie.mall.admin.pms.exception.*;
 import online.ahayujie.mall.admin.pms.mapper.*;
 import online.ahayujie.mall.admin.pms.service.ProductService;
+import online.ahayujie.mall.common.bean.model.Base;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -579,5 +579,365 @@ class ProductServiceImplTest {
         assertNotNull(product);
         ProductDTO productDTO = productService.getProductById(product.getId());
         log.debug("商品信息：" + productDTO);
+    }
+
+    @Test
+    void updateProduct() {
+        // 新增商品
+        List<Product> oldProducts = productMapper.selectAll();
+        testSaveCreateSkus();
+        List<Product> newProducts = productMapper.selectAll();
+        Product product = null;
+        for (Product newProduct : newProducts) {
+            if (!oldProducts.contains(newProduct)) {
+                product = newProduct;
+            }
+        }
+        assertNotNull(product);
+        Product createdProduct = product;
+
+        // illegal
+        // 商品不存在
+        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.updateProduct(-1L, null));
+        log.debug(throwable.getMessage());
+        // 商品分类不存在
+        UpdateProductParam param = new UpdateProductParam();
+        param.setProductCategoryId(-1L);
+        Throwable throwable1 = assertThrows(IllegalProductCategoryException.class, () -> productService.updateProduct(createdProduct.getId(), param));
+        log.debug(throwable1.getMessage());
+        // 商品品牌不存在
+        UpdateProductParam param1 = new UpdateProductParam();
+        param1.setBrandId(-1L);
+        Throwable throwable2 = assertThrows(IllegalBrandException.class, () -> productService.updateProduct(createdProduct.getId(), param1));
+        log.debug(throwable2.getMessage());
+
+        // legal
+        // 无商品图片
+        UpdateProductParam param2 = new UpdateProductParam();
+        Brand brand = new Brand();
+        brand.setName("new brand");
+        brandMapper.insert(brand);
+        param2.setBrandId(brand.getId());
+        ProductCategory productCategory = new ProductCategory();
+        productCategory.setName("new category");
+        productCategoryMapper.insert(productCategory);
+        param2.setProductCategoryId(productCategory.getId());
+        param2.setProductSn("update sn");
+        param2.setName("update name");
+        param2.setPic("update pic");
+        param2.setSubTitle("update sub title");
+        param2.setDescription("update description");
+        param2.setDetailTitle("update detail title");
+        param2.setDetailDescription("update detail description");
+        param2.setDetailHtml("update detail html");
+        param2.setDetailMobileHtml("update mobile html");
+        param2.setPrice(new BigDecimal("299.99"));
+        param2.setOriginalPrice(new BigDecimal("3999.99"));
+        param2.setStock(999);
+        param2.setLowStock(1);
+        param2.setUnit("unit");
+        param2.setNote("update note");
+        param2.setKeywords("update keywords");
+        param2.setSort(999);
+        param2.setGiftGrowth(99999);
+        param2.setGiftPoint(999);
+        param2.setUsePointLimit(2222);
+        param2.setServiceIds("1,2,3");
+        param2.setPromotionType(Product.PromotionType.MEMBER_PRICE.getValue());
+        param2.setIsPublish(Product.PublishStatus.NOT_PUBLISH.getValue());
+        param2.setIsNew(Product.NewStatus.NOT_NEW.getValue());
+        param2.setIsRecommend(Product.RecommendStatus.NOT_RECOMMEND.getValue());
+        param2.setIsPreview(Product.PreviewStatus.PREVIEW.getValue());
+        productService.updateProduct(createdProduct.getId(), param2);
+        Product updateProduct = productMapper.selectById(createdProduct.getId());
+        Product cmpProduct = new Product();
+        BeanUtils.copyProperties(updateProduct, cmpProduct);
+        BeanUtils.copyProperties(param2, cmpProduct);
+        log.debug("updateProduct: " + updateProduct);
+        assertEquals(cmpProduct, updateProduct);
+        List<ProductImage> productImages = productImageMapper.selectByProductId(createdProduct.getId());
+        assertEquals(0, productImages.size());
+        // 有商品图片
+        UpdateProductParam param3 = new UpdateProductParam();
+        BeanUtils.copyProperties(param2, param3);
+        List<UpdateProductParam.UpdateProductImage> updateProductImages = new ArrayList<>();
+        for (int i = 0; i < new Random().nextInt(20) + 1; i++) {
+            UpdateProductParam.UpdateProductImage updateProductImage = new UpdateProductParam.UpdateProductImage();
+            updateProductImage.setImage("for test: " + i);
+            updateProductImages.add(updateProductImage);
+        }
+        param3.setImages(updateProductImages);
+        productService.updateProduct(createdProduct.getId(), param3);
+        Product updateProduct1 = productMapper.selectById(createdProduct.getId());
+        Product cmpProduct1 = new Product();
+        BeanUtils.copyProperties(updateProduct1, cmpProduct1);
+        BeanUtils.copyProperties(param3, cmpProduct1);
+        log.debug("updateProduct1: " + updateProduct1);
+        assertEquals(cmpProduct1, updateProduct1);
+        List<ProductImage> productImages1 = productImageMapper.selectByProductId(createdProduct.getId());
+        log.debug("productImages1: " + productImages1);
+        assertEquals(updateProductImages.size(), productImages1.size());
+    }
+
+    @Test
+    void updateParam() {
+        List<Product> oldProducts = productMapper.selectAll();
+        testSaveCreateSkus();
+        List<Product> newProducts = productMapper.selectAll();
+        Product product = null;
+        for (Product newProduct : newProducts) {
+            if (!oldProducts.contains(newProduct)) {
+                product = newProduct;
+            }
+        }
+        assertNotNull(product);
+        Random random = new Random();
+
+        // 新增商品参数
+        List<ProductParam> oldProductParams = productParamMapper.selectByProductId(product.getId());
+        UpdateProductParamParam param = new UpdateProductParamParam();
+        List<UpdateProductParamParam.UpdateProductParam> updateProductParams = oldProductParams.stream()
+                .map(source -> {
+                    UpdateProductParamParam.UpdateProductParam updateProductParam = new UpdateProductParamParam.UpdateProductParam();
+                    updateProductParam.setId(source.getId());
+                    return updateProductParam;
+                }).collect(Collectors.toList());
+        for (int i = 0; i < random.nextInt(10) + 1; i++) {
+            UpdateProductParamParam.UpdateProductParam updateProductParam = new UpdateProductParamParam.UpdateProductParam();
+            updateProductParam.setName("for test: " + i);
+            updateProductParam.setType(ProductParam.Type.TEXT.getValue());
+            updateProductParam.setValue("{\"name\" : \"test\"}");
+            updateProductParams.add(updateProductParam);
+        }
+        param.setProductParams(updateProductParams);
+        productService.updateParam(product.getId(), param);
+        List<ProductParam> newProductParams = productParamMapper.selectByProductId(product.getId());
+        log.debug("newProductParams: " + newProductParams);
+        assertEquals(updateProductParams.size(), newProductParams.size());
+
+        // 修改商品参数
+        UpdateProductParamParam param1 = new UpdateProductParamParam();
+        List<UpdateProductParamParam.UpdateProductParam> updateProductParams1 = new ArrayList<>();
+        for (ProductParam productParam : newProductParams) {
+            UpdateProductParamParam.UpdateProductParam updateProductParam = new UpdateProductParamParam.UpdateProductParam();
+            updateProductParam.setId(productParam.getId());
+            updateProductParam.setName("update name");
+            updateProductParam.setType(ProductParam.Type.IMAGE_TEXT.getValue());
+            updateProductParam.setValue("{\"name\" : \"update name\", \"image\" : \"image\"}");
+            updateProductParams1.add(updateProductParam);
+        }
+        param1.setProductParams(updateProductParams1);
+        productService.updateParam(product.getId(), param1);
+        List<ProductParam> newProductParams1 = productParamMapper.selectByProductId(product.getId());
+        log.debug("newProductParams1: " + newProductParams1);
+        assertEquals(updateProductParams1.size(), newProductParams1.size());
+        List<ProductParam> cmps = updateProductParams1.stream()
+                .map(source -> {
+                    ProductParam productParam = new ProductParam();
+                    for (ProductParam newProductParam : newProductParams1) {
+                        if (source.getId().equals(newProductParam.getId())) {
+                            BeanUtils.copyProperties(newProductParam, productParam);
+                        }
+                    }
+                    BeanUtils.copyProperties(source, productParam);
+                    return productParam;
+                }).collect(Collectors.toList());
+        assertTrue(newProductParams1.containsAll(cmps));
+
+        // 删除全部商品参数
+        UpdateProductParamParam param2 = new UpdateProductParamParam();
+        param2.setProductParams(new ArrayList<>());
+        productService.updateParam(product.getId(), param2);
+        List<ProductParam> newProductParams2 = productParamMapper.selectByProductId(product.getId());
+        assertTrue(CollectionUtils.isEmpty(newProductParams2));
+    }
+
+    @Test
+    void updateSpecification() {
+        List<Product> oldProducts = productMapper.selectAll();
+        testSaveCreateSkus();
+        List<Product> newProducts = productMapper.selectAll();
+        Product product = null;
+        for (Product newProduct : newProducts) {
+            if (!oldProducts.contains(newProduct)) {
+                product = newProduct;
+            }
+        }
+        assertNotNull(product);
+        Long productId = product.getId();
+        ProductDTO productDTO = productService.getProductById(productId);
+        List<ProductDTO.SpecificationDTO> specificationDTOList = productDTO.getSpecifications();
+
+        // illegal
+        // 商品不存在
+        UpdateProductSpecificationParam param = new UpdateProductSpecificationParam();
+        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.updateSpecification(-1L, param));
+        log.debug(throwable.getMessage());
+        // 商品规格不存在
+        UpdateProductSpecificationParam param1 = new UpdateProductSpecificationParam();
+        UpdateProductSpecificationParam.UpdateSpecification updateSpecification = new UpdateProductSpecificationParam.UpdateSpecification();
+        updateSpecification.setValues(null);
+        param1.setSpecifications(Collections.singletonList(updateSpecification));
+        Throwable throwable1 = assertThrows(IllegalProductSpecificationException.class, () -> productService.updateSpecification(productId, param1));
+        log.debug(throwable1.getMessage());
+
+        // legal
+        UpdateProductSpecificationParam param2 = new UpdateProductSpecificationParam();
+        UpdateProductSpecificationParam.UpdateSpecification updateSpecification1 = new UpdateProductSpecificationParam.UpdateSpecification();
+        updateSpecification1.setId(specificationDTOList.get(0).getId());
+        List<UpdateProductSpecificationParam.UpdateSpecificationValue> updateSpecificationValues = new ArrayList<>();
+        for (int i = 0; i < new Random().nextInt(20) + 10; i++) {
+            UpdateProductSpecificationParam.UpdateSpecificationValue updateSpecificationValue = new UpdateProductSpecificationParam.UpdateSpecificationValue();
+            updateSpecificationValue.setType(ProductSpecificationValue.Type.TEXT.getValue());
+            updateSpecificationValue.setValue("{\"name\" : \"新选项\"}");
+            updateSpecificationValues.add(updateSpecificationValue);
+        }
+        updateSpecification1.setValues(updateSpecificationValues);
+        UpdateProductSpecificationParam.UpdateSpecification updateSpecification2 = new UpdateProductSpecificationParam.UpdateSpecification();
+        updateSpecification2.setId(specificationDTOList.get(1).getId());
+        updateSpecification2.setValues(new ArrayList<>());
+        param2.setSpecifications(Arrays.asList(updateSpecification1, updateSpecification2));
+        productService.updateSpecification(productId, param2);
+        List<ProductDTO.SpecificationDTO> specificationDTOList1 = productService.getProductById(productId).getSpecifications();
+        log.debug("specificationDTOList1: " + specificationDTOList1);
+        assertEquals(specificationDTOList.get(0).getSpecificationValues().size() + updateSpecification1.getValues().size(),
+                specificationDTOList1.get(0).getSpecificationValues().size());
+        assertEquals(specificationDTOList.get(1).getSpecificationValues().size() + updateSpecification2.getValues().size(),
+                specificationDTOList1.get(1).getSpecificationValues().size());
+    }
+
+    @Test
+    void updateSku() {
+        List<Product> oldProducts = productMapper.selectAll();
+        testSaveCreateSkus();
+        List<Product> newProducts = productMapper.selectAll();
+        Product product = null;
+        for (Product newProduct : newProducts) {
+            if (!oldProducts.contains(newProduct)) {
+                product = newProduct;
+            }
+        }
+        assertNotNull(product);
+        Long productId = product.getId();
+        ProductDTO productDTO = productService.getProductById(productId);
+        List<ProductDTO.SpecificationDTO> specificationDTOS = productDTO.getSpecifications();
+        List<ProductDTO.SkuDTO> skuDTOList = productDTO.getSkus();
+
+        // illegal
+        // 商品不存在
+        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.updateSku(-1L, null));
+        log.debug(throwable.getMessage());
+        // sku商品规格为空
+        UpdateSkuParam param = new UpdateSkuParam();
+        UpdateSkuParam.UpdateSku updateSku = new UpdateSkuParam.UpdateSku();
+        param.setSkus(Collections.singletonList(updateSku));
+        Throwable throwable1 = assertThrows(IllegalProductSpecificationException.class, () -> productService.updateSku(productId, param));
+        log.debug(throwable1.getMessage());
+        // sku商品规格数量不合法
+        UpdateSkuParam param1 = new UpdateSkuParam();
+        UpdateSkuParam.UpdateSku updateSku1 = new UpdateSkuParam.UpdateSku();
+        UpdateSkuParam.UpdateSkuSpecificationRelationship updateSkuSpecificationRelationship = new UpdateSkuParam.UpdateSkuSpecificationRelationship();
+        updateSkuSpecificationRelationship.setSpecificationId(-1L);
+        updateSku1.setSpecifications(Collections.singletonList(updateSkuSpecificationRelationship));
+        param1.setSkus(Collections.singletonList(updateSku1));
+        Throwable throwable2 = assertThrows(IllegalProductSpecificationException.class, () -> productService.updateSku(productId, param1));
+        log.debug(throwable2.getMessage());
+        // 缺少sku商品规格
+        UpdateSkuParam param2 = new UpdateSkuParam();
+        UpdateSkuParam.UpdateSku updateSku2 = new UpdateSkuParam.UpdateSku();
+        List<UpdateSkuParam.UpdateSkuSpecificationRelationship> updateSkuSpecificationRelationships = new ArrayList<>();
+        for (ProductDTO.SpecificationDTO specificationDTO : specificationDTOS) {
+            UpdateSkuParam.UpdateSkuSpecificationRelationship updateSkuSpecificationRelationship1 = new UpdateSkuParam.UpdateSkuSpecificationRelationship();
+            updateSkuSpecificationRelationship1.setSpecificationId(-1L);
+            updateSkuSpecificationRelationship1.setSpecificationValueId(specificationDTO.getSpecificationValues().get(0).getId());
+            updateSkuSpecificationRelationships.add(updateSkuSpecificationRelationship1);
+        }
+        updateSku2.setSpecifications(updateSkuSpecificationRelationships);
+        param2.setSkus(Collections.singletonList(updateSku2));
+        Throwable throwable3 = assertThrows(IllegalProductSpecificationException.class, () -> productService.updateSku(productId, param2));
+        log.debug(throwable3.getMessage());
+        // sku商品规格选项不存在
+        UpdateSkuParam param3 = new UpdateSkuParam();
+        UpdateSkuParam.UpdateSku updateSku3 = new UpdateSkuParam.UpdateSku();
+        List<UpdateSkuParam.UpdateSkuSpecificationRelationship> updateSkuSpecificationRelationships1 = new ArrayList<>();
+        for (ProductDTO.SpecificationDTO specificationDTO : specificationDTOS) {
+            UpdateSkuParam.UpdateSkuSpecificationRelationship updateSkuSpecificationRelationship1 = new UpdateSkuParam.UpdateSkuSpecificationRelationship();
+            updateSkuSpecificationRelationship1.setSpecificationId(specificationDTO.getId());
+            updateSkuSpecificationRelationship1.setSpecificationValueId(-1L);
+            updateSkuSpecificationRelationships1.add(updateSkuSpecificationRelationship1);
+        }
+        updateSku3.setSpecifications(updateSkuSpecificationRelationships1);
+        param3.setSkus(Collections.singletonList(updateSku3));
+        Throwable throwable4 = assertThrows(IllegalProductSpecificationException.class, () -> productService.updateSku(productId, param3));
+        log.debug(throwable4.getMessage());
+
+        // legal
+        UpdateSkuParam param4 = new UpdateSkuParam();
+        List<UpdateSkuParam.UpdateSku> updateSkus = new ArrayList<>();
+        // 更新的sku
+        Random random = new Random();
+        UpdateSkuParam.UpdateSku updateSku4 = new UpdateSkuParam.UpdateSku();
+        ProductDTO.SkuDTO skuDTO = skuDTOList.get(0);
+        updateSku4.setId(skuDTO.getId());
+        updateSku4.setLowStock(666);
+        updateSku4.setPic("update pic");
+        updateSku4.setPrice(new BigDecimal("666.66"));
+        updateSku4.setSkuCode("update sku code");
+        updateSku4.setStock(6666);
+        List<UpdateSkuParam.UpdateSkuImage> updateSkuImages = new ArrayList<>();
+        for (int i = 0; i < random.nextInt(20) + 10; i++) {
+            UpdateSkuParam.UpdateSkuImage updateSkuImage = new UpdateSkuParam.UpdateSkuImage();
+            updateSkuImage.setImage("update image: " + i);
+            updateSkuImages.add(updateSkuImage);
+        }
+        updateSku4.setImages(updateSkuImages);
+        updateSkus.add(updateSku4);
+        // 新增的sku
+        UpdateSkuParam.UpdateSku updateSku5 = new UpdateSkuParam.UpdateSku();
+        updateSku5.setLowStock(666);
+        updateSku5.setPic("add pic");
+        updateSku5.setPrice(new BigDecimal("666.66"));
+        updateSku5.setStock(6666);
+        List<UpdateSkuParam.UpdateSkuImage> updateSkuImages1 = new ArrayList<>();
+        for (int i = 0; i < random.nextInt(20) + 10; i++) {
+            UpdateSkuParam.UpdateSkuImage updateSkuImage = new UpdateSkuParam.UpdateSkuImage();
+            updateSkuImage.setImage("update image: " + i);
+            updateSkuImages1.add(updateSkuImage);
+        }
+        updateSku5.setImages(updateSkuImages1);
+        List<UpdateSkuParam.UpdateSkuSpecificationRelationship> updateSkuSpecificationRelationships2 = new ArrayList<>();
+        for (ProductDTO.SpecificationDTO specificationDTO : specificationDTOS) {
+            UpdateSkuParam.UpdateSkuSpecificationRelationship updateSkuSpecificationRelationship1 = new UpdateSkuParam.UpdateSkuSpecificationRelationship();
+            updateSkuSpecificationRelationship1.setSpecificationId(specificationDTO.getId());
+            updateSkuSpecificationRelationship1.setSpecificationValueId(specificationDTO.getSpecificationValues().get(0).getId());
+            updateSkuSpecificationRelationships2.add(updateSkuSpecificationRelationship1);
+        }
+        updateSku5.setSpecifications(updateSkuSpecificationRelationships2);
+        updateSkus.add(updateSku5);
+        param4.setSkus(updateSkus);
+        productService.updateSku(productId, param4);
+        ProductDTO newProductDTO = productService.getProductById(productId);
+        List<ProductDTO.SkuDTO> newSkuDTOList = newProductDTO.getSkus();
+        log.debug("newSkuDTOList: " + newSkuDTOList);
+        assertEquals(skuDTOList.size() + 1, newSkuDTOList.size());
+        ProductDTO.SkuDTO addSkuDTO = null;
+        for (ProductDTO.SkuDTO skuDTO1 : newSkuDTOList) {
+            // 更新的sku
+            if (skuDTO1.getId().equals(updateSku4.getId())) {
+                ProductDTO.SkuDTO cmpSkuDTO = new ProductDTO.SkuDTO();
+                BeanUtils.copyProperties(skuDTO1, cmpSkuDTO);
+                BeanUtils.copyProperties(updateSku4, cmpSkuDTO);
+                log.debug("update sku: " + skuDTO1);
+                assertEquals(cmpSkuDTO, skuDTO1);
+                assertEquals(updateSku4.getImages().size(), skuDTO1.getSkuImages().size());
+            }
+            // 新增的sku
+            if (!skuDTOList.stream().map(Base::getId).collect(Collectors.toList()).contains(skuDTO1.getId())) {
+                addSkuDTO = skuDTO1;
+            }
+        }
+        log.debug("addSkuDTO: " + addSkuDTO);
+        assertNotNull(addSkuDTO);
+        assertEquals(updateSku5.getImages().size(), addSkuDTO.getSkuImages().size());
     }
 }
