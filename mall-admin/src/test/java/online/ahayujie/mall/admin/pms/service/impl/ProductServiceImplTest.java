@@ -1098,4 +1098,32 @@ class ProductServiceImplTest {
             assertEquals(Product.NewStatus.NEW.getValue(), product.getIsRecommend());
         }
     }
+
+    @Test
+    void querySku() {
+        Random random = new Random();
+        Long productId = 1234567L;
+        List<Sku> skus = new ArrayList<>();
+        for (int i = 0; i < random.nextInt(20) + 10; i++) {
+            Sku sku = new Sku();
+            sku.setSkuCode("for test: " + i);
+            sku.setProductId(productId);
+            skus.add(sku);
+        }
+        skus.forEach(skuMapper::insert);
+
+        // empty
+        List<Sku> skus1 = productService.querySku(-1L, "");
+        assertEquals(0, skus1.size());
+        List<Sku> skus3 = productService.querySku(productId, "not exist sku code");
+        assertEquals(0, skus3.size());
+
+        // not empty
+        List<Sku> skus2 = productService.querySku(productId, "for test");
+        log.debug("skus2: " + skus2);
+        assertEquals(skus.size(), skus2.size());
+        List<Sku> skus4 = productService.querySku(productId, "");
+        log.debug("skus4: " + skus4);
+        assertEquals(skus.size(), skus4.size());
+    }
 }

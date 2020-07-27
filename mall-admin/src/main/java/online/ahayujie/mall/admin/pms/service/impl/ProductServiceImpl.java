@@ -449,6 +449,12 @@ public class ProductServiceImpl implements ProductService {
         updateProductBatch(ids, param);
     }
 
+    @Override
+    public List<Sku> querySku(Long id, String keyword) {
+        keyword = (keyword == null) ? "" : keyword;
+        return skuMapper.queryByProductIdAndSkuCode(id, keyword);
+    }
+
     /**
      * 保存新增商品的信息
      * @param createProduct 新增商品的信息

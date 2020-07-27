@@ -2,6 +2,7 @@ package online.ahayujie.mall.admin.pms.service;
 
 import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.Product;
+import online.ahayujie.mall.admin.pms.bean.model.Sku;
 import online.ahayujie.mall.admin.pms.exception.*;
 import online.ahayujie.mall.common.api.CommonPage;
 
@@ -153,4 +154,13 @@ public interface ProductService {
      * @throws IllegalProductException 商品新品状态不合法
      */
     void updateNewStatus(List<Long> ids, Integer newStatus) throws IllegalProductException;
+
+    /**
+     * 根据商品id和sku编号模糊查询sku库存信息。
+     * 若商品不存在或sku不存在则返回空列表。
+     * @param id 商品id
+     * @param keyword sku编号关键词，若为null则查询该商品的全部sku。
+     * @return sku
+     */
+    List<Sku> querySku(Long id, String keyword);
 }

@@ -33,4 +33,12 @@ public interface SkuMapper extends BaseMapper<Sku> {
      * @return sku
      */
     List<ProductDTO.SkuDTO> selectDTOByProductId(Long productId);
+
+    /**
+     * 根据商品id和sku编码模糊查询
+     * @param productId 商品id
+     * @param skuCode sku编码
+     * @return sku
+     */
+    List<Sku> queryByProductIdAndSkuCode(@Param("productId") Long productId, @Param("skuCode") String skuCode);
 }

@@ -75,4 +75,12 @@
         where s.product_id = #{productId}
     </select>
 
+    <select id="queryByProductIdAndSkuCode" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, product_id, sku_code, price, promotion_price,
+        stock, lock_stock, low_stock, sale, pic, specification
+        from pms_sku
+        where product_id = #{productId} and sku_code like concat('%', #{skuCode}, '%')
+    </select>
+
 </mapper>

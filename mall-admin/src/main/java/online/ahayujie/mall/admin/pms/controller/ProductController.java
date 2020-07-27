@@ -4,6 +4,7 @@ package online.ahayujie.mall.admin.pms.controller;
 import io.swagger.annotations.ApiOperation;
 import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.Product;
+import online.ahayujie.mall.admin.pms.bean.model.Sku;
 import online.ahayujie.mall.admin.pms.exception.IllegalProductException;
 import online.ahayujie.mall.admin.pms.service.ProductService;
 import online.ahayujie.mall.common.api.CommonPage;
@@ -129,5 +130,11 @@ public class ProductController {
         } catch (IllegalProductException e) {
             return Result.fail("商品新品状态不合法");
         }
+    }
+
+    @ApiOperation(value = "根据商品id和sku编号模糊搜索sku库存")
+    @GetMapping("/sku/query/{id}")
+    public Result<List<Sku>> querySku(@PathVariable Long id, @RequestParam(required = false) String keyword) {
+        return Result.data(productService.querySku(id, keyword));
     }
 }
