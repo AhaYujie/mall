@@ -1,5 +1,7 @@
 package online.ahayujie.mall.admin.pms.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.*;
@@ -8,6 +10,7 @@ import online.ahayujie.mall.admin.pms.mapper.ProductImageMapper;
 import online.ahayujie.mall.admin.pms.mapper.ProductMapper;
 import online.ahayujie.mall.admin.pms.mapper.SkuMapper;
 import online.ahayujie.mall.admin.pms.service.*;
+import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -406,6 +409,44 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         skuService.saveSkuImages(allUpdateSkuImages);
+    }
+
+    @Override
+    public CommonPage<Product> list(Integer pageNum, Integer pageSize) {
+        Page<Product> page = new Page<>(pageNum, pageSize);
+        IPage<Product> productPage = productMapper.selectPage(page);
+        return new CommonPage<>(productPage);
+    }
+
+    @Override
+    public void updateProductBatch(List<Long> ids, UpdateProductBatchParam param) throws IllegalProductException,
+            IllegalProductCategoryException, IllegalBrandException {
+        Product product = new Product();
+        BeanUtils.copyProperties(param, product);
+        validateProduct(product);
+        completeProduct(product);
+        productMapper.updateByIds(ids, product);
+    }
+
+    @Override
+    public void updatePublishStatus(List<Long> ids, Integer publishStatus) throws IllegalProductException {
+        UpdateProductBatchParam param = new UpdateProductBatchParam();
+        param.setIsPublish(publishStatus);
+        updateProductBatch(ids, param);
+    }
+
+    @Override
+    public void updateRecommendStatus(List<Long> ids, Integer recommendStatus) throws IllegalProductException {
+        UpdateProductBatchParam param = new UpdateProductBatchParam();
+        param.setIsRecommend(recommendStatus);
+        updateProductBatch(ids, param);
+    }
+
+    @Override
+    public void updateNewStatus(List<Long> ids, Integer newStatus) throws IllegalProductException {
+        UpdateProductBatchParam param = new UpdateProductBatchParam();
+        param.setIsNew(newStatus);
+        updateProductBatch(ids, param);
     }
 
     /**

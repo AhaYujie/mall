@@ -940,4 +940,162 @@ class ProductServiceImplTest {
         assertNotNull(addSkuDTO);
         assertEquals(updateSku5.getImages().size(), addSkuDTO.getSkuImages().size());
     }
+
+    @Test
+    void updatePublishStatus() {
+        Random random = new Random();
+        List<Product> oldProducts = productMapper.selectAll();
+        int size = random.nextInt(20) + 10;
+        for (int i = 0; i < size; i++) {
+            testSaveCreateProduct();
+        }
+        List<Product> newProducts = productMapper.selectAll();
+        List<Product> products = new ArrayList<>();
+        for (Product newProduct : newProducts) {
+            if (!oldProducts.contains(newProduct)) {
+                products.add(newProduct);
+            }
+        }
+        assertEquals(size, products.size());
+
+        // illegal
+        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.updatePublishStatus(null, -1));
+        log.debug(throwable.getMessage());
+
+        // legal
+        List<Long> ids = products.stream().map(Base::getId).collect(Collectors.toList());
+        productService.updatePublishStatus(ids, Product.PublishStatus.PUBLISH.getValue());
+        List<Product> updateProducts = ids.stream().map(productMapper::selectById).collect(Collectors.toList());
+        for (Product product : updateProducts) {
+            assertEquals(Product.PublishStatus.PUBLISH.getValue(), product.getIsPublish());
+        }
+    }
+
+    @Test
+    void updateProductBatch() {
+        Random random = new Random();
+        List<Product> oldProducts = productMapper.selectAll();
+        int size = random.nextInt(20) + 10;
+        for (int i = 0; i < size; i++) {
+            testSaveCreateProduct();
+        }
+        List<Product> newProducts = productMapper.selectAll();
+        List<Product> products = new ArrayList<>();
+        for (Product newProduct : newProducts) {
+            if (!oldProducts.contains(newProduct)) {
+                products.add(newProduct);
+            }
+        }
+        assertEquals(size, products.size());
+
+        List<Long> ids = products.stream().map(Base::getId).collect(Collectors.toList());
+
+        // 新的商品品牌
+        Brand brand = new Brand();
+        brand.setName("更新商品品牌");
+        brandMapper.insert(brand);
+        // 新的商品分类
+        ProductCategory productCategory = new ProductCategory();
+        productCategory.setName("更新商品分类");
+        productCategoryMapper.insert(productCategory);
+
+        UpdateProductBatchParam param = new UpdateProductBatchParam();
+        param.setBrandId(brand.getId());
+        param.setProductCategoryId(productCategory.getId());
+        param.setProductSn("更新商品货号");
+        param.setName("更新商品名称");
+        param.setPic("更新图片");
+        param.setSubTitle("更新副标题");
+        param.setDescription("更新描述");
+        param.setDetailTitle("更新标题");
+        param.setDetailDescription("更新描述");
+        param.setDetailHtml("update html");
+        param.setDetailMobileHtml("update mobile html");
+        param.setPrice(new BigDecimal("66.66"));
+        param.setOriginalPrice(new BigDecimal("666.66"));
+        param.setStock(20000);
+        param.setLowStock(1);
+        param.setUnit("更新单位");
+        param.setNote("update note");
+        param.setKeywords("更新关键词");
+        param.setSort(1000);
+        param.setGiftGrowth(222);
+        param.setGiftPoint(250);
+        param.setUsePointLimit(250);
+        param.setServiceIds("1,2,3,4,5");
+        param.setPromotionType(Product.PromotionType.LADDER_PRICE.getValue());
+        param.setIsPublish(Product.PublishStatus.PUBLISH.getValue());
+        param.setIsNew(Product.NewStatus.NEW.getValue());
+        param.setIsRecommend(Product.RecommendStatus.RECOMMEND.getValue());
+        param.setIsPreview(Product.PreviewStatus.PREVIEW.getValue());
+        productService.updateProductBatch(ids, param);
+        List<Product> updateProducts = ids.stream().map(productMapper::selectById).collect(Collectors.toList());
+        log.debug("updateProducts: " + updateProducts);
+        for (Product product : updateProducts) {
+            Product cmpProduct = new Product();
+            BeanUtils.copyProperties(product, cmpProduct);
+            BeanUtils.copyProperties(param, cmpProduct);
+            assertEquals(cmpProduct, product);
+        }
+    }
+
+    @Test
+    void updateRecommendStatus() {
+        Random random = new Random();
+        List<Product> oldProducts = productMapper.selectAll();
+        int size = random.nextInt(20) + 10;
+        for (int i = 0; i < size; i++) {
+            testSaveCreateProduct();
+        }
+        List<Product> newProducts = productMapper.selectAll();
+        List<Product> products = new ArrayList<>();
+        for (Product newProduct : newProducts) {
+            if (!oldProducts.contains(newProduct)) {
+                products.add(newProduct);
+            }
+        }
+        assertEquals(size, products.size());
+
+        // illegal
+        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.updateRecommendStatus(null, -1));
+        log.debug(throwable.getMessage());
+
+        // legal
+        List<Long> ids = products.stream().map(Base::getId).collect(Collectors.toList());
+        productService.updateRecommendStatus(ids, Product.RecommendStatus.RECOMMEND.getValue());
+        List<Product> updateProducts = ids.stream().map(productMapper::selectById).collect(Collectors.toList());
+        for (Product product : updateProducts) {
+            assertEquals(Product.RecommendStatus.RECOMMEND.getValue(), product.getIsRecommend());
+        }
+    }
+
+    @Test
+    void updateNewStatus() {
+        Random random = new Random();
+        List<Product> oldProducts = productMapper.selectAll();
+        int size = random.nextInt(20) + 10;
+        for (int i = 0; i < size; i++) {
+            testSaveCreateProduct();
+        }
+        List<Product> newProducts = productMapper.selectAll();
+        List<Product> products = new ArrayList<>();
+        for (Product newProduct : newProducts) {
+            if (!oldProducts.contains(newProduct)) {
+                products.add(newProduct);
+            }
+        }
+        assertEquals(size, products.size());
+
+        // illegal
+        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.updateNewStatus(null, -1));
+        log.debug(throwable.getMessage());
+
+        // legal
+        List<Long> ids = products.stream().map(Base::getId).collect(Collectors.toList());
+        productService.updateNewStatus(ids, Product.NewStatus.NEW.getValue());
+        List<Product> updateProducts = ids.stream().map(productMapper::selectById).collect(Collectors.toList());
+        for (Product product : updateProducts) {
+            assertEquals(Product.NewStatus.NEW.getValue(), product.getIsRecommend());
+        }
+    }
 }

@@ -3,6 +3,9 @@ package online.ahayujie.mall.admin.pms.service;
 import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.Product;
 import online.ahayujie.mall.admin.pms.exception.*;
+import online.ahayujie.mall.common.api.CommonPage;
+
+import java.util.List;
 
 /**
  * <p>
@@ -56,7 +59,8 @@ public interface ProductService {
     /**
      * 根据商品id更新商品信息。
      * 若 {@code param} 中的商品图片为空，则删除全部商品图片，
-     * 若不为空，则用新的商品图片替换旧的商品图片
+     * 若不为空，则用新的商品图片替换旧的商品图片。
+     * // TODO:更新商品信息成功后发送消息
      * @param id 商品id
      * @param param 商品信息
      * @throws IllegalProductException 商品不存在或商品信息不合法
@@ -101,4 +105,52 @@ public interface ProductService {
      */
     void updateSku(Long id, UpdateSkuParam param) throws IllegalProductException, IllegalSkuException,
             IllegalProductSpecificationException;
+
+    /**
+     * 分页获取商品列表，根据排序字段和创建时间排序
+     * @param pageNum 页索引
+     * @param pageSize 页大小
+     * @return 商品列表
+     */
+    CommonPage<Product> list(Integer pageNum, Integer pageSize);
+
+    /**
+     * 根据商品id批量更新商品信息。
+     * 若某一商品不存在则忽略。
+     * // TODO:批量更新商品信息成功后发送消息
+     * @param ids 商品id
+     * @param param 商品信息
+     * @throws IllegalProductException 商品信息不合法
+     * @throws IllegalProductCategoryException 商品分类不存在
+     * @throws IllegalBrandException 商品品牌不存在
+     */
+    void updateProductBatch(List<Long> ids, UpdateProductBatchParam param) throws IllegalProductException,
+            IllegalProductCategoryException, IllegalBrandException;
+
+    /**
+     * 批量更新商品的上下架状态。
+     * 如果某个商品不存在则忽略。
+     * @param ids 商品id
+     * @param publishStatus 商品的上下架状态
+     * @throws IllegalProductException 商品的上下架状态不合法
+     */
+    void updatePublishStatus(List<Long> ids, Integer publishStatus) throws IllegalProductException;
+
+    /**
+     * 批量更新商品的推荐状态。
+     * 如果某个商品不存在则忽略。
+     * @param ids 商品id
+     * @param recommendStatus 商品的推荐状态
+     * @throws IllegalProductException 商品的推荐状态不合法
+     */
+    void updateRecommendStatus(List<Long> ids, Integer recommendStatus) throws IllegalProductException;
+
+    /**
+     * 批量更新商品的新品状态。
+     * 如果某个商品不存在则忽略。
+     * @param ids 商品id
+     * @param newStatus 商品新品状态
+     * @throws IllegalProductException 商品新品状态不合法
+     */
+    void updateNewStatus(List<Long> ids, Integer newStatus) throws IllegalProductException;
 }

@@ -3,10 +3,15 @@ package online.ahayujie.mall.admin.pms.controller;
 
 import io.swagger.annotations.ApiOperation;
 import online.ahayujie.mall.admin.pms.bean.dto.*;
+import online.ahayujie.mall.admin.pms.bean.model.Product;
+import online.ahayujie.mall.admin.pms.exception.IllegalProductException;
 import online.ahayujie.mall.admin.pms.service.ProductService;
+import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.api.Result;
 import online.ahayujie.mall.common.exception.ApiException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * <p>
@@ -83,6 +88,46 @@ public class ProductController {
             return Result.success();
         } catch (ApiException e) {
             return Result.fail(e.getResultCode(), e.getMessage());
+        }
+    }
+
+    @ApiOperation(value = "分页获取商品列表", notes = "分页获取商品列表，根据排序字段和创建时间排序")
+    @GetMapping("/list")
+    public Result<CommonPage<Product>> list(@RequestParam(defaultValue = "1", required = false) Integer pageNum,
+                                            @RequestParam(defaultValue = "5", required = false) Integer pageSize) {
+        return Result.data(productService.list(pageNum, pageSize));
+    }
+
+    @ApiOperation(value = "批量修改商品上下架状态")
+    @PostMapping("/update/publishStatus")
+    public Result<Object> updatePublishStatus(@RequestParam List<Long> ids, @RequestParam Integer publishStatus) {
+        try {
+            productService.updatePublishStatus(ids, publishStatus);
+            return Result.success();
+        } catch (IllegalProductException e) {
+            return Result.fail("商品上下架状态不合法");
+        }
+    }
+
+    @ApiOperation(value = "批量修改商品推荐状态")
+    @PostMapping("/update/recommendStatus")
+    public Result<Object> updateRecommendStatus(@RequestParam List<Long> ids, @RequestParam Integer recommendStatus) {
+        try {
+            productService.updateRecommendStatus(ids, recommendStatus);
+            return Result.success();
+        } catch (IllegalProductException e) {
+            return Result.fail("商品推荐状态不合法");
+        }
+    }
+
+    @ApiOperation(value = "批量修改商品新品状态")
+    @PostMapping("/update/newStatus")
+    public Result<Object> updateNewStatus(@RequestParam List<Long> ids, @RequestParam Integer newStatus) {
+        try {
+            productService.updateNewStatus(ids, newStatus);
+            return Result.success();
+        } catch (IllegalProductException e) {
+            return Result.fail("商品新品状态不合法");
         }
     }
 }

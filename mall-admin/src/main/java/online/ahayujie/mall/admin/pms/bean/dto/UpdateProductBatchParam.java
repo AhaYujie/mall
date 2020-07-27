@@ -4,14 +4,13 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * @author aha
- * @since 2020/7/20
+ * @since 2020/7/25
  */
 @Data
-public class UpdateProductParam {
+public class UpdateProductBatchParam {
     @ApiModelProperty(value = "商品品牌id，0表示没有品牌")
     private Long brandId;
 
@@ -95,13 +94,4 @@ public class UpdateProductParam {
 
     @ApiModelProperty(value = "是否为预告商品：0->不是；1->是")
     private Integer isPreview;
-
-    @ApiModelProperty(value = "商品图片", notes = "用新的商品图片替换旧的商品图片")
-    private List<UpdateProductImage> images;
-
-    @Data
-    public static class UpdateProductImage {
-        @ApiModelProperty(value = "图片url")
-        private String image;
-    }
 }
