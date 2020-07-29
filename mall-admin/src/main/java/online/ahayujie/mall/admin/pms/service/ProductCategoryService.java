@@ -1,5 +1,6 @@
 package online.ahayujie.mall.admin.pms.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import online.ahayujie.mall.admin.pms.bean.dto.CreateProductCategoryParam;
 import online.ahayujie.mall.admin.pms.bean.dto.ProductCategoryTree;
 import online.ahayujie.mall.admin.pms.bean.dto.UpdateProductCategoryParam;
@@ -27,7 +28,8 @@ public interface ProductCategoryService {
 
     /**
      * 更新商品分类信息。
-     * 更新成功后，通过消息队列发送消息
+     * 更新成功后，通过消息队列发送消息。
+     * 消息格式：{@link online.ahayujie.mall.admin.pms.bean.dto.UpdateProductCategoryMessageDTO} 转换为json
      * @param id 商品分类id
      * @param param 商品分类信息
      * @throws IllegalProductCategoryException 商品分类不存在 或 上级分类编号不合法 或 isNav不合法 或 isShow不合法
