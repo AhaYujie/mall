@@ -32,7 +32,8 @@ public interface BrandService {
 
     /**
      * 更新品牌信息，
-     * 更新成功后，通过消息队列发送消息
+     * 更新成功后，通过消息队列发送消息。
+     * 消息格式：{@link online.ahayujie.mall.admin.pms.bean.dto.UpdateBrandMessageDTO} 转换为json
      * @param id 品牌id
      * @param param 品牌信息
      * @throws IllegalBrandException 品牌不存在 或 品牌制造商状态不合法 或 品牌显示状态不合法 或 品牌首字母长度大于1

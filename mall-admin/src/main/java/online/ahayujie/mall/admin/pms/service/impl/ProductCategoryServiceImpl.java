@@ -6,10 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.config.RabbitmqConfig;
-import online.ahayujie.mall.admin.pms.bean.dto.CreateProductCategoryParam;
-import online.ahayujie.mall.admin.pms.bean.dto.ProductCategoryTree;
-import online.ahayujie.mall.admin.pms.bean.dto.UpdateProductCategoryMessageDTO;
-import online.ahayujie.mall.admin.pms.bean.dto.UpdateProductCategoryParam;
+import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.ProductCategory;
 import online.ahayujie.mall.admin.pms.exception.IllegalProductCategoryException;
 import online.ahayujie.mall.admin.pms.mapper.ProductCategoryMapper;
@@ -100,7 +97,16 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             return;
         }
         productCategoryMapper.deleteById(id);
-        // TODO:发送删除商品分类消息
+        // 发送删除商品分类消息
+        try {
+            DeleteProductCategoryMessageDTO messageDTO = new DeleteProductCategoryMessageDTO();
+            BeanUtils.copyProperties(productCategory, messageDTO);
+            String message = objectMapper.writeValueAsString(messageDTO);
+            rabbitTemplate.convertAndSend(RabbitmqConfig.PRODUCT_CATEGORY_DELETE_EXCHANGE, "", message);
+        } catch (JsonProcessingException e) {
+            log.warn(e.getMessage());
+            log.warn(Arrays.toString(e.getStackTrace()));
+        }
     }
 
     @Override
