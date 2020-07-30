@@ -54,7 +54,8 @@ public interface ProductCategoryService {
 
     /**
      * 根据id删除商品分类。
-     * 删除商品分类成功后，通过消息队列发送删除商品分类的消息
+     * 删除商品分类成功后，通过消息队列发送删除商品分类的消息。
+     * 消息格式：{@link online.ahayujie.mall.admin.pms.bean.dto.DeleteProductCategoryMessageDTO} 转为json
      * @param id 商品分类id
      */
     void delete(Long id);

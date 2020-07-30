@@ -16,8 +16,15 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitmqConfig {
     public static final String PRODUCT_CATEGORY_UPDATE_EXCHANGE = "product.category.update";
 
+    public static final String PRODUCT_CATEGORY_DELETE_EXCHANGE = "product.category.delete";
+
     @Bean
-    public FanoutExchange productCategoryFanoutExchange() {
+    public FanoutExchange productCategoryUpdateFanoutExchange() {
         return new FanoutExchange(PRODUCT_CATEGORY_UPDATE_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public FanoutExchange productCategoryDeleteFanoutExchange() {
+        return new FanoutExchange(PRODUCT_CATEGORY_DELETE_EXCHANGE, true, false);
     }
 }
