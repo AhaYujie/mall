@@ -106,4 +106,88 @@
         </foreach>
     </update>
 
+    <update id="updateByProductCategoryId">
+        update pms_product
+        <set>
+            <if test="product.updateTime != null">update_time = #{product.updateTime},</if>
+            <if test="product.createTime != null">create_time = #{product.createTime},</if>
+            <if test="product.brandId != null">brand_id = #{product.brandId},</if>
+            <if test="product.productCategoryId != null">product_category_id = #{product.productCategoryId},</if>
+            <if test="product.productSn != null">product_sn = #{product.productSn},</if>
+            <if test="product.name != null">name = #{product.name},</if>
+            <if test="product.brandName != null">brand_name = #{product.brandName},</if>
+            <if test="product.productCategoryName != null">product_category_name = #{product.productCategoryName},</if>
+            <if test="product.pic != null">pic = #{product.pic},</if>
+            <if test="product.subTitle != null">sub_title = #{product.subTitle},</if>
+            <if test="product.description != null">description = #{product.description},</if>
+            <if test="product.detailTitle != null">detail_title = #{product.detailTitle},</if>
+            <if test="product.detailDescription != null">detail_description = #{product.detailDescription},</if>
+            <if test="product.detailHtml != null">detail_html = #{product.detailHtml},</if>
+            <if test="product.detailMobileHtml != null">detail_mobile_html = #{product.detailMobileHtml},</if>
+            <if test="product.price != null">price = #{product.price},</if>
+            <if test="product.originalPrice != null">original_price = #{product.originalPrice},</if>
+            <if test="product.sale != null">sale = #{product.sale},</if>
+            <if test="product.stock != null">stock = #{product.stock},</if>
+            <if test="product.lowStock != null">low_stock = #{product.lowStock},</if>
+            <if test="product.unit != null">unit = #{product.unit},</if>
+            <if test="product.note != null">note = #{product.note},</if>
+            <if test="product.keywords != null">keywords = #{product.keywords},</if>
+            <if test="product.sort != null">sort = #{product.sort},</if>
+            <if test="product.giftGrowth != null">gift_growth = #{product.giftGrowth},</if>
+            <if test="product.giftPoint != null">gift_point = #{product.giftPoint},</if>
+            <if test="product.usePointLimit != null">use_point_limit = #{product.usePointLimit},</if>
+            <if test="product.serviceIds != null">service_ids = #{product.serviceIds},</if>
+            <if test="product.promotionType != null">promotion_type = #{product.promotionType},</if>
+            <if test="product.isDeleted != null">is_deleted = #{product.isDeleted},</if>
+            <if test="product.isPublish != null">is_publish = #{product.isPublish},</if>
+            <if test="product.isNew != null">is_new = #{product.isNew},</if>
+            <if test="product.isRecommend != null">is_recommend = #{product.isRecommend},</if>
+            <if test="product.isVerify != null">is_verify = #{product.isVerify},</if>
+            <if test="product.isPreview != null">is_preview = #{product.isPreview},</if>
+        </set>
+        where product_category_id = #{productCategoryId}
+    </update>
+
+    <update id="updateByBrandId">
+        update pms_product
+        <set>
+            <if test="product.updateTime != null">update_time = #{product.updateTime},</if>
+            <if test="product.createTime != null">create_time = #{product.createTime},</if>
+            <if test="product.brandId != null">brand_id = #{product.brandId},</if>
+            <if test="product.productCategoryId != null">product_category_id = #{product.productCategoryId},</if>
+            <if test="product.productSn != null">product_sn = #{product.productSn},</if>
+            <if test="product.name != null">name = #{product.name},</if>
+            <if test="product.brandName != null">brand_name = #{product.brandName},</if>
+            <if test="product.productCategoryName != null">product_category_name = #{product.productCategoryName},</if>
+            <if test="product.pic != null">pic = #{product.pic},</if>
+            <if test="product.subTitle != null">sub_title = #{product.subTitle},</if>
+            <if test="product.description != null">description = #{product.description},</if>
+            <if test="product.detailTitle != null">detail_title = #{product.detailTitle},</if>
+            <if test="product.detailDescription != null">detail_description = #{product.detailDescription},</if>
+            <if test="product.detailHtml != null">detail_html = #{product.detailHtml},</if>
+            <if test="product.detailMobileHtml != null">detail_mobile_html = #{product.detailMobileHtml},</if>
+            <if test="product.price != null">price = #{product.price},</if>
+            <if test="product.originalPrice != null">original_price = #{product.originalPrice},</if>
+            <if test="product.sale != null">sale = #{product.sale},</if>
+            <if test="product.stock != null">stock = #{product.stock},</if>
+            <if test="product.lowStock != null">low_stock = #{product.lowStock},</if>
+            <if test="product.unit != null">unit = #{product.unit},</if>
+            <if test="product.note != null">note = #{product.note},</if>
+            <if test="product.keywords != null">keywords = #{product.keywords},</if>
+            <if test="product.sort != null">sort = #{product.sort},</if>
+            <if test="product.giftGrowth != null">gift_growth = #{product.giftGrowth},</if>
+            <if test="product.giftPoint != null">gift_point = #{product.giftPoint},</if>
+            <if test="product.usePointLimit != null">use_point_limit = #{product.usePointLimit},</if>
+            <if test="product.serviceIds != null">service_ids = #{product.serviceIds},</if>
+            <if test="product.promotionType != null">promotion_type = #{product.promotionType},</if>
+            <if test="product.isDeleted != null">is_deleted = #{product.isDeleted},</if>
+            <if test="product.isPublish != null">is_publish = #{product.isPublish},</if>
+            <if test="product.isNew != null">is_new = #{product.isNew},</if>
+            <if test="product.isRecommend != null">is_recommend = #{product.isRecommend},</if>
+            <if test="product.isVerify != null">is_verify = #{product.isVerify},</if>
+            <if test="product.isPreview != null">is_preview = #{product.isPreview},</if>
+        </set>
+        where brand_id = #{brandId}
+    </update>
+
 </mapper>

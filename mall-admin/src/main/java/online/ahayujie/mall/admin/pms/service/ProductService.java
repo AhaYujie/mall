@@ -1,11 +1,16 @@
 package online.ahayujie.mall.admin.pms.service;
 
+import com.rabbitmq.client.Channel;
 import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.Product;
 import online.ahayujie.mall.admin.pms.bean.model.Sku;
 import online.ahayujie.mall.admin.pms.exception.*;
 import online.ahayujie.mall.common.api.CommonPage;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -163,4 +168,43 @@ public interface ProductService {
      * @return sku
      */
     List<Sku> querySku(Long id, String keyword);
+
+    /**
+     * 监听商品分类更新的消息。
+     * 因为只需要更新商品分类下的商品的商品分类冗余信息，所以不需要保证幂等性。
+     * @param channel channel
+     * @param message message
+     * @throws IOException 确认消息失败
+     */
+    void listenProductCategoryUpdate(Channel channel, Message message) throws IOException;
+
+    /**
+     * 监听商品分类删除消息。
+     * 设置该商品分类下的所有商品为无品牌，即修改商品分类id和商品分类名称字段。
+     * 不需要保证幂等性。
+     * @param channel channel
+     * @param message message
+     * @throws IOException 确认消息失败
+     */
+    void listenProductCategoryDelete(Channel channel, Message message) throws IOException;
+
+    /**
+     * 监听商品品牌更新消息。
+     * 更新该品牌的所有商品的品牌名称冗余字段。
+     * 不需要保证幂等性。
+     * @param channel channel
+     * @param message message
+     * @throws IOException 确认消息失败
+     */
+    void listenBrandUpdate(Channel channel, Message message) throws IOException;
+
+    /**
+     * 监听商品品牌删除消息。
+     * 更新该品牌的所有商品，设置为无品牌。
+     * 不需要保证幂等性。
+     * @param channel channel
+     * @param message message
+     * @throws IOException 确认消息失败
+     */
+    void listenBrandDelete(Channel channel, Message message) throws IOException;
 }

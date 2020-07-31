@@ -2,7 +2,10 @@ package online.ahayujie.mall.admin.pms.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
+import online.ahayujie.mall.admin.config.RabbitmqConfig;
 import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.*;
 import online.ahayujie.mall.admin.pms.exception.*;
@@ -12,11 +15,14 @@ import online.ahayujie.mall.admin.pms.mapper.SkuMapper;
 import online.ahayujie.mall.admin.pms.service.*;
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,11 +45,14 @@ public class ProductServiceImpl implements ProductService {
     private ProductSpecificationService productSpecificationService;
 
     private final SkuMapper skuMapper;
+    private final ObjectMapper objectMapper;
     private final ProductMapper productMapper;
     private final ProductImageMapper productImageMapper;
 
-    public ProductServiceImpl(SkuMapper skuMapper, ProductMapper productMapper, ProductImageMapper productImageMapper) {
+    public ProductServiceImpl(SkuMapper skuMapper, ObjectMapper objectMapper, ProductMapper productMapper,
+                              ProductImageMapper productImageMapper) {
         this.skuMapper = skuMapper;
+        this.objectMapper = objectMapper;
         this.productMapper = productMapper;
         this.productImageMapper = productImageMapper;
     }
@@ -453,6 +462,95 @@ public class ProductServiceImpl implements ProductService {
     public List<Sku> querySku(Long id, String keyword) {
         keyword = (keyword == null) ? "" : keyword;
         return skuMapper.queryByProductIdAndSkuCode(id, keyword);
+    }
+
+    @Override
+    @RabbitListener(queues = RabbitmqConfig.PRODUCT_CATEGORY_UPDATE_QUEUE_PRODUCT)
+    public void listenProductCategoryUpdate(Channel channel, Message message) throws IOException {
+        Long productCategoryId;
+        ProductCategory productCategory;
+        try {
+            UpdateProductCategoryMessageDTO messageDTO = objectMapper.readValue(message.getBody(),
+                    UpdateProductCategoryMessageDTO.class);
+            productCategoryId = messageDTO.getId();
+            productCategory = productCategoryService.getById(productCategoryId);
+            if (productCategory == null) {
+                throw new NullPointerException();
+            }
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            log.warn(Arrays.toString(e.getStackTrace()));
+            channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
+            return;
+        }
+        Product product = new Product();
+        product.setProductCategoryId(productCategoryId);
+        product.setProductCategoryName(productCategory.getName());
+        product.setUpdateTime(new Date());
+        productMapper.updateByProductCategoryId(productCategoryId, product);
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
+
+    @Override
+    @RabbitListener(queues = RabbitmqConfig.PRODUCT_CATEGORY_DELETE_QUEUE_PRODUCT)
+    public void listenProductCategoryDelete(Channel channel, Message message) throws IOException {
+        Long productCategoryId = null;
+        try {
+            DeleteProductCategoryMessageDTO messageDTO = objectMapper.readValue(message.getBody(),
+                    DeleteProductCategoryMessageDTO.class);
+            productCategoryId = messageDTO.getId();
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            log.warn(Arrays.toString(e.getStackTrace()));
+            channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
+        }
+        Product product = new Product();
+        product.setProductCategoryId(Product.NON_PRODUCT_CATEGORY_ID);
+        product.setProductCategoryName("");
+        product.setUpdateTime(new Date());
+        productMapper.updateByProductCategoryId(productCategoryId, product);
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
+
+    @Override
+    @RabbitListener(queues = RabbitmqConfig.BRAND_UPDATE_QUEUE_PRODUCT)
+    public void listenBrandUpdate(Channel channel, Message message) throws IOException {
+        Long brandId = null;
+        String brandName = null;
+        try {
+            UpdateBrandMessageDTO messageDTO = objectMapper.readValue(message.getBody(), UpdateBrandMessageDTO.class);
+            brandId = messageDTO.getId();
+            brandName = brandService.getById(brandId).getName();
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            log.warn(Arrays.toString(e.getStackTrace()));
+            channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
+        }
+        Product product = new Product();
+        product.setBrandName(brandName);
+        product.setUpdateTime(new Date());
+        productMapper.updateByBrandId(brandId, product);
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
+
+    @Override
+    @RabbitListener(queues = RabbitmqConfig.BRAND_DELETE_QUEUE_PRODUCT)
+    public void listenBrandDelete(Channel channel, Message message) throws IOException {
+        Long brandId = null;
+        try {
+            DeleteBrandMessageDTO messageDTO = objectMapper.readValue(message.getBody(), DeleteBrandMessageDTO.class);
+            brandId = messageDTO.getId();
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            log.warn(Arrays.toString(e.getStackTrace()));
+            channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
+        }
+        Product product = new Product();
+        product.setBrandId(Product.NON_BRAND_ID);
+        product.setBrandName("");
+        product.setUpdateTime(new Date());
+        productMapper.updateByBrandId(brandId, product);
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
 
     /**

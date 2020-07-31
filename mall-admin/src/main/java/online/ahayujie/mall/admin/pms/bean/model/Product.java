@@ -25,7 +25,9 @@ import lombok.experimental.Accessors;
 @TableName("pms_product")
 @ApiModel(value="Product对象", description="商品信息")
 public class Product extends Base {
-    public static final Integer UNIT_MAX_LENGTH = 5;
+    public static final int UNIT_MAX_LENGTH = 5;
+    public static final long NON_PRODUCT_CATEGORY_ID = 0L;
+    public static final long NON_BRAND_ID = 0L;
 
     public enum PromotionType {
         /**

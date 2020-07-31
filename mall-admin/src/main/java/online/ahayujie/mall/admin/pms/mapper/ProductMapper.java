@@ -41,4 +41,20 @@ public interface ProductMapper extends BaseMapper<Product> {
      * @return 更新数量
      */
     int updateByIds(@Param("list") List<Long> ids, @Param("product") Product product);
+
+    /**
+     * 根据商品分类id更新
+     * @param productCategoryId 商品分类id
+     * @param product 商品信息
+     * @return 更新数量
+     */
+    int updateByProductCategoryId(@Param("productCategoryId") Long productCategoryId, @Param("product") Product product);
+
+    /**
+     * 根据品牌id更新
+     * @param brandId 品牌id
+     * @param product 商品信息
+     * @return 更新数量
+     */
+    int updateByBrandId(@Param("brandId") Long brandId, @Param("product") Product product);
 }
