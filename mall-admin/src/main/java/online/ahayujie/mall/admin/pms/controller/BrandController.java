@@ -82,7 +82,7 @@ public class BrandController {
     @ApiOperation(value = "根据编号查询品牌信息")
     @GetMapping("/{id}")
     public Result<Brand> getById(@PathVariable("id") Long id) {
-        return Result.fail();
+        return Result.data(brandService.getById(id));
     }
 
     @ApiOperation(value = "批量删除品牌")
