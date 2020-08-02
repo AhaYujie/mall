@@ -66,7 +66,11 @@ public interface ProductService {
      * 根据商品id更新商品信息。
      * 若 {@code param} 中的商品图片为空，则删除全部商品图片，
      * 若不为空，则用新的商品图片替换旧的商品图片。
-     * // TODO:更新商品信息成功后发送消息
+     * 更新商品成功后，调用
+     * {@link online.ahayujie.mall.admin.pms.publisher.ProductPublisher#publishUpdateMsg(Long)}
+     * 发送消息到消息队列
+     *
+     * @see online.ahayujie.mall.admin.pms.publisher.ProductPublisher#publishUpdateMsg(Long)
      * @param id 商品id
      * @param param 商品信息
      * @throws IllegalProductException 商品不存在或商品信息不合法
@@ -123,7 +127,11 @@ public interface ProductService {
     /**
      * 根据商品id批量更新商品信息。
      * 若某一商品不存在则忽略。
-     * // TODO:批量更新商品信息成功后发送消息
+     * 更新商品信息成功后，对每个更新的商品调用
+     * {@link online.ahayujie.mall.admin.pms.publisher.ProductPublisher#publishUpdateMsg(Long)}
+     * 发送消息到消息队列。
+     *
+     * @see online.ahayujie.mall.admin.pms.publisher.ProductPublisher#publishUpdateMsg(Long)
      * @param ids 商品id
      * @param param 商品信息
      * @throws IllegalProductException 商品信息不合法

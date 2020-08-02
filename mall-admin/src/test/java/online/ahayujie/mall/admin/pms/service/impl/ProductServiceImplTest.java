@@ -959,11 +959,11 @@ class ProductServiceImplTest {
         assertEquals(size, products.size());
 
         // illegal
-        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.updatePublishStatus(null, -1));
+        List<Long> ids = products.stream().map(Base::getId).collect(Collectors.toList());
+        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.updatePublishStatus(ids, -1));
         log.debug(throwable.getMessage());
 
         // legal
-        List<Long> ids = products.stream().map(Base::getId).collect(Collectors.toList());
         productService.updatePublishStatus(ids, Product.PublishStatus.PUBLISH.getValue());
         List<Product> updateProducts = ids.stream().map(productMapper::selectById).collect(Collectors.toList());
         for (Product product : updateProducts) {
@@ -1057,11 +1057,11 @@ class ProductServiceImplTest {
         assertEquals(size, products.size());
 
         // illegal
-        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.updateRecommendStatus(null, -1));
+        List<Long> ids = products.stream().map(Base::getId).collect(Collectors.toList());
+        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.updateRecommendStatus(ids, -1));
         log.debug(throwable.getMessage());
 
         // legal
-        List<Long> ids = products.stream().map(Base::getId).collect(Collectors.toList());
         productService.updateRecommendStatus(ids, Product.RecommendStatus.RECOMMEND.getValue());
         List<Product> updateProducts = ids.stream().map(productMapper::selectById).collect(Collectors.toList());
         for (Product product : updateProducts) {
@@ -1087,11 +1087,11 @@ class ProductServiceImplTest {
         assertEquals(size, products.size());
 
         // illegal
-        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.updateNewStatus(null, -1));
+        List<Long> ids = products.stream().map(Base::getId).collect(Collectors.toList());
+        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.updateNewStatus(ids, -1));
         log.debug(throwable.getMessage());
 
         // legal
-        List<Long> ids = products.stream().map(Base::getId).collect(Collectors.toList());
         productService.updateNewStatus(ids, Product.NewStatus.NEW.getValue());
         List<Product> updateProducts = ids.stream().map(productMapper::selectById).collect(Collectors.toList());
         for (Product product : updateProducts) {

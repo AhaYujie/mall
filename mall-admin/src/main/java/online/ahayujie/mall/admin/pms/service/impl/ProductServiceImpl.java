@@ -12,6 +12,7 @@ import online.ahayujie.mall.admin.pms.exception.*;
 import online.ahayujie.mall.admin.pms.mapper.ProductImageMapper;
 import online.ahayujie.mall.admin.pms.mapper.ProductMapper;
 import online.ahayujie.mall.admin.pms.mapper.SkuMapper;
+import online.ahayujie.mall.admin.pms.publisher.ProductPublisher;
 import online.ahayujie.mall.admin.pms.service.*;
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
     private SkuService skuService;
     private BrandService brandService;
+    private ProductPublisher productPublisher;
     private ProductParamService productParamService;
     private ProductCategoryService productCategoryService;
     private ProductSpecificationService productSpecificationService;
@@ -219,6 +221,7 @@ public class ProductServiceImpl implements ProductService {
                     }).collect(Collectors.toList());
             productImageMapper.insertList(productImages);
         }
+        productPublisher.publishUpdateMsg(id);
     }
 
     @Override
@@ -430,11 +433,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void updateProductBatch(List<Long> ids, UpdateProductBatchParam param) throws IllegalProductException,
             IllegalProductCategoryException, IllegalBrandException {
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        ids = ids.stream().filter(id -> productMapper.selectById(id) != null).collect(Collectors.toList());
         Product product = new Product();
         BeanUtils.copyProperties(param, product);
         validateProduct(product);
         completeProduct(product);
         productMapper.updateByIds(ids, product);
+        ids.forEach(productPublisher::publishUpdateMsg);
     }
 
     @Override
@@ -813,6 +821,11 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     public void setBrandService(BrandService brandService) {
         this.brandService = brandService;
+    }
+
+    @Autowired
+    public void setProductPublisher(ProductPublisher productPublisher) {
+        this.productPublisher = productPublisher;
     }
 
     @Autowired
