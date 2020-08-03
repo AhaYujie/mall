@@ -19,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -78,9 +79,11 @@ public class ResourceServiceImpl implements ResourceService {
         for (Long roleId : roleIds) {
             roleResourceRelations.addAll(roleResourceRelationMapper.selectByRoleId(roleId));
         }
-        return roleResourceRelations.stream()
-                .map(relation -> resourceMapper.selectById(relation.getResourceId()))
-                .collect(Collectors.toList());
+        List<Long> ids = roleResourceRelations.stream().map(RoleResourceRelation::getResourceId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
+        return resourceMapper.selectBatchIds(ids);
     }
 
     @Override
