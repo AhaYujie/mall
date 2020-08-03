@@ -2,21 +2,18 @@ package online.ahayujie.mall.admin.pms.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import online.ahayujie.mall.admin.config.RabbitmqConfig;
 import online.ahayujie.mall.admin.pms.bean.dto.CreateBrandParam;
 import online.ahayujie.mall.admin.pms.bean.dto.DeleteBrandMessageDTO;
-import online.ahayujie.mall.admin.pms.bean.dto.UpdateBrandMessageDTO;
 import online.ahayujie.mall.admin.pms.bean.dto.UpdateBrandParam;
 import online.ahayujie.mall.admin.pms.bean.model.Brand;
 import online.ahayujie.mall.admin.pms.exception.IllegalBrandException;
 import online.ahayujie.mall.admin.pms.mapper.BrandMapper;
+import online.ahayujie.mall.admin.pms.publisher.BrandPublisher;
 import online.ahayujie.mall.admin.pms.service.BrandService;
 import online.ahayujie.mall.common.api.CommonPage;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -36,14 +33,12 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class BrandServiceImpl implements BrandService {
-    private final BrandMapper brandMapper;
-    private final ObjectMapper objectMapper;
-    private final RabbitTemplate rabbitTemplate;
+    private BrandPublisher brandPublisher;
 
-    public BrandServiceImpl(BrandMapper brandMapper, ObjectMapper objectMapper, RabbitTemplate rabbitTemplate) {
+    private final BrandMapper brandMapper;
+
+    public BrandServiceImpl(BrandMapper brandMapper) {
         this.brandMapper = brandMapper;
-        this.objectMapper = objectMapper;
-        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
@@ -73,14 +68,7 @@ public class BrandServiceImpl implements BrandService {
         brand.setUpdateTime(new Date());
         brandMapper.updateById(brand);
         // 通过消息队列发送更新品牌消息
-        try {
-            UpdateBrandMessageDTO messageDTO = new UpdateBrandMessageDTO(id);
-            String message = objectMapper.writeValueAsString(messageDTO);
-            rabbitTemplate.convertAndSend(RabbitmqConfig.BRAND_UPDATE_EXCHANGE, "", message);
-        } catch (JsonProcessingException e) {
-            log.warn(e.getMessage());
-            log.warn(Arrays.toString(e.getStackTrace()));
-        }
+        brandPublisher.publishUpdateMsg(id);
     }
 
     @Override
@@ -93,7 +81,7 @@ public class BrandServiceImpl implements BrandService {
         // 发送消息到消息队列
         DeleteBrandMessageDTO messageDTO = new DeleteBrandMessageDTO();
         BeanUtils.copyProperties(brand, messageDTO);
-        publishDeleteMessage(messageDTO);
+        brandPublisher.publishDeleteMsg(messageDTO);
     }
 
     @Override
@@ -123,7 +111,7 @@ public class BrandServiceImpl implements BrandService {
         for (Brand brand : brands) {
             DeleteBrandMessageDTO messageDTO = new DeleteBrandMessageDTO();
             BeanUtils.copyProperties(brand, messageDTO);
-            publishDeleteMessage(messageDTO);
+            brandPublisher.publishDeleteMsg(messageDTO);
         }
     }
 
@@ -184,17 +172,8 @@ public class BrandServiceImpl implements BrandService {
         }
     }
 
-    /**
-     * 发送删除品牌的消息到消息队列
-     * @param messageDTO 删除品牌的消息
-     */
-    private void publishDeleteMessage(DeleteBrandMessageDTO messageDTO) {
-        try {
-            String message = objectMapper.writeValueAsString(messageDTO);
-            rabbitTemplate.convertAndSend(RabbitmqConfig.BRAND_DELETE_EXCHANGE, "", message);
-        } catch (JsonProcessingException e) {
-            log.warn(e.getMessage());
-            log.warn(Arrays.toString(e.getStackTrace()));
-        }
+    @Autowired
+    public void setBrandPublisher(BrandPublisher brandPublisher) {
+        this.brandPublisher = brandPublisher;
     }
 }
