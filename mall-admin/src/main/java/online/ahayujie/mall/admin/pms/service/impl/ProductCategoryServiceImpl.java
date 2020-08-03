@@ -2,18 +2,14 @@ package online.ahayujie.mall.admin.pms.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import online.ahayujie.mall.admin.config.RabbitmqConfig;
 import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.ProductCategory;
 import online.ahayujie.mall.admin.pms.exception.IllegalProductCategoryException;
 import online.ahayujie.mall.admin.pms.mapper.ProductCategoryMapper;
+import online.ahayujie.mall.admin.pms.publisher.ProductCategoryPublisher;
 import online.ahayujie.mall.admin.pms.service.ProductCategoryService;
 import online.ahayujie.mall.common.api.CommonPage;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,14 +28,11 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ProductCategoryServiceImpl implements ProductCategoryService {
-    private final ObjectMapper objectMapper;
-    private final RabbitTemplate rabbitTemplate;
+    private ProductCategoryPublisher productCategoryPublisher;
+
     private final ProductCategoryMapper productCategoryMapper;
 
-    public ProductCategoryServiceImpl(ObjectMapper objectMapper, RabbitTemplate rabbitTemplate,
-                                      ProductCategoryMapper productCategoryMapper) {
-        this.objectMapper = objectMapper;
-        this.rabbitTemplate = rabbitTemplate;
+    public ProductCategoryServiceImpl(ProductCategoryMapper productCategoryMapper) {
         this.productCategoryMapper = productCategoryMapper;
     }
 
@@ -68,14 +61,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         productCategory.setUpdateTime(new Date());
         productCategoryMapper.updateById(productCategory);
         // 发送更新商品分类的消息
-        try {
-            UpdateProductCategoryMessageDTO messageDTO = new UpdateProductCategoryMessageDTO(id);
-            String message = objectMapper.writeValueAsString(messageDTO);
-            rabbitTemplate.convertAndSend(RabbitmqConfig.PRODUCT_CATEGORY_UPDATE_EXCHANGE, "", message);
-        } catch (JsonProcessingException e) {
-            log.error(e.getMessage());
-            log.error(Arrays.toString(e.getStackTrace()));
-        }
+        productCategoryPublisher.publishUpdateMsg(id);
     }
 
     @Override
@@ -98,15 +84,9 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         }
         productCategoryMapper.deleteById(id);
         // 发送删除商品分类消息
-        try {
-            DeleteProductCategoryMessageDTO messageDTO = new DeleteProductCategoryMessageDTO();
-            BeanUtils.copyProperties(productCategory, messageDTO);
-            String message = objectMapper.writeValueAsString(messageDTO);
-            rabbitTemplate.convertAndSend(RabbitmqConfig.PRODUCT_CATEGORY_DELETE_EXCHANGE, "", message);
-        } catch (JsonProcessingException e) {
-            log.warn(e.getMessage());
-            log.warn(Arrays.toString(e.getStackTrace()));
-        }
+        DeleteProductCategoryMessageDTO messageDTO = new DeleteProductCategoryMessageDTO();
+        BeanUtils.copyProperties(productCategory, messageDTO);
+        productCategoryPublisher.publishDeleteMsg(messageDTO);
     }
 
     @Override
@@ -194,5 +174,10 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                 .collect(Collectors.toList()).contains(isShow)) {
             throw new IllegalProductCategoryException("显示在移动端状态不合法");
         }
+    }
+
+    @Autowired
+    public void setProductCategoryPublisher(ProductCategoryPublisher productCategoryPublisher) {
+        this.productCategoryPublisher = productCategoryPublisher;
     }
 }
