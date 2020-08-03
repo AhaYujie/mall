@@ -1,9 +1,11 @@
 package online.ahayujie.mall.admin.pms.service;
 
 import online.ahayujie.mall.admin.pms.bean.dto.CreateBrandParam;
+import online.ahayujie.mall.admin.pms.bean.dto.DeleteBrandMessageDTO;
 import online.ahayujie.mall.admin.pms.bean.dto.UpdateBrandParam;
 import online.ahayujie.mall.admin.pms.bean.model.Brand;
 import online.ahayujie.mall.admin.pms.exception.IllegalBrandException;
+import online.ahayujie.mall.admin.pms.publisher.BrandPublisher;
 import online.ahayujie.mall.common.api.CommonPage;
 
 import java.util.List;
@@ -32,8 +34,10 @@ public interface BrandService {
 
     /**
      * 更新品牌信息，
-     * 更新成功后，通过消息队列发送消息。
-     * 消息格式：{@link online.ahayujie.mall.admin.pms.bean.dto.UpdateBrandMessageDTO} 转换为json
+     * 更新成功后，调用 {@link BrandPublisher#publishUpdateMsg(Long)}
+     * 发送消息。
+     *
+     * @see BrandPublisher#publishUpdateMsg(Long)
      * @param id 品牌id
      * @param param 品牌信息
      * @throws IllegalBrandException 品牌不存在 或 品牌制造商状态不合法 或 品牌显示状态不合法 或 品牌首字母长度大于1
@@ -42,7 +46,10 @@ public interface BrandService {
 
     /**
      * 删除品牌，
-     * 删除成功后，通过消息队列发送消息
+     * 删除成功后，调用 {@link BrandPublisher#publishDeleteMsg(DeleteBrandMessageDTO)}
+     * 发送消息。
+     * 
+     * @see BrandPublisher#publishDeleteMsg(DeleteBrandMessageDTO) 
      * @param id 品牌id
      * @throws IllegalBrandException 品牌不存在
      */
@@ -65,8 +72,11 @@ public interface BrandService {
     Brand getById(Long id);
 
     /**
-     * 批量删除品牌，全部删除成功后，通过消息队列发送消息
-     * 若其中一个品牌不存在删除失败，则全部回滚并且不发送消息
+     * 批量删除品牌，全部删除成功后，
+     * 调用 {@link BrandPublisher#publishDeleteMsg(DeleteBrandMessageDTO)}
+     * 发送消息。
+     * 
+     * @see BrandPublisher#publishDeleteMsg(DeleteBrandMessageDTO) 
      * @param ids 品牌id
      * @throws IllegalBrandException 品牌不存在
      */
