@@ -137,4 +137,16 @@ public class ProductController {
     public Result<List<Sku>> querySku(@PathVariable Long id, @RequestParam(required = false) String keyword) {
         return Result.data(productService.querySku(id, keyword));
     }
+
+    @ApiOperation(value = "审核商品")
+    @PostMapping("/verify/{id}")
+    public Result<Object> verifyProduct(@PathVariable Long id, @RequestParam Integer verifyStatus,
+                                        @RequestParam String note) {
+        try {
+            productService.verifyProduct(id, verifyStatus, note);
+            return Result.success();
+        } catch (IllegalProductException e) {
+            return Result.fail(e.getResultCode(), e.getMessage());
+        }
+    }
 }

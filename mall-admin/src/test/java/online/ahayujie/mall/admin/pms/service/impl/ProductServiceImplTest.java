@@ -1126,4 +1126,41 @@ class ProductServiceImplTest {
         log.debug("skus4: " + skus4);
         assertEquals(skus.size(), skus4.size());
     }
+
+    @Test
+    void verifyProduct() {
+        List<Product> oldProducts = productMapper.selectAll();
+        testSaveCreateSkus();
+        List<Product> newProducts = productMapper.selectAll();
+        Product product = null;
+        for (Product newProduct : newProducts) {
+            if (!oldProducts.contains(newProduct)) {
+                product = newProduct;
+            }
+        }
+        assertNotNull(product);
+        Long id = product.getId();
+
+        // illegal
+        // 商品不存在
+        Throwable throwable = assertThrows(IllegalProductException.class, () -> productService.verifyProduct(null, Product.VerifyStatus.VERIFY.getValue(), ""));
+        log.debug("商品不存在：" + throwable);
+        // 审核状态不合法
+        Product updateProduct = new Product();
+        updateProduct.setId(id);
+        updateProduct.setIsVerify(Product.VerifyStatus.VERIFY.getValue());
+        productMapper.updateById(updateProduct);
+        Throwable throwable1 = assertThrows(IllegalProductException.class, () -> productService.verifyProduct(id, -1, ""));
+        log.debug("审核状态不合法：" + throwable1);
+
+        // legal
+        Integer verifyStatus = Product.VerifyStatus.VERIFY.getValue();
+        Product updateProduct1 = new Product();
+        updateProduct1.setId(id);
+        updateProduct1.setIsVerify(Product.VerifyStatus.NOT_VERIFY.getValue());
+        productMapper.updateById(updateProduct1);
+        productService.verifyProduct(id, verifyStatus, "note");
+        Product newProduct = productMapper.selectById(id);
+        assertEquals(verifyStatus, newProduct.getIsVerify());
+    }
 }

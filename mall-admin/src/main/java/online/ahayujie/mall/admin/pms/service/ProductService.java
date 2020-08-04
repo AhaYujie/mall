@@ -178,6 +178,15 @@ public interface ProductService {
     List<Sku> querySku(Long id, String keyword);
 
     /**
+     * 审核商品通过。
+     * @param id 商品id
+     * @param verifyStatus 审核状态
+     * @param note 备注
+     * @throws IllegalProductException 商品不存在或审核状态不合法
+     */
+    void verifyProduct(Long id, Integer verifyStatus, String note) throws IllegalProductException;
+
+    /**
      * 监听商品分类更新的消息。
      * 因为只需要更新商品分类下的商品的商品分类冗余信息，所以不需要保证幂等性。
      * @param channel channel

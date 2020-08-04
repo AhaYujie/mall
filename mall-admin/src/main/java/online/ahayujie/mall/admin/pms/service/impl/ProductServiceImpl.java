@@ -44,6 +44,7 @@ public class ProductServiceImpl implements ProductService {
     private ProductPublisher productPublisher;
     private ProductParamService productParamService;
     private ProductCategoryService productCategoryService;
+    private ProductVerifyLogService productVerifyLogService;
     private ProductSpecificationService productSpecificationService;
 
     private final SkuMapper skuMapper;
@@ -473,6 +474,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public void verifyProduct(Long id, Integer verifyStatus, String note) throws IllegalProductException {
+        Product product = productMapper.selectById(id);
+        if (product == null) {
+            throw new IllegalProductException("商品不存在");
+        }
+        if (!Arrays.stream(Product.VerifyStatus.values())
+                .map(Product.VerifyStatus::getValue)
+                .collect(Collectors.toList()).contains(verifyStatus)) {
+            throw new IllegalProductException("审核状态不合法");
+        }
+        Product updateProduct = new Product();
+        updateProduct.setId(id);
+        updateProduct.setUpdateTime(new Date());
+        updateProduct.setIsVerify(verifyStatus);
+        productMapper.updateById(updateProduct);
+        productVerifyLogService.saveLog(id, note, verifyStatus);
+    }
+
+    @Override
     @RabbitListener(queues = RabbitmqConfig.PRODUCT_CATEGORY_UPDATE_QUEUE_PRODUCT)
     public void listenProductCategoryUpdate(Channel channel, Message message) throws IOException {
         Long productCategoryId;
@@ -836,6 +856,11 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     public void setProductCategoryService(ProductCategoryService productCategoryService) {
         this.productCategoryService = productCategoryService;
+    }
+
+    @Autowired
+    public void setProductVerifyLogService(ProductVerifyLogService productVerifyLogService) {
+        this.productVerifyLogService = productVerifyLogService;
     }
 
     @Autowired

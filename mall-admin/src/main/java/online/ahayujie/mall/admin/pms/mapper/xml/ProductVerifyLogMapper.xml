@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.admin.pms.mapper.ProductVerifyLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.pms.bean.model.ProductVerifyLog">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="product_id" property="productId" />
+        <result column="admin_id" property="adminId" />
+        <result column="username" property="username" />
+        <result column="note" property="note" />
+        <result column="is_verify" property="isVerify" />
+    </resultMap>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, product_id, admin_id, username, note, is_verify
+        from pms_product_verify_log
+    </select>
+
+</mapper>
