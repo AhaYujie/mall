@@ -149,4 +149,12 @@ public class ProductController {
             return Result.fail(e.getResultCode(), e.getMessage());
         }
     }
+
+    @ApiOperation(value = "分页查询商品", notes = "根据商品名称，货号，分类，品牌，上架状态，新品状态，推荐状态，审核状态，预告状态查询")
+    @PostMapping("/query/{pageNum}/{pageSize}")
+    public Result<CommonPage<Product>> query(@RequestBody QueryProductParam param,
+                                             @PathVariable Integer pageNum,
+                                             @PathVariable Integer pageSize) {
+        return Result.data(productService.queryProduct(param, pageNum, pageSize));
+    }
 }

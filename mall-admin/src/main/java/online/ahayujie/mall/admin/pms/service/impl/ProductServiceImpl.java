@@ -493,6 +493,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public CommonPage<Product> queryProduct(QueryProductParam param, Integer pageNum, Integer pageSize) {
+        Page<Product> page = new Page<>(pageNum, pageSize);
+        IPage<Product> productPage = productMapper.query(page, param);
+        return new CommonPage<>(productPage);
+    }
+
+    @Override
     @RabbitListener(queues = RabbitmqConfig.PRODUCT_CATEGORY_UPDATE_QUEUE_PRODUCT)
     public void listenProductCategoryUpdate(Channel channel, Message message) throws IOException {
         Long productCategoryId;

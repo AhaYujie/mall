@@ -6,6 +6,7 @@ import online.ahayujie.mall.admin.pms.bean.model.*;
 import online.ahayujie.mall.admin.pms.exception.*;
 import online.ahayujie.mall.admin.pms.mapper.*;
 import online.ahayujie.mall.admin.pms.service.ProductService;
+import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
@@ -1162,5 +1163,53 @@ class ProductServiceImplTest {
         productService.verifyProduct(id, verifyStatus, "note");
         Product newProduct = productMapper.selectById(id);
         assertEquals(verifyStatus, newProduct.getIsVerify());
+    }
+
+    @Test
+    void queryProduct() {
+        Product product = new Product();
+        product.setName("商品名称测试用");
+        product.setProductSn("a product sn");
+        product.setBrandId(123456L);
+        product.setProductCategoryId(1234567L);
+        product.setIsPublish(Product.PublishStatus.PUBLISH.getValue());
+        product.setIsNew(Product.NewStatus.NOT_NEW.getValue());
+        product.setIsRecommend(Product.RecommendStatus.RECOMMEND.getValue());
+        product.setIsVerify(Product.VerifyStatus.VERIFY.getValue());
+        product.setIsPreview(Product.PreviewStatus.NOT_PREVIEW.getValue());
+        productMapper.insert(product);
+        product = productMapper.selectById(product.getId());
+
+        // not exist
+        QueryProductParam param = new QueryProductParam();
+        param.setName("123456不存在的商品名称");
+        CommonPage<Product> result = productService.queryProduct(param, 1, 10);
+        assertEquals(0, result.getData().size());
+
+        QueryProductParam param1 = new QueryProductParam();
+        param1.setProductSn("123456不存在的商品货号");
+        CommonPage<Product> result1 = productService.queryProduct(param1, 1, 10);
+        assertEquals(0, result1.getData().size());
+
+        QueryProductParam param2 = new QueryProductParam();
+        param2.setIsPublish(-1);
+        CommonPage<Product> result2 = productService.queryProduct(param2, 1, 10);
+        assertEquals(0, result2.getData().size());
+
+        // exist
+        QueryProductParam param3 = new QueryProductParam();
+        param3.setName(product.getName());
+        CommonPage<Product> result3 = productService.queryProduct(param3, 1, 10);
+        assertEquals(1, result3.getData().size());
+
+        QueryProductParam param4 = new QueryProductParam();
+        param4.setProductSn(product.getProductSn());
+        CommonPage<Product> result4 = productService.queryProduct(param4, 1, 10);
+        assertEquals(1, result4.getData().size());
+
+        QueryProductParam param5 = new QueryProductParam();
+        BeanUtils.copyProperties(product, param5);
+        CommonPage<Product> result5 = productService.queryProduct(param5, 1, 10);
+        assertEquals(1, result5.getData().size());
     }
 }

@@ -2,6 +2,7 @@ package online.ahayujie.mall.admin.pms.mapper;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import online.ahayujie.mall.admin.pms.bean.dto.QueryProductParam;
 import online.ahayujie.mall.admin.pms.bean.model.Product;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -57,4 +58,15 @@ public interface ProductMapper extends BaseMapper<Product> {
      * @return 更新数量
      */
     int updateByBrandId(@Param("brandId") Long brandId, @Param("product") Product product);
+
+    /**
+     * 根据商品名称(模糊)，货号(模糊)，分类，品牌，上架状态，新品状态，推荐状态，审核状态，预告状态分页查询。
+     * 若某一字段为null则不作为查询条件。
+     * 条件之间的关系为且(and)。
+     * 根据创建时间从新到旧排序。
+     * @param page 分页参数
+     * @param param 查询参数
+     * @return 商品
+     */
+    IPage<Product> query(@Param("page") Page<?> page, @Param("param") QueryProductParam param);
 }

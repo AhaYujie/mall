@@ -187,6 +187,16 @@ public interface ProductService {
     void verifyProduct(Long id, Integer verifyStatus, String note) throws IllegalProductException;
 
     /**
+     * 根据商品名称，货号，分类，品牌，上架状态，新品状态，推荐状态，审核状态，预告状态分页查询。
+     * 若某一参数为null则忽略不作为查询条件。
+     * @param param 查询参数
+     * @param pageNum 页索引
+     * @param pageSize 页大小
+     * @return 商品
+     */
+    CommonPage<Product> queryProduct(QueryProductParam param, Integer pageNum, Integer pageSize);
+
+    /**
      * 监听商品分类更新的消息。
      * 因为只需要更新商品分类下的商品的商品分类冗余信息，所以不需要保证幂等性。
      * @param channel channel
