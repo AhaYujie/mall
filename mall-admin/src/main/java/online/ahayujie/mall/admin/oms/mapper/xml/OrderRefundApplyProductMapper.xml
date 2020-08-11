@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.admin.oms.mapper.OrderRefundApplyProductMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.oms.bean.model.OrderRefundApplyProduct">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="order_refund_apply_id" property="orderRefundApplyId" />
+        <result column="product_id" property="productId" />
+        <result column="sku_id" property="skuId" />
+        <result column="product_name" property="productName" />
+        <result column="brand_name" property="brandName" />
+        <result column="product_category_name" property="productCategoryName" />
+        <result column="product_pic" property="productPic" />
+        <result column="specification" property="specification" />
+        <result column="real_amount" property="realAmount" />
+        <result column="return_quantity" property="returnQuantity" />
+    </resultMap>
+
+</mapper>

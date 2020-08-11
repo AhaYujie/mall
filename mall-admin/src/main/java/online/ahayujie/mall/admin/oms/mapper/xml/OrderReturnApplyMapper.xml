@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.admin.oms.mapper.OrderReturnApplyMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.oms.bean.model.OrderReturnApply">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="order_id" property="orderId" />
+        <result column="company_address_id" property="companyAddressId" />
+        <result column="member_id" property="memberId" />
+        <result column="return_reason_id" property="returnReasonId" />
+        <result column="order_sn" property="orderSn" />
+        <result column="member_username" property="memberUsername" />
+        <result column="return_amount" property="returnAmount" />
+        <result column="reason_name" property="reasonName" />
+        <result column="description" property="description" />
+        <result column="proof_pics" property="proofPics" />
+        <result column="handle_time" property="handleTime" />
+        <result column="handle_note" property="handleNote" />
+        <result column="receive_time" property="receiveTime" />
+        <result column="receive_note" property="receiveNote" />
+        <result column="company_address_name" property="companyAddressName" />
+        <result column="receiver_name" property="receiverName" />
+        <result column="receiver_phone" property="receiverPhone" />
+        <result column="province" property="province" />
+        <result column="city" property="city" />
+        <result column="region" property="region" />
+        <result column="street" property="street" />
+        <result column="detail_address" property="detailAddress" />
+    </resultMap>
+
+</mapper>
