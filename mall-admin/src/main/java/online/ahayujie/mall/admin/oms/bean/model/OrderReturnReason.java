@@ -24,6 +24,8 @@ import lombok.experimental.Accessors;
 @TableName("oms_order_return_reason")
 @ApiModel(value="OrderReturnReason对象", description="退货原因表")
 public class OrderReturnReason extends Base {
+    public static final int NOT_ACTIVE_STATUS = 0;
+    public static final int ACTIVE_STATUS = 1;
 
     private static final long serialVersionUID = 1L;
 
@@ -34,7 +36,7 @@ public class OrderReturnReason extends Base {
     private Integer sort;
 
     @ApiModelProperty(value = "状态：0->不启用；1->启用")
-    private Boolean status;
+    private Integer status;
 
 
 }

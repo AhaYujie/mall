@@ -12,4 +12,11 @@
         <result column="status" property="status" />
     </resultMap>
 
+    <select id="selectByPage" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, name, sort, status
+        from oms_order_return_reason
+        order by sort desc
+    </select>
+
 </mapper>
