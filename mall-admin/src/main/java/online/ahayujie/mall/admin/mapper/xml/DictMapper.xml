@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.admin.mapper.DictMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.bean.model.Dict">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="parent_id" property="parentId" />
+        <result column="code" property="code" />
+        <result column="dict_key" property="dictKey" />
+        <result column="dict_value" property="dictValue" />
+        <result column="sort" property="sort" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <select id="selectByCodeAndDictKey" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, parent_id, code, dict_key, dict_value, sort, remark
+        from dict
+        where code = #{code} and dict_key = #{dictKey}
+    </select>
+
+    <update id="updateByCodeAndDictKey">
+        update dict
+        <set>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="dictValue != null">dict_value = #{dictValue},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        where code = #{code} and dict_key = #{dictKey}
+    </update>
+
+    <select id="selectByCode" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, parent_id, code, dict_key, dict_value, sort, remark
+        from dict
+        where code = #{code}
+        order by sort desc
+    </select>
+
+</mapper>
