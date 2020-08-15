@@ -43,9 +43,6 @@ public class Sku extends Base {
     @ApiModelProperty(value = "库存")
     private Integer stock;
 
-    @ApiModelProperty(value = "锁定库存")
-    private Integer lockStock;
-
     @ApiModelProperty(value = "预警库存")
     private Integer lowStock;
 

@@ -12,7 +12,6 @@
         <result column="price" property="price" />
         <result column="promotion_price" property="promotionPrice" />
         <result column="stock" property="stock" />
-        <result column="lock_stock" property="lockStock" />
         <result column="low_stock" property="lowStock" />
         <result column="sale" property="sale" />
         <result column="pic" property="pic" />
@@ -22,7 +21,7 @@
     <select id="selectByProductId" resultMap="BaseResultMap">
         select
         id, update_time, create_time, product_id, sku_code, price, promotion_price, stock,
-        lock_stock, low_stock, sale, pic, specification
+        low_stock, sale, pic, specification
         from pms_sku
         where product_id = #{productId}
     </select>
@@ -36,7 +35,6 @@
         <result column="sku_price" property="price" />
         <result column="sku_promotion_price" property="promotionPrice" />
         <result column="sku_stock" property="stock" />
-        <result column="sku_lock_stock" property="lockStock" />
         <result column="sku_low_stock" property="lowStock" />
         <result column="sku_sale" property="sale" />
         <result column="sku_pic" property="pic" />
@@ -56,7 +54,6 @@
         s.product_id as sku_product_id,
         s.update_time as sku_update_time,
         s.create_time as sku_create_time,
-        s.lock_stock as sku_lock_stock,
         s.low_stock as sku_low_stock,
         s.pic as sku_pic,
         s.price as sku_price,
@@ -78,7 +75,7 @@
     <select id="queryByProductIdAndSkuCode" resultMap="BaseResultMap">
         select
         id, update_time, create_time, product_id, sku_code, price, promotion_price,
-        stock, lock_stock, low_stock, sale, pic, specification
+        stock, low_stock, sale, pic, specification
         from pms_sku
         where product_id = #{productId} and sku_code like concat('%', #{skuCode}, '%')
     </select>
