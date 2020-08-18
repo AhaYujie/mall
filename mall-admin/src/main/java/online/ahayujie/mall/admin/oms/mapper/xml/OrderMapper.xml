@@ -42,4 +42,50 @@
         <result column="note" property="note" />
     </resultMap>
 
+    <resultMap id="OrderListDTOMap" type="online.ahayujie.mall.admin.oms.bean.dto.OrderListDTO">
+        <result column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="order_sn" property="orderSn" />
+        <result column="status" property="status" />
+        <result column="order_type" property="orderType" />
+        <result column="total_amount" property="totalAmount" />
+        <result column="pay_type" property="payType" />
+        <result column="source_type" property="sourceType" />
+        <result column="member_id" property="memberId" />
+        <result column="member_username" property="memberUsername" />
+    </resultMap>
+
+    <select id="queryList" resultMap="OrderListDTOMap">
+        select
+        id, create_time, order_sn, status, order_type, total_amount, pay_type, source_type, member_id, member_username
+        from oms_order
+        <if test="param != null">
+            <where>
+                <if test="param.orderSn != null">
+                    order_sn = #{param.orderSn}
+                </if>
+                <if test="param.status != null">
+                    and status = #{param.status}
+                </if>
+                <if test="param.orderType != null">
+                    and order_type = #{param.orderType}
+                </if>
+                <if test="param.sourceType != null">
+                    and source_type = #{param.sourceType}
+                </if>
+                <if test="param.memberUsername != null">
+                    and member_username = #{param.memberUsername}
+                </if>
+            </where>
+        </if>
+        order by create_time desc
+    </select>
+
+    <select id="selectOrderStatus" resultType="integer">
+        select
+        status
+        from oms_order
+        where id = #{id}
+    </select>
+
 </mapper>

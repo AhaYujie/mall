@@ -26,6 +26,7 @@ import lombok.experimental.Accessors;
 @TableName("oms_order")
 @ApiModel(value="Order对象", description="订单表")
 public class Order extends Base {
+    // 订单状态实现类的beanId
     public static final String UN_PAY_STATUS_NAME = "unPayOrderState";
     public static final String UN_DELIVER_STATUS_NAME = "unDeliverOrderState";
     public static final String DELIVERED_STATUS_NAME = "deliveredOrderState";
@@ -37,6 +38,9 @@ public class Order extends Base {
     public static final String RETURN_STATUS_NAME = "returnOrderState";
     public static final String CLOSED_STATUS_NAME = "closedOrderState";
 
+    /**
+     * 订单状态
+     */
     public enum Status {
         /**
          * 待付款状态
@@ -94,7 +98,7 @@ public class Order extends Base {
         private final Integer value;
 
         /**
-         * 订单状态实现类名称
+         * 订单状态实现类beanId
          */
         private final String name;
 
@@ -109,6 +113,56 @@ public class Order extends Base {
 
         public String getName() {
             return name;
+        }
+    }
+
+    /**
+     * 订单类型
+     */
+    public enum Type {
+        /**
+         * 正常订单
+         */
+        NORMAL(0),
+
+        /**
+         * 秒杀订单
+         */
+        MIAO_SHA(1)
+        ;
+        private final Integer value;
+
+        Type(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
+
+    /**
+     * 订单来源类型
+     */
+    public enum SourceType {
+        /**
+         * PC订单
+         */
+        PC(0),
+
+        /**
+         * APP订单
+         */
+        APP(1)
+        ;
+        private final Integer value;
+
+        SourceType(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
         }
     }
 
@@ -133,10 +187,10 @@ public class Order extends Base {
     private Integer status;
 
     @ApiModelProperty(value = "订单类型：0->正常订单；1->秒杀订单")
-    private Boolean orderType;
+    private Integer orderType;
 
     @ApiModelProperty(value = "订单来源：0->PC订单；1->APP订单")
-    private Boolean sourceType;
+    private Integer sourceType;
 
     @ApiModelProperty(value = "应付金额（实际支付金额）")
     private BigDecimal payAmount;
@@ -160,7 +214,7 @@ public class Order extends Base {
     private BigDecimal discountAmount;
 
     @ApiModelProperty(value = "支付方式：0->未支付；1->支付宝；2->微信")
-    private Boolean payType;
+    private Integer payType;
 
     @ApiModelProperty(value = "物流公司(配送方式)")
     private String deliveryCompany;
