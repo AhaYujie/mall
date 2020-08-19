@@ -15,7 +15,7 @@ public class CreateRoleParam {
     @ApiModelProperty(value = "描述")
     private String description;
 
-    @ApiModelProperty(value = "启用状态：0->禁用；1->启用", required = true)
+    @ApiModelProperty(value = "启用状态：0->禁用；1->启用，默认为1")
     private Integer status;
 
     @ApiModelProperty(value = "排序")

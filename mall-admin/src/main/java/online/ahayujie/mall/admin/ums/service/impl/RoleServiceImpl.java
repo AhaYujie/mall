@@ -75,7 +75,6 @@ public class RoleServiceImpl implements RoleService {
         Role role = new Role();
         BeanUtils.copyProperties(param, role);
         role.setCreateTime(new Date());
-        role.setAdminCount(0);
         roleMapper.insert(role);
     }
 

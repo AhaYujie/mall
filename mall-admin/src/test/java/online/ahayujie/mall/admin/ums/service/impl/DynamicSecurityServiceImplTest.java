@@ -3,7 +3,8 @@ package online.ahayujie.mall.admin.ums.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.AdminLoginParam;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
-import online.ahayujie.mall.admin.ums.bean.model.Resource;
+import online.ahayujie.mall.admin.ums.bean.model.*;
+import online.ahayujie.mall.admin.ums.mapper.*;
 import online.ahayujie.mall.admin.ums.service.AdminService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import online.ahayujie.mall.security.component.DynamicSecurityService;
@@ -13,10 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,6 +40,24 @@ class DynamicSecurityServiceImplTest {
 
     @Autowired
     private DynamicSecurityService dynamicSecurityService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AdminMapper adminMapper;
+
+    @Autowired
+    private RoleMapper roleMapper;
+
+    @Autowired
+    private AdminRoleRelationMapper adminRoleRelationMapper;
+
+    @Autowired
+    private ResourceMapper resourceMapper;
+
+    @Autowired
+    private RoleResourceRelationMapper roleResourceRelationMapper;
 
     @Test
     void getAttributes() {
@@ -69,20 +92,60 @@ class DynamicSecurityServiceImplTest {
         AdminLoginParam loginParam = new AdminLoginParam();
 
         // 没有角色的用户
-        loginParam.setUsername("test2");
-        loginParam.setPassword("123456");
+        Admin admin = new Admin();
+        admin.setUsername(getRandomString(16));
+        String password = getRandomString(16);
+        admin.setPassword(passwordEncoder.encode(password));
+        admin.setStatus(Admin.ACTIVE_STATUS);
+        adminMapper.insert(admin);
+        loginParam.setUsername(admin.getUsername());
+        loginParam.setPassword(password);
         String accessToken = adminService.login(loginParam).getAccessToken();
         Authentication authentication = tokenProvider.getAuthentication(accessToken);
         Collection<ConfigAttribute> configAttributes = dynamicSecurityService.getAttributes(authentication);
         assertEquals(0, configAttributes.size());
 
         // 有角色的用户
-        loginParam.setUsername("test");
-        loginParam.setPassword("123456");
+        List<Role> roles = new ArrayList<>();
+        int size = 0;
+        for (int i = 0; i < 3; i++) {
+            Role role = new Role();
+            role.setName("for test: " + i);
+            role.setStatus(Role.STATUS.ACTIVE.getValue());
+            roleMapper.insert(role);
+            List<Resource> resources = new ArrayList<>();
+            for (int j = 0; j < 5; j++) {
+                Resource resource = new Resource();
+                resource.setName("resource: " + i + " " + j);
+                resource.setUrl("/" + i + "/" + j);
+                resourceMapper.insert(resource);
+                resources.add(resource);
+            }
+            List<RoleResourceRelation> relations = resources.stream()
+                    .map(resource -> {
+                        RoleResourceRelation relation = new RoleResourceRelation();
+                        relation.setRoleId(role.getId());
+                        relation.setResourceId(resource.getId());
+                        return relation;
+                    }).collect(Collectors.toList());
+            roleResourceRelationMapper.insertList(relations);
+            roles.add(role);
+            size += resources.size();
+        }
+        List<AdminRoleRelation> relations = roles.stream()
+                .map(role -> {
+                    AdminRoleRelation relation = new AdminRoleRelation();
+                    relation.setRoleId(role.getId());
+                    relation.setAdminId(admin.getId());
+                    return relation;
+                }).collect(Collectors.toList());
+        adminRoleRelationMapper.insertList(relations);
+        loginParam.setUsername(admin.getUsername());
+        loginParam.setPassword(password);
         accessToken = adminService.login(loginParam).getAccessToken();
         authentication = tokenProvider.getAuthentication(accessToken);
         configAttributes = dynamicSecurityService.getAttributes(authentication);
-        assertNotEquals(0, configAttributes.size());
+        assertEquals(size, configAttributes.size());
         log.debug("configAttributes: " + configAttributes);
     }
 
@@ -92,5 +155,16 @@ class DynamicSecurityServiceImplTest {
         Collection<ConfigAttribute> configAttributes = dynamicSecurityService.getAllConfigAttributes();
         assertEquals(resources.size(), configAttributes.size());
         log.debug("configAttributes: " + configAttributes);
+    }
+
+    private static String getRandomString(int length) {
+        String str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random=new Random();
+        StringBuilder sb=new StringBuilder();
+        for(int i=0;i<length;i++){
+            int number=random.nextInt(62);
+            sb.append(str.charAt(number));
+        }
+        return sb.toString();
     }
 }

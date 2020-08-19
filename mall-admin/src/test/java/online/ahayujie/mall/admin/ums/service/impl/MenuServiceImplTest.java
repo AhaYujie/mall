@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -76,8 +77,12 @@ class MenuServiceImplTest {
         Throwable throwable3 = assertThrows(IllegalMenuException.class, () -> menuService.updateMenu(finalId2, finalParam2));
         log.debug(throwable3.getMessage());
 
+        Menu menu = new Menu();
+        menu.setTitle("for test");
+        menuMapper.insert(menu);
+
         // illegal parentId
-        id = 1L;
+        id = menu.getId();
         param = new UpdateMenuParam();
         param.setParentId(-1L);
         UpdateMenuParam finalParam = param;
@@ -86,7 +91,7 @@ class MenuServiceImplTest {
         log.debug(throwable1.getMessage());
 
         // illegal hidden
-        id = 1L;
+        id = menu.getId();
         param = new UpdateMenuParam();
         param.setParentId(Menu.NON_PARENT_ID);
         param.setHidden(-1);
@@ -96,7 +101,7 @@ class MenuServiceImplTest {
         log.debug(throwable2.getMessage());
 
         // legal
-        id = 1L;
+        id = menu.getId();
         param = new UpdateMenuParam();
         param.setName("new name");
         param.setTitle("new title");
@@ -126,12 +131,22 @@ class MenuServiceImplTest {
         log.debug("result1: " + result1);
 
         // exist parentId
-        parentId = Menu.NON_PARENT_ID;
-        pageNum = 1;
-        pageSize = 2;
-        CommonPage<Menu> result2 = menuService.queryByParentId(parentId, pageSize, pageNum);
-        assertNotEquals(0, result2.getTotal());
+        Menu parent = new Menu();
+        parent.setParentId(Menu.NON_PARENT_ID);
+        menuMapper.insert(parent);
+        List<Menu> menus = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Menu menu = new Menu();
+            menu.setParentId(parent.getId());
+            menu.setTitle("for test: " + i);
+            menus.add(menu);
+        }
+        menus.forEach(menuMapper::insert);
+        parentId = parent.getId();
+        CommonPage<Menu> result2 = menuService.queryByParentId(parentId, 5, 1);
         log.debug("result2: " + result2);
+        assertEquals(5, result2.getData().size());
+        assertEquals(menus.size(), result2.getTotal());
     }
 
     @Test

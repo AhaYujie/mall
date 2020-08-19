@@ -3,10 +3,14 @@ package online.ahayujie.mall.admin.ums.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.*;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
+import online.ahayujie.mall.admin.ums.bean.model.AdminRoleRelation;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.DuplicateUsernameException;
 import online.ahayujie.mall.admin.ums.exception.IllegalAdminStatusException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
+import online.ahayujie.mall.admin.ums.mapper.AdminMapper;
+import online.ahayujie.mall.admin.ums.mapper.AdminRoleRelationMapper;
+import online.ahayujie.mall.admin.ums.mapper.RoleMapper;
 import online.ahayujie.mall.admin.ums.service.AdminService;
 import online.ahayujie.mall.admin.ums.service.RoleService;
 import online.ahayujie.mall.common.api.CommonPage;
@@ -14,10 +18,13 @@ import online.ahayujie.mall.common.bean.model.Base;
 import online.ahayujie.mall.security.jwt.TokenProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -39,6 +46,18 @@ class AdminServiceImplTest {
 
     @Autowired
     private TokenProvider tokenProvider;
+
+    @Autowired
+    private AdminMapper adminMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RoleMapper roleMapper;
+
+    @Autowired
+    private AdminRoleRelationMapper adminRoleRelationMapper;
 
     @BeforeAll
     static void beforeAll() {
@@ -69,6 +88,7 @@ class AdminServiceImplTest {
         assertEquals(admin.getEmail(), result.getEmail());
         assertEquals(admin.getNickName(), result.getNickName());
         assertEquals(admin.getNote(), result.getNote());
+        assertEquals(Admin.ACTIVE_STATUS, result.getStatus());
 
         // 重复用户名
         assertThrows(DuplicateUsernameException.class, () -> adminService.register(param));
@@ -104,6 +124,19 @@ class AdminServiceImplTest {
         adminLoginParam.setUsername(getRandomString(random.nextInt(16)));
         throwable = assertThrows(UsernameNotFoundException.class, () -> adminService.login(adminLoginParam));
         log.debug(throwable.getMessage());
+
+        // 用户被禁用
+        Admin admin = new Admin();
+        admin.setUsername(getRandomString(16));
+        String password = getRandomString(16);
+        admin.setPassword(passwordEncoder.encode(password));
+        admin.setStatus(Admin.UN_ACTIVE_STATUS);
+        adminMapper.insert(admin);
+        AdminLoginParam param = new AdminLoginParam();
+        param.setUsername(admin.getUsername());
+        param.setPassword(password);
+        Throwable throwable1 = assertThrows(DisabledException.class, () -> adminService.login(param));
+        log.debug(throwable1.getMessage());
     }
 
     @Test
@@ -115,9 +148,15 @@ class AdminServiceImplTest {
         log.debug(throwable.getMessage());
 
         // legal refreshToken
+        Admin admin = new Admin();
+        admin.setUsername(getRandomString(16));
+        String password = getRandomString(16);
+        admin.setPassword(passwordEncoder.encode(password));
+        admin.setStatus(Admin.ACTIVE_STATUS);
+        adminMapper.insert(admin);
         AdminLoginParam param = new AdminLoginParam();
-        param.setUsername("test");
-        param.setPassword("123456");
+        param.setUsername(admin.getUsername());
+        param.setPassword(password);
         AdminLoginDTO adminLoginDTO = adminService.login(param);
         Thread.sleep(2000);
         AdminLoginDTO adminLoginDTO1 = adminService.refreshAccessToken(adminLoginDTO.getRefreshToken());
@@ -138,8 +177,38 @@ class AdminServiceImplTest {
         Throwable throwable = assertThrows(UsernameNotFoundException.class, () -> adminService.updateRole(finalAdminId, finalRoleIds));
         log.debug(throwable.getMessage());
 
+        // 插入用户
+        Admin admin = new Admin();
+        admin.setUsername(getRandomString(16));
+        String password = getRandomString(16);
+        admin.setPassword(passwordEncoder.encode(password));
+        admin.setStatus(Admin.UN_ACTIVE_STATUS);
+        adminMapper.insert(admin);
+        // 插入角色
+        List<Role> roleHave = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Role role = new Role();
+            role.setName("have role: " + i);
+            role.setStatus(Role.STATUS.ACTIVE.getValue());
+            roleHave.add(role);
+        }
+        roleHave.forEach(roleMapper::insert);
+        Role unActiveRole = new Role();
+        unActiveRole.setName("un active role");
+        unActiveRole.setStatus(Role.STATUS.UN_ACTIVE.getValue());
+        roleMapper.insert(unActiveRole);
+        // 插入用户角色关系
+        List<AdminRoleRelation> relations = roleHave.stream()
+                .map(role -> {
+                    AdminRoleRelation relation = new AdminRoleRelation();
+                    relation.setAdminId(admin.getId());
+                    relation.setRoleId(role.getId());
+                    return relation;
+                }).collect(Collectors.toList());
+        adminRoleRelationMapper.insertList(relations);
+
         // roleIds is null
-        adminId = 1L;
+        adminId = admin.getId();
         roleIds = null;
         List<Role> adminRoles = roleService.getRoleListByAdminId(adminId);
         adminService.updateRole(adminId, roleIds);
@@ -158,10 +227,15 @@ class AdminServiceImplTest {
         log.debug("roleIds is empty: " + updateAdminRoles);
 
         // roleIds is illegal
-        roleIds = Arrays.asList(-1L, 1L, 2L);
+        roleIds = Arrays.asList(-1L, -2L);
         Long finalAdminId1 = adminId;
         List<Long> finalRoleIds1 = roleIds;
         throwable = assertThrows(IllegalRoleException.class, () -> adminService.updateRole(finalAdminId1, finalRoleIds1));
+        log.debug(throwable.getMessage());
+        roleIds = Collections.singletonList(unActiveRole.getId());
+        Long finalAdminId2 = adminId;
+        List<Long> finalRoleIds2 = roleIds;
+        throwable = assertThrows(IllegalRoleException.class, () -> adminService.updateRole(finalAdminId2, finalRoleIds2));
         log.debug(throwable.getMessage());
 
         // roleIds is not empty
@@ -206,15 +280,36 @@ class AdminServiceImplTest {
         CommonPage<Admin> result2 = adminService.getAdminList(keyword, pageNum, pageSize);
         assertNotEquals(0, result2.getTotal());
         log.debug("result2: " + result2);
+
+        String username = null;
+        String nickname = getRandomString(16);
+        for (int i = 0; i < 10; i++) {
+            Admin admin = new Admin();
+            username = getRandomString(5 + i);
+            admin.setUsername(username);
+            admin.setNickName(nickname);
+            adminMapper.insert(admin);
+        }
+        CommonPage<Admin> result3 = adminService.getAdminList(username, 1, 5);
+        assertEquals(1, result3.getData().size());
+        CommonPage<Admin> result5 = adminService.getAdminList(nickname, 1, 5);
+        assertEquals(5, result5.getData().size());
+        CommonPage<Admin> result6 = adminService.getAdminList(nickname, 2, 5);
+        assertEquals(5, result6.getData().size());
     }
 
     @Test
     void updateAdmin() {
+        // 插入用户
+        Admin admin = new Admin();
+        admin.setUsername(getRandomString(16));
+        adminMapper.insert(admin);
+
         long id;
         UpdateAdminParam param;
 
         // illegal status
-        id = 1L;
+        id = admin.getId();
         param = new UpdateAdminParam();
         param.setStatus(-1);
         Long finalId = id;
@@ -223,7 +318,7 @@ class AdminServiceImplTest {
         log.debug(throwable1.getMessage());
 
         // legal
-        id = 1L;
+        id = admin.getId();
         param = new UpdateAdminParam();
         param.setUsername("new username");
         param.setPassword(getRandomString(16));
@@ -238,6 +333,11 @@ class AdminServiceImplTest {
         assertNotEquals(oldAdmin, newAdmin);
         log.debug("oldAdmin: " + oldAdmin);
         log.debug("newAdmin: " + newAdmin);
+        Admin compare = new Admin();
+        BeanUtils.copyProperties(newAdmin, compare);
+        BeanUtils.copyProperties(param, compare);
+        compare.setPassword(newAdmin.getPassword());
+        assertEquals(compare, newAdmin);
     }
 
     @Test
@@ -253,9 +353,17 @@ class AdminServiceImplTest {
         Throwable throwable1 = assertThrows(UsernameNotFoundException.class, () -> adminService.updatePassword(finalParam));
         log.debug(throwable1.getMessage());
 
+        // 插入用户
+        Admin admin = new Admin();
+        admin.setUsername(getRandomString(16));
+        String password = getRandomString(16);
+        admin.setPassword(passwordEncoder.encode(password));
+        admin.setStatus(Admin.ACTIVE_STATUS);
+        adminMapper.insert(admin);
+
         // old password wrong
         param = new UpdateAdminPasswordParam();
-        param.setUsername("test");
+        param.setUsername(admin.getUsername());
         param.setOldPassword(getRandomString(20));
         param.setNewPassword(getRandomString(20));
         UpdateAdminPasswordParam finalParam1 = param;
@@ -263,11 +371,11 @@ class AdminServiceImplTest {
         log.debug(throwable2.getMessage());
 
         // legal
-        String username = "test";
+        String username = admin.getUsername();
         String newPassword = "newPassword";
         param = new UpdateAdminPasswordParam();
         param.setUsername(username);
-        param.setOldPassword("123456");
+        param.setOldPassword(password);
         param.setNewPassword(newPassword);
         adminService.updatePassword(param);
         AdminLoginParam loginParam = new AdminLoginParam();
@@ -301,5 +409,34 @@ class AdminServiceImplTest {
         Long id = null;
         int count2 = adminService.removeById(id);
         assertEquals(0, count2);
+    }
+
+    @Test
+    void getAdminFromToken() {
+        // 插入用户和登录获取token
+        Admin admin = new Admin();
+        admin.setUsername(getRandomString(16));
+        String password = getRandomString(16);
+        admin.setPassword(passwordEncoder.encode(password));
+        admin.setStatus(Admin.ACTIVE_STATUS);
+        adminMapper.insert(admin);
+        AdminLoginParam param = new AdminLoginParam();
+        param.setUsername(admin.getUsername());
+        param.setPassword(password);
+        AdminLoginDTO adminLoginDTO = adminService.login(param);
+
+        // illegal
+        Admin admin1 = adminService.getAdminFromToken(null);
+        assertNull(admin1);
+
+        // legal
+        Admin admin2 = adminService.getAdminFromToken(adminLoginDTO.getAccessToken());
+        assertNotNull(admin2);
+        assertEquals(admin.getId(), admin2.getId());
+        assertEquals(admin.getUsername(), admin2.getUsername());
+        Admin admin3 = adminService.getAdminFromToken(adminLoginDTO.getRefreshToken());
+        assertNotNull(admin3);
+        assertEquals(admin.getId(), admin3.getId());
+        assertEquals(admin.getUsername(), admin3.getUsername());
     }
 }

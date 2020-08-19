@@ -25,7 +25,8 @@ import java.util.List;
  */
 public interface AdminService extends JwtUserDetailService, ApplicationEventPublisherAware {
     /**
-     * 用户注册
+     * 用户注册。
+     * 注册的用户启用状态默认为启用。
      * @param param 用户注册参数
      * @return 用户
      * @throws DuplicateUsernameException 重复用户名
@@ -71,12 +72,15 @@ public interface AdminService extends JwtUserDetailService, ApplicationEventPubl
     /**
      * 从request header中的accessToken获取后台用户信息，
      * 若accessToken不存在则返回null
+     *
+     * @see #getAdminFromToken(String)
      * @return 后台用户信息
      */
     Admin getAdminFromToken();
 
     /**
-     * 从token中获取后台用户信息
+     * 从token中获取后台用户信息(用户id和用户名)。
+     * 若token不合法则返回null。
      * @param token accessToken或者refreshToken
      * @return 后台用户信息
      */
