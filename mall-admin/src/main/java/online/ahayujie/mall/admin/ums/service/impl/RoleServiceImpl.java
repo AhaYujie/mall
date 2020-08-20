@@ -3,6 +3,7 @@ package online.ahayujie.mall.admin.ums.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import online.ahayujie.mall.admin.ums.bean.dto.AdminRoleRelationDTO;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateRoleParam;
 import online.ahayujie.mall.admin.ums.bean.model.*;
@@ -63,7 +64,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<Role> getRoleListByAdminId(Long adminId) {
-        List<AdminRoleRelation> adminRoleRelations = adminRoleRelationMapper.selectByAdminId(adminId);
+        List<AdminRoleRelationDTO> adminRoleRelations = adminRoleRelationMapper.selectDTOByAdminId(adminId);
         return adminRoleRelations.stream()
                 .map(relation -> roleMapper.selectById(relation.getRoleId()))
                 .filter(role -> role.getStatus().equals(Role.STATUS.ACTIVE.getValue()))
@@ -75,7 +76,6 @@ public class RoleServiceImpl implements RoleService {
         Role role = new Role();
         BeanUtils.copyProperties(param, role);
         role.setCreateTime(new Date());
-        role.setAdminCount(0);
         roleMapper.insert(role);
     }
 

@@ -46,7 +46,8 @@ public interface ResourceService extends ApplicationEventPublisherAware {
     List<Resource> getResourceListByRoleIds(List<Long> roleIds);
 
     /**
-     * 判断资源合法性
+     * 判断资源合法性。
+     * 若资源不存在和不合法。
      * @param resourceIds 资源id
      * @throws IllegalResourceException 资源不合法
      */
@@ -54,6 +55,8 @@ public interface ResourceService extends ApplicationEventPublisherAware {
 
     /**
      * 判断资源合法性
+     *
+     * @see #validateResource(Collection)
      * @param resourceId 资源id
      * @throws IllegalResourceException 资源不合法
      */

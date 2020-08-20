@@ -44,4 +44,16 @@
         where role_id = #{roleId}
     </select>
 
+    <resultMap id="DTOResultMap" type="online.ahayujie.mall.admin.ums.bean.dto.AdminRoleRelationDTO">
+        <result column="admin_id" property="adminId" />
+        <result column="role_id" property="roleId" />
+    </resultMap>
+
+    <select id="selectDTOByAdminId" resultMap="DTOResultMap">
+        select
+        admin_id, role_id
+        from ums_admin_role_relation
+        where admin_id = #{adminId}
+    </select>
+
 </mapper>

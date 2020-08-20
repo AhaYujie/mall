@@ -31,4 +31,12 @@
         where username like concat('%', #{keyword}, '%') or nick_name like concat('%', #{keyword}, '%')
     </select>
 
+    <select id="selectByPage" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, username, password, icon, email, nick_name, note, login_time, status
+        from ums_admin
+        inner join (select id from ums_admin order by id limit #{start}, #{size}) as tmp
+        using(id)
+    </select>
+
 </mapper>

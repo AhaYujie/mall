@@ -68,14 +68,16 @@ public interface RoleService {
     CommonPage<Role> list(String keyword, Integer pageSize, Integer pageNum);
 
     /**
-     * 获取角色相关菜单
+     * 获取角色相关菜单。
+     * 角色不存在则返回空列表。
      * @param id 角色id
      * @return 菜单
      */
     List<Menu> listMenu(Long id);
 
     /**
-     * 获取角色相关资源
+     * 获取角色相关资源。
+     * 如果角色不存在则返回空列表。
      * @param id 角色id
      * @return 资源
      */

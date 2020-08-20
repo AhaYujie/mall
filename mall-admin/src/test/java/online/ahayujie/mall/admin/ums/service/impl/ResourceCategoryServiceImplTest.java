@@ -76,7 +76,10 @@ class ResourceCategoryServiceImplTest {
         log.debug(throwable1.getMessage());
 
         // legal
-        id = 1L;
+        ResourceCategory resourceCategory = new ResourceCategory();
+        resourceCategory.setName("for test");
+        resourceCategoryMapper.insert(resourceCategory);
+        id = resourceCategory.getId();
         param = new UpdateResourceCategoryParam();
         param.setName("update name");
         param.setSort(100);
@@ -84,6 +87,8 @@ class ResourceCategoryServiceImplTest {
         resourceCategoryService.update(id, param);
         ResourceCategory newResourceCategory = resourceCategoryService.getById(id);
         assertNotEquals(oldResourceCategory, newResourceCategory);
+        assertEquals(param.getName(), newResourceCategory.getName());
+        assertEquals(param.getSort(), newResourceCategory.getSort());
         log.debug("oldResourceCategory: " + oldResourceCategory);
         log.debug("newResourceCategory: " + newResourceCategory);
     }

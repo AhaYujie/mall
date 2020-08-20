@@ -5,11 +5,16 @@ import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.ResourceCategory;
+import online.ahayujie.mall.admin.ums.bean.model.Role;
+import online.ahayujie.mall.admin.ums.bean.model.RoleResourceRelation;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.mapper.ResourceCategoryMapper;
 import online.ahayujie.mall.admin.ums.mapper.ResourceMapper;
+import online.ahayujie.mall.admin.ums.mapper.RoleMapper;
+import online.ahayujie.mall.admin.ums.mapper.RoleResourceRelationMapper;
 import online.ahayujie.mall.admin.ums.service.ResourceCategoryService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
+import online.ahayujie.mall.common.bean.model.Base;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +22,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,6 +42,12 @@ class ResourceServiceImplTest {
     @Autowired
     private ResourceCategoryService resourceCategoryService;
 
+    @Autowired
+    private RoleMapper roleMapper;
+
+    @Autowired
+    private RoleResourceRelationMapper roleResourceRelationMapper;
+
     @Test
     void getResourceListByAdminId() {
         List<Long> roleIds;
@@ -51,9 +63,51 @@ class ResourceServiceImplTest {
         assertEquals(0, result2.size());
 
         // not empty
-        roleIds = Arrays.asList(1L, 2L);
+        // 新增角色
+        int resourceSize = 0;
+        List<Role> roles = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Role role = new Role();
+            role.setName("role:" + i);
+            roleMapper.insert(role);
+            // 角色的资源
+            List<Resource> resources = new ArrayList<>();
+            for (int j = 0; j < 5; j++) {
+                Resource resource = new Resource();
+                resource.setName("name:" + i + "/" + j);
+                resource.setUrl("url:" + i + "/" + j);
+                resourceMapper.insert(resource);
+                resources.add(resource);
+            }
+            // 角色资源关系
+            List<RoleResourceRelation> relations = resources.stream()
+                    .map(resource -> {
+                        RoleResourceRelation relation = new RoleResourceRelation();
+                        relation.setRoleId(role.getId());
+                        relation.setResourceId(resource.getId());
+                        return relation;
+                    }).collect(Collectors.toList());
+            roleResourceRelationMapper.insertList(relations);
+            roles.add(role);
+            resourceSize += resources.size();
+        }
+        // 每个角色都拥有的资源
+        Resource common = new Resource();
+        common.setName("common");
+        common.setUrl("common url");
+        resourceMapper.insert(common);
+        List<RoleResourceRelation> relations = roles.stream()
+                .map(role -> {
+                    RoleResourceRelation relation = new RoleResourceRelation();
+                    relation.setRoleId(role.getId());
+                    relation.setResourceId(common.getId());
+                    return relation;
+                }).collect(Collectors.toList());
+        roleResourceRelationMapper.insertList(relations);
+        resourceSize += 1;
+        roleIds = roles.stream().map(Base::getId).collect(Collectors.toList());
         List<Resource> result3 = resourceService.getResourceListByRoleIds(roleIds);
-        assertNotEquals(0, result3.size());
+        assertEquals(resourceSize, result3.size());
         log.debug(result3.toString());
         // 检查是否存在重复 resource
         Set<Resource> resourceSet = new HashSet<>(result3);
@@ -109,15 +163,25 @@ class ResourceServiceImplTest {
         log.debug(throwable1.getMessage());
 
         // legal
+        Resource resource1 = new Resource();
+        resource1.setName("for test");
+        resourceMapper.insert(resource1);
+        ResourceCategory resourceCategory = new ResourceCategory();
+        resourceCategory.setName("for test");
+        resourceCategoryMapper.insert(resourceCategory);
         resource.setName("update name");
-        id = resourceService.list().get(0).getId();
+        id = resource1.getId();
         resource.setUrl("update url");
         resource.setDescription("update description");
-        resource.setCategoryId(resourceCategoryService.listAll().get(0).getId());
+        resource.setCategoryId(resourceCategory.getId());
         Resource oldResource = resourceService.getById(id);
         resourceService.updateResource(id, resource);
         Resource newResource = resourceService.getById(id);
         assertNotEquals(oldResource, newResource);
+        assertEquals(resource.getName(), newResource.getName());
+        assertEquals(resource.getUrl(), newResource.getUrl());
+        assertEquals(resource.getDescription(), newResource.getDescription());
+        assertEquals(resource.getCategoryId(), newResource.getCategoryId());
         log.debug("oldResource: " + oldResource);
         log.debug("newResource: " + newResource);
     }

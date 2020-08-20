@@ -101,11 +101,18 @@ public class AdminController {
     }
 
     @ApiOperation(value = "根据用户名或昵称分页获取用户列表")
-    @GetMapping("/list")
+    @GetMapping("/query")
     public Result<CommonPage<Admin>> getAdminList(@RequestParam(required = false) String keyword,
                                                   @RequestParam(defaultValue = "5") Integer pageSize,
                                                   @RequestParam(defaultValue = "1") Integer pageNum) {
         return Result.data(adminService.getAdminList(keyword, pageNum, pageSize));
+    }
+
+    @ApiOperation(value = "分页获取用户列表")
+    @GetMapping("list")
+    public Result<CommonPage<Admin>> getAdminList(@RequestParam(defaultValue = "1", required = false) Long pageNum,
+                                                  @RequestParam(defaultValue = "20", required = false) Long pageSize) {
+        return Result.data(adminService.getAdminList(pageNum, pageSize));
     }
 
     @ApiOperation(value = "获取指定用户信息")

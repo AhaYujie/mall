@@ -1,6 +1,7 @@
 package online.ahayujie.mall.admin.ums.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
@@ -188,6 +189,13 @@ public class AdminServiceImpl implements AdminService {
         Page<Admin> page = new Page<>(pageNum, pageSize);
         IPage<Admin> admins = adminMapper.selectByUsernameAndNickName(page, keyword);
         return new CommonPage<>(admins);
+    }
+
+    @Override
+    public CommonPage<Admin> getAdminList(Long pageNum, Long pageSize) {
+        List<Admin> admins = adminMapper.selectByPage((pageNum - 1) * pageSize, pageSize);
+        Long count = Long.valueOf(adminMapper.selectCount(Wrappers.emptyWrapper()));
+        return new CommonPage<>(pageNum, pageSize, count / pageSize + 1, count, admins);
     }
 
     @Override

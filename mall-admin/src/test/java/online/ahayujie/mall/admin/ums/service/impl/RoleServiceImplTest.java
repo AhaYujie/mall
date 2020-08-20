@@ -6,10 +6,7 @@ import online.ahayujie.mall.admin.ums.bean.model.*;
 import online.ahayujie.mall.admin.ums.exception.IllegalMenuException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
-import online.ahayujie.mall.admin.ums.mapper.AdminRoleRelationMapper;
-import online.ahayujie.mall.admin.ums.mapper.RoleMapper;
-import online.ahayujie.mall.admin.ums.mapper.RoleMenuRelationMapper;
-import online.ahayujie.mall.admin.ums.mapper.RoleResourceRelationMapper;
+import online.ahayujie.mall.admin.ums.mapper.*;
 import online.ahayujie.mall.admin.ums.service.AdminService;
 import online.ahayujie.mall.admin.ums.service.MenuService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
@@ -58,6 +55,15 @@ class RoleServiceImplTest {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
+    @Autowired
+    private AdminMapper adminMapper;
+
+    @Autowired
+    private MenuMapper menuMapper;
+
+    @Autowired
+    private ResourceMapper resourceMapper;
+
     @Test
     void getRoleListByAdminId() {
         Long adminId = null;
@@ -66,14 +72,36 @@ class RoleServiceImplTest {
         assertEquals(0, result1.size());
 
         // 查询存在的用户但没有角色
-        adminId = 2L;
+        // 创建用户
+        Admin admin = new Admin();
+        admin.setUsername(getRandomString(16));
+        adminMapper.insert(admin);
+        adminId = admin.getId();
         List<Role> result2 = roleService.getRoleListByAdminId(adminId);
         assertEquals(0, result2.size());
 
         // 查询存在的用户且拥有角色
-        adminId = 1L;
+        // 创建角色
+        List<Role> roles = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Role role = new Role();
+            role.setName("for test: " + i);
+            role.setStatus(Role.STATUS.ACTIVE.getValue());
+            roleMapper.insert(role);
+            roles.add(role);
+        }
+        // 用户角色关系
+        List<AdminRoleRelation> relations = roles.stream()
+                .map(role -> {
+                    AdminRoleRelation relation = new AdminRoleRelation();
+                    relation.setAdminId(admin.getId());
+                    relation.setRoleId(role.getId());
+                    return relation;
+                }).collect(Collectors.toList());
+        adminRoleRelationMapper.insertList(relations);
+        adminId = admin.getId();
         List<Role> result3 = roleService.getRoleListByAdminId(adminId);
-        assertNotEquals(0, result3.size());
+        assertEquals(roles.size(), result3.size());
         for (Role role : result3) {
             assertEquals(Role.STATUS.ACTIVE.getValue(), role.getStatus());
         }
@@ -106,7 +134,10 @@ class RoleServiceImplTest {
         log.debug(throwable.getMessage());
 
         // legal role
-        Long id = 1L;
+        Role role = new Role();
+        role.setName("for test");
+        roleMapper.insert(role);
+        Long id = role.getId();
         Role oldRole = roleService.getById(id);
         newRole.setDescription("new role");
         roleService.updateRole(id, newRole);
@@ -148,9 +179,15 @@ class RoleServiceImplTest {
         assertEquals(oldRoles.size(), updateRoles.size());
 
         // not empty
+        List<Role> roles = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Role role = new Role();
+            role.setName("for test: " + i);
+            roles.add(role);
+        }
+        roles.forEach(roleMapper::insert);
         oldRoles = roleService.list();
-        ids.add(oldRoles.get(0).getId());
-        ids.add(oldRoles.get(1).getId());
+        ids = roles.stream().map(Base::getId).collect(Collectors.toList());
         roleService.deleteRoles(ids);
         updateRoles = roleService.list();
         assertNotEquals(oldRoles.size(), updateRoles.size());
@@ -230,7 +267,12 @@ class RoleServiceImplTest {
         assertEquals(0, result3.getData().size());
 
         // not empty result
-        keyword = "管理员";
+        for (int i = 0; i < 10; i++) {
+            Role role = new Role();
+            role.setName("role for test");
+            roleMapper.insert(role);
+        }
+        keyword = "role for test";
         pageNum = 1;
         pageSize = 2;
         CommonPage<Role> result4 = roleService.list(keyword, pageSize, pageNum);
@@ -253,9 +295,28 @@ class RoleServiceImplTest {
         assertEquals(0, result2.size());
 
         // id exit
-        id = 1L;
+        Role role = new Role();
+        role.setName("for test");
+        roleMapper.insert(role);
+        List<Menu> menus = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Menu menu = new Menu();
+            menu.setName("menu:" + i);
+            menu.setParentId(Menu.NON_PARENT_ID);
+            menus.add(menu);
+        }
+        menus.forEach(menuMapper::insert);
+        List<RoleMenuRelation> relations = menus.stream()
+                .map(menu -> {
+                    RoleMenuRelation relation = new RoleMenuRelation();
+                    relation.setRoleId(role.getId());
+                    relation.setMenuId(menu.getId());
+                    return relation;
+                }).collect(Collectors.toList());
+        roleMenuRelationMapper.insertList(relations);
+        id = role.getId();
         List<Menu> result3 = roleService.listMenu(id);
-        assertNotEquals(0, result3.size());
+        assertEquals(menus.size(), result3.size());
         log.debug("result3: " + result3);
     }
 
@@ -274,9 +335,27 @@ class RoleServiceImplTest {
         assertEquals(0, result2.size());
 
         // id exit
-        id = 1L;
+        Role role = new Role();
+        role.setName("for test");
+        roleMapper.insert(role);
+        List<Resource> resources = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Resource resource = new Resource();
+            resource.setName("for test: " + i);
+            resources.add(resource);
+        }
+        resources.forEach(resourceMapper::insert);
+        List<RoleResourceRelation> relations = resources.stream()
+                .map(resource -> {
+                    RoleResourceRelation relation = new RoleResourceRelation();
+                    relation.setRoleId(role.getId());
+                    relation.setResourceId(relation.getRoleId());
+                    return relation;
+                }).collect(Collectors.toList());
+        roleResourceRelationMapper.insertList(relations);
+        id = role.getId();
         List<Resource> result3 = roleService.listResource(id);
-        assertNotEquals(0, result3.size());
+        assertEquals(resources.size(), result3.size());
         log.debug("result3: " + result3);
     }
 
@@ -293,8 +372,12 @@ class RoleServiceImplTest {
         Throwable throwable1 = assertThrows(IllegalRoleException.class, () -> roleService.updateRoleMenu(finalRoleId, finalMenuIds));
         log.debug(throwable1.getMessage());
 
+        Role role = new Role();
+        role.setName("for test");
+        roleMapper.insert(role);
+
         // illegal menuIds
-        roleId = 1L;
+        roleId = role.getId();
         menuIds = Arrays.asList(-1L, 2L);
         Long finalRoleId1 = roleId;
         List<Long> finalMenuIds1 = menuIds;
@@ -302,7 +385,7 @@ class RoleServiceImplTest {
         log.debug(throwable2.getMessage());
 
         // menuIds null
-        roleId = 1L;
+        roleId = role.getId();
         menuIds = null;
         List<Menu> oldMenus = roleService.listMenu(roleId);
         roleService.updateRoleMenu(roleId, menuIds);
@@ -312,7 +395,7 @@ class RoleServiceImplTest {
         log.debug("newMenus: " + newMenus);
 
         // menuIds empty
-        roleId = 1L;
+        roleId = role.getId();
         menuIds = new ArrayList<>();
         roleService.updateRoleMenu(roleId, menuIds);
         newMenus = roleService.listMenu(roleId);
@@ -320,8 +403,16 @@ class RoleServiceImplTest {
         log.debug("newMenus: " + newMenus);
 
         // menuIds not empty
-        roleId = 1L;
-        menuIds = menuService.list().stream().map(Base::getId).collect(Collectors.toList());
+        List<Menu> menus = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Menu menu = new Menu();
+            menu.setName("for test: " + i);
+            menu.setParentId(Menu.NON_PARENT_ID);
+            menus.add(menu);
+        }
+        menus.forEach(menuMapper::insert);
+        roleId = role.getId();
+        menuIds = menus.stream().map(Base::getId).collect(Collectors.toList());
         roleService.updateRoleMenu(roleId, menuIds);
         newMenus = roleService.listMenu(roleId);
         assertEquals(menuIds.size(), newMenus.size());
@@ -341,8 +432,12 @@ class RoleServiceImplTest {
         Throwable throwable1 = assertThrows(IllegalRoleException.class, () -> roleService.updateRoleResource(finalRoleId, finalResourceIds));
         log.debug(throwable1.getMessage());
 
+        Role role = new Role();
+        role.setName("for test");
+        roleMapper.insert(role);
+
         // illegal resourceIds
-        roleId = 1L;
+        roleId = role.getId();
         resourceIds = Arrays.asList(-1L, -2L);
         Long finalRoleId1 = roleId;
         List<Long> finalResourceIds1 = resourceIds;
@@ -350,7 +445,7 @@ class RoleServiceImplTest {
         log.debug(throwable2.getMessage());
 
         // resourceIds null
-        roleId = 1L;
+        roleId = role.getId();
         resourceIds = null;
         List<Resource> oldResources = roleService.listResource(roleId);
         roleService.updateRoleResource(roleId, resourceIds);
@@ -360,7 +455,7 @@ class RoleServiceImplTest {
         log.debug("newResources: " + newResources);
 
         // resourceIds empty
-        roleId = 1L;
+        roleId = role.getId();
         resourceIds = new ArrayList<>();
         roleService.updateRoleResource(roleId, resourceIds);
         newResources = roleService.listResource(roleId);
@@ -368,11 +463,29 @@ class RoleServiceImplTest {
         log.debug("newResources: " + newResources);
 
         // resourceIds not empty
-        roleId = 1L;
-        resourceIds = resourceService.list().stream().map(Base::getId).collect(Collectors.toList());
+        List<Resource> resources = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Resource resource = new Resource();
+            resource.setName("for test: " + i);
+            resourceMapper.insert(resource);
+            resources.add(resource);
+        }
+        roleId = role.getId();
+        resourceIds = resources.stream().map(Base::getId).collect(Collectors.toList());
         roleService.updateRoleResource(roleId, resourceIds);
         newResources = roleService.listResource(roleId);
         assertEquals(resourceIds.size(), newResources.size());
         log.debug("newResources: " + newResources);
+    }
+
+    private static String getRandomString(int length) {
+        String str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random=new Random();
+        StringBuilder sb=new StringBuilder();
+        for(int i=0;i<length;i++){
+            int number=random.nextInt(62);
+            sb.append(str.charAt(number));
+        }
+        return sb.toString();
     }
 }
