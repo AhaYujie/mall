@@ -1,5 +1,6 @@
 package online.ahayujie.mall.admin.ums.mapper;
 
+import online.ahayujie.mall.admin.ums.bean.dto.AdminRoleRelationDTO;
 import online.ahayujie.mall.admin.ums.bean.model.AdminRoleRelation;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -53,4 +54,12 @@ public interface AdminRoleRelationMapper extends BaseMapper<AdminRoleRelation> {
      * @return 后台用户角色关系
      */
     List<AdminRoleRelation> selectByRoleId(Long roleId);
+
+    /**
+     * 根据用户id查询。
+     * 使用覆盖索引，避免回表。
+     * @param adminId 用户id
+     * @return 后台用户角色关系
+     */
+    List<AdminRoleRelationDTO> selectDTOByAdminId(Long adminId);
 }
