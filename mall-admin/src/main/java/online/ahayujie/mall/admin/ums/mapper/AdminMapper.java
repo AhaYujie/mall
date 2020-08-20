@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * <p>
  * 后台用户表 Mapper 接口
@@ -33,4 +35,12 @@ public interface AdminMapper extends BaseMapper<Admin> {
      * @return 后台用户
      */
     IPage<Admin> selectByUsernameAndNickName(@Param("page") Page<?> page, @Param("keyword") String keyword);
+
+    /**
+     * 分页查询
+     * @param start 页索引
+     * @param size 页大小
+     * @return 后台用户
+     */
+    List<Admin> selectByPage(@Param("start") Long start, @Param("size") Long size);
 }

@@ -96,6 +96,14 @@ public interface AdminService extends JwtUserDetailService, ApplicationEventPubl
     CommonPage<Admin> getAdminList(String keyword, Integer pageNum, Integer pageSize);
 
     /**
+     * 分页获取后台用户
+     * @param pageNum 页索引
+     * @param pageSize 页大小
+     * @return 后台用户
+     */
+    CommonPage<Admin> getAdminList(Long pageNum, Long pageSize);
+
+    /**
      * 更新后台用户信息
      * @param id 后台用户id
      * @param param 后台用户信息

@@ -63,7 +63,7 @@ class AdminServiceImplTest {
     static void beforeAll() {
         Random random = new Random();
         admin = new Admin();
-        admin.setUsername(getRandomString(random.nextInt(16) + 1));
+        admin.setUsername(getRandomString(random.nextInt(20) + 20));
         admin.setPassword("123456");
         admin.setEmail("1234567@qq.com");
         admin.setNickName("aha");
@@ -96,6 +96,7 @@ class AdminServiceImplTest {
 
     @Test
     void login() {
+        admin.setUsername(getRandomString(40));
         AdminRegisterParam adminRegisterParam = new AdminRegisterParam();
         adminRegisterParam.setUsername(admin.getUsername());
         adminRegisterParam.setPassword(admin.getPassword());
@@ -320,7 +321,7 @@ class AdminServiceImplTest {
         // legal
         id = admin.getId();
         param = new UpdateAdminParam();
-        param.setUsername("new username");
+        param.setUsername(getRandomString(40));
         param.setPassword(getRandomString(16));
         param.setEmail("new email");
         param.setIcon("new icon");
@@ -388,6 +389,7 @@ class AdminServiceImplTest {
     @Test
     void removeById() {
         // 删除存在的用户
+        admin.setUsername(getRandomString(40));
         AdminRegisterParam adminRegisterParam = new AdminRegisterParam();
         adminRegisterParam.setUsername(admin.getUsername());
         adminRegisterParam.setPassword(admin.getPassword());
@@ -438,5 +440,19 @@ class AdminServiceImplTest {
         assertNotNull(admin3);
         assertEquals(admin.getId(), admin3.getId());
         assertEquals(admin.getUsername(), admin3.getUsername());
+    }
+    @Test
+    void testGetAdminList() {
+        List<Admin> admins = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Admin admin = new Admin();
+            admin.setUsername(getRandomString(45));
+            admins.add(admin);
+        }
+        admins.forEach(adminMapper::insert);
+        CommonPage<Admin> result = adminService.getAdminList(1L, 5L);
+        assertEquals(5, result.getData().size());
+        CommonPage<Admin> result1 = adminService.getAdminList(2L, 5L);
+        assertEquals(5, result1.getData().size());
     }
 }
