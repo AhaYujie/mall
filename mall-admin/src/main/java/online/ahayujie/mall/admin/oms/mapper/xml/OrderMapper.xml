@@ -37,7 +37,6 @@
         <result column="coupon_ids" property="couponIds" />
         <result column="use_integration" property="useIntegration" />
         <result column="integration" property="integration" />
-        <result column="growth" property="growth" />
         <result column="promotion_info" property="promotionInfo" />
         <result column="note" property="note" />
     </resultMap>

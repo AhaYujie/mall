@@ -120,10 +120,6 @@ public class ProductServiceImpl implements ProductService {
         if (unit != null && unit.length() > Product.UNIT_MAX_LENGTH) {
             throw new IllegalProductException("商品计量单位长度大于" + Product.UNIT_MAX_LENGTH + ": " + unit);
         }
-        Integer giftGrowth = product.getGiftGrowth();
-        if (giftGrowth != null && giftGrowth.compareTo(0) < 0) {
-            throw new IllegalProductException("赠送的成长值小于0: " + giftGrowth);
-        }
         Integer giftPoint = product.getGiftPoint();
         if (giftPoint != null && giftPoint.compareTo(0) < 0) {
             throw new IllegalProductException("赠送的积分小于0: " + giftPoint);

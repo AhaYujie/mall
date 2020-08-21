@@ -29,7 +29,6 @@
         <result column="note" property="note" />
         <result column="keywords" property="keywords" />
         <result column="sort" property="sort" />
-        <result column="gift_growth" property="giftGrowth" />
         <result column="gift_point" property="giftPoint" />
         <result column="use_point_limit" property="usePointLimit" />
         <result column="service_ids" property="serviceIds" />
@@ -46,7 +45,7 @@
         select
         id, update_time, create_time, brand_id, product_category_id, product_sn, name, brand_name, product_category_name,
                pic, sub_title, description, detail_title, detail_description, detail_html, detail_mobile_html, price,
-               original_price, sale, stock, low_stock, unit, note, keywords, sort, gift_growth, gift_point, use_point_limit,
+               original_price, sale, stock, low_stock, unit, note, keywords, sort, gift_point, use_point_limit,
                service_ids, promotion_type, is_deleted, is_publish, is_new, is_recommend, is_verify, is_preview
         from pms_product
     </select>
@@ -55,7 +54,7 @@
         select
             id, update_time, create_time, brand_id, product_category_id, product_sn, name, brand_name, product_category_name,
             pic, sub_title, description, detail_title, detail_description, detail_html, detail_mobile_html, price,
-            original_price, sale, stock, low_stock, unit, note, keywords, sort, gift_growth, gift_point, use_point_limit,
+            original_price, sale, stock, low_stock, unit, note, keywords, sort, gift_point, use_point_limit,
             service_ids, promotion_type, is_deleted, is_publish, is_new, is_recommend, is_verify, is_preview
         from pms_product
         order by sort desc, create_time desc
@@ -88,7 +87,6 @@
             <if test="product.note != null">note = #{product.note},</if>
             <if test="product.keywords != null">keywords = #{product.keywords},</if>
             <if test="product.sort != null">sort = #{product.sort},</if>
-            <if test="product.giftGrowth != null">gift_growth = #{product.giftGrowth},</if>
             <if test="product.giftPoint != null">gift_point = #{product.giftPoint},</if>
             <if test="product.usePointLimit != null">use_point_limit = #{product.usePointLimit},</if>
             <if test="product.serviceIds != null">service_ids = #{product.serviceIds},</if>
@@ -133,7 +131,6 @@
             <if test="product.note != null">note = #{product.note},</if>
             <if test="product.keywords != null">keywords = #{product.keywords},</if>
             <if test="product.sort != null">sort = #{product.sort},</if>
-            <if test="product.giftGrowth != null">gift_growth = #{product.giftGrowth},</if>
             <if test="product.giftPoint != null">gift_point = #{product.giftPoint},</if>
             <if test="product.usePointLimit != null">use_point_limit = #{product.usePointLimit},</if>
             <if test="product.serviceIds != null">service_ids = #{product.serviceIds},</if>
@@ -175,7 +172,6 @@
             <if test="product.note != null">note = #{product.note},</if>
             <if test="product.keywords != null">keywords = #{product.keywords},</if>
             <if test="product.sort != null">sort = #{product.sort},</if>
-            <if test="product.giftGrowth != null">gift_growth = #{product.giftGrowth},</if>
             <if test="product.giftPoint != null">gift_point = #{product.giftPoint},</if>
             <if test="product.usePointLimit != null">use_point_limit = #{product.usePointLimit},</if>
             <if test="product.serviceIds != null">service_ids = #{product.serviceIds},</if>
@@ -194,7 +190,7 @@
         select
         id, update_time, create_time, brand_id, product_category_id, product_sn, name, brand_name, product_category_name,
         pic, sub_title, description, detail_title, detail_description, detail_html, detail_mobile_html, price, original_price,
-        sale, stock, low_stock, unit, note, keywords, sort, gift_growth, gift_point, use_point_limit, service_ids, promotion_type,
+        sale, stock, low_stock, unit, note, keywords, sort, gift_point, use_point_limit, service_ids, promotion_type,
         is_deleted, is_publish, is_new, is_recommend, is_verify, is_preview
         from pms_product
         <where>

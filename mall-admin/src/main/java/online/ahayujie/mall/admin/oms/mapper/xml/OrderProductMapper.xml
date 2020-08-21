@@ -26,7 +26,6 @@
         <result column="integration_amount" property="integrationAmount" />
         <result column="real_amount" property="realAmount" />
         <result column="integration" property="integration" />
-        <result column="growth" property="growth" />
         <result column="status" property="status" />
     </resultMap>
 
@@ -35,7 +34,7 @@
         id, update_time, create_time, order_id, order_sn, product_id, sku_id, product_sku_code, product_sn,
                product_name, brand_name, product_category_name, product_pic, product_price, product_quantity,
                specification, promotion_name, promotion_amount, coupon_amount, integration_amount, real_amount,
-               integration, growth, status
+               integration, status
         from oms_order_product
         where order_id = #{orderId}
     </select>

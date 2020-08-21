@@ -83,9 +83,6 @@ public class CreateProductParam {
         @ApiModelProperty(value = "排序，从大到小")
         private Integer sort;
 
-        @ApiModelProperty(value = "赠送的成长值")
-        private Integer giftGrowth;
-
         @ApiModelProperty(value = "赠送的积分")
         private Integer giftPoint;
 

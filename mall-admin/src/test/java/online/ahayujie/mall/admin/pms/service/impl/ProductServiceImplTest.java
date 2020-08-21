@@ -541,7 +541,6 @@ class ProductServiceImplTest {
         createProduct.setNote("note");
         createProduct.setKeywords("keywords");
         createProduct.setSort(0);
-        createProduct.setGiftGrowth(20);
         createProduct.setGiftPoint(30);
         createProduct.setUsePointLimit(100);
         createProduct.setServiceIds("1,2,3");
@@ -640,7 +639,6 @@ class ProductServiceImplTest {
         param2.setNote("update note");
         param2.setKeywords("update keywords");
         param2.setSort(999);
-        param2.setGiftGrowth(99999);
         param2.setGiftPoint(999);
         param2.setUsePointLimit(2222);
         param2.setServiceIds("1,2,3");
@@ -1020,7 +1018,6 @@ class ProductServiceImplTest {
         param.setNote("update note");
         param.setKeywords("更新关键词");
         param.setSort(1000);
-        param.setGiftGrowth(222);
         param.setGiftPoint(250);
         param.setUsePointLimit(250);
         param.setServiceIds("1,2,3,4,5");

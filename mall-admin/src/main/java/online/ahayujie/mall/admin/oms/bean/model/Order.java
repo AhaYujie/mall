@@ -258,9 +258,6 @@ public class Order extends Base {
     @ApiModelProperty(value = "获得的积分")
     private Integer integration;
 
-    @ApiModelProperty(value = "获得的成长值")
-    private Integer growth;
-
     @ApiModelProperty(value = "活动信息")
     private String promotionInfo;
 

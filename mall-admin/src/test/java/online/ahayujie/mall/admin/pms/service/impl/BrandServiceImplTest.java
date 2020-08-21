@@ -248,7 +248,7 @@ class BrandServiceImplTest {
     void updateFactoryStatus() {
         Random random = new Random();
         List<Brand> brands = new ArrayList<>();
-        int size = random.nextInt(20);
+        int size = random.nextInt(20) + 5;
         for (int i = 0; i < size; i++) {
             Brand brand = new Brand();
             brand.setName("for test: " + i);

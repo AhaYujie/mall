@@ -85,9 +85,6 @@ public class OrderProduct extends Base {
     @ApiModelProperty(value = "商品赠送积分")
     private Integer integration;
 
-    @ApiModelProperty(value = "商品赠送成长值")
-    private Integer growth;
-
     @ApiModelProperty(value = "商品状态：0->未购买；1->待评价；2->已评价；3->售后中；4->已退款(仅退款)；5->已退货(退货退款)")
     private Boolean status;
 
