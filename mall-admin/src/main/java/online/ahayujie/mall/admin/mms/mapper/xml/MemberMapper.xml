@@ -30,22 +30,22 @@
         select
         id, update_time, create_time, username, password, nickname, phone, icon, gender, birthday, integration, status
         from mms_member
-        inner join (select username from mms_member
+        inner join (select id from mms_member
                     where username like concat(#{username}, '%')
                     limit #{start}, #{size})
         as tmp
-        using(username)
+        using(id)
     </select>
 
     <select id="queryByPhone" resultMap="BaseResultMap">
         select
         id, update_time, create_time, username, password, nickname, phone, icon, gender, birthday, integration, status
         from mms_member
-        inner join (select phone from mms_member
+        inner join (select id from mms_member
                      where phone like concat(#{phone}, '%')
                      limit #{start}, #{size})
         as tmp
-        using(phone)
+        using(id)
     </select>
 
     <select id="selectCountByUsername" resultType="long">
