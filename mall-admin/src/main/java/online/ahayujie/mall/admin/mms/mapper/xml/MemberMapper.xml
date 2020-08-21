@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.admin.mms.mapper.MemberMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.mms.bean.model.Member">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <result column="nickname" property="nickname" />
+        <result column="phone" property="phone" />
+        <result column="icon" property="icon" />
+        <result column="gender" property="gender" />
+        <result column="birthday" property="birthday" />
+        <result column="integration" property="integration" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <select id="selectByPage" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, username, password, nickname, phone, icon, gender, birthday, integration, status
+        from mms_member
+        inner join (select id from mms_member order by id limit #{start}, #{size}) as tmp
+        using(id)
+    </select>
+
+    <select id="queryByUsername" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, username, password, nickname, phone, icon, gender, birthday, integration, status
+        from mms_member
+        inner join (select id from mms_member
+                    where username like concat(#{username}, '%')
+                    limit #{start}, #{size})
+        as tmp
+        using(id)
+    </select>
+
+    <select id="queryByPhone" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, username, password, nickname, phone, icon, gender, birthday, integration, status
+        from mms_member
+        inner join (select id from mms_member
+                     where phone like concat(#{phone}, '%')
+                     limit #{start}, #{size})
+        as tmp
+        using(id)
+    </select>
+
+    <select id="selectCountByUsername" resultType="long">
+        select
+        count(1)
+        from mms_member
+        where username like concat(#{username}, '%')
+    </select>
+
+    <select id="selectCountByPhone" resultType="long">
+        select
+            count(1)
+        from mms_member
+        where phone like concat(#{phone}, '%')
+    </select>
+
+</mapper>
