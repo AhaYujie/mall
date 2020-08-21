@@ -1,5 +1,6 @@
 package online.ahayujie.mall.admin.mms.service;
 
+import online.ahayujie.mall.admin.mms.bean.model.LoginLog;
 import online.ahayujie.mall.admin.mms.bean.model.Member;
 import online.ahayujie.mall.common.api.CommonPage;
 
@@ -37,4 +38,13 @@ public interface MemberService {
      * @return 会员
      */
     CommonPage<Member> queryByPhone(Long pageNum, Long pageSize, String phone);
+
+    /**
+     * 分页获取会员的登录记录
+     * @param pageNum 页索引
+     * @param pageSize 页大小
+     * @param id 会员id
+     * @return 登录记录
+     */
+    CommonPage<LoginLog> getLoginLog(Long pageNum, Long pageSize, Long id);
 }

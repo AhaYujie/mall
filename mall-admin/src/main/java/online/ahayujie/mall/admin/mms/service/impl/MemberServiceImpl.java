@@ -1,7 +1,9 @@
 package online.ahayujie.mall.admin.mms.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import online.ahayujie.mall.admin.mms.bean.model.LoginLog;
 import online.ahayujie.mall.admin.mms.bean.model.Member;
+import online.ahayujie.mall.admin.mms.mapper.LoginLogMapper;
 import online.ahayujie.mall.admin.mms.mapper.MemberMapper;
 import online.ahayujie.mall.admin.mms.service.MemberService;
 import online.ahayujie.mall.common.api.CommonPage;
@@ -21,9 +23,11 @@ import java.util.List;
 @Service
 public class MemberServiceImpl implements MemberService {
     private final MemberMapper memberMapper;
+    private final LoginLogMapper loginLogMapper;
 
-    public MemberServiceImpl(MemberMapper memberMapper) {
+    public MemberServiceImpl(MemberMapper memberMapper, LoginLogMapper loginLogMapper) {
         this.memberMapper = memberMapper;
+        this.loginLogMapper = loginLogMapper;
     }
 
     @Override
@@ -45,5 +49,12 @@ public class MemberServiceImpl implements MemberService {
         List<Member> members = memberMapper.queryByPhone((pageNum - 1) * pageSize, pageSize, phone);
         Long total = memberMapper.selectCountByPhone(phone);
         return new CommonPage<>(pageNum, pageSize, total / pageSize + 1, total, members);
+    }
+
+    @Override
+    public CommonPage<LoginLog> getLoginLog(Long pageNum, Long pageSize, Long id) {
+        List<LoginLog> loginLogs = loginLogMapper.selectPageByMemberId((pageNum - 1) * pageSize, pageSize, id);
+        Long total = loginLogMapper.selectCountByMemberId(id);
+        return new CommonPage<>(pageNum, pageSize, total / pageSize + 1, total, loginLogs);
     }
 }

@@ -12,4 +12,20 @@
         <result column="login_type" property="loginType" />
     </resultMap>
 
+    <select id="selectPageByMemberId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, member_id, ip, login_type
+        from mms_login_log
+        inner join (select id from mms_login_log where member_id = #{memberId} limit #{start}, #{size})
+        as tmp
+        using(id)
+    </select>
+
+    <select id="selectCountByMemberId" resultType="long">
+        select
+        count(1)
+        from mms_login_log
+        where member_id = #{memberId}
+    </select>
+
 </mapper>

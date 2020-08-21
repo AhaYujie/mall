@@ -3,15 +3,12 @@ package online.ahayujie.mall.admin.mms.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import online.ahayujie.mall.admin.mms.bean.model.LoginLog;
 import online.ahayujie.mall.admin.mms.bean.model.Member;
 import online.ahayujie.mall.admin.mms.service.MemberService;
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.api.Result;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -52,5 +49,13 @@ public class MemberController {
                                                    @RequestParam(required = false, defaultValue = "20") Long pageSize,
                                                    @RequestParam String phone) {
         return Result.data(memberService.queryByPhone(pageNum, pageSize, phone));
+    }
+    
+    @ApiOperation(value = "分页获取会员的登录记录")
+    @GetMapping("/login-log/{id}")
+    public Result<CommonPage<LoginLog>> getLoginLog(@RequestParam(required = false, defaultValue = "1") Long pageNum,
+                                                    @RequestParam(required = false, defaultValue = "20") Long pageSize,
+                                                    @PathVariable Long id) {
+        return Result.data(memberService.getLoginLog(pageNum, pageSize, id));
     }
 }

@@ -1,7 +1,9 @@
 package online.ahayujie.mall.admin.mms.service;
 
 import lombok.extern.slf4j.Slf4j;
+import online.ahayujie.mall.admin.mms.bean.model.LoginLog;
 import online.ahayujie.mall.admin.mms.bean.model.Member;
+import online.ahayujie.mall.admin.mms.mapper.LoginLogMapper;
 import online.ahayujie.mall.admin.mms.mapper.MemberMapper;
 import online.ahayujie.mall.common.api.CommonPage;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,8 @@ class MemberServiceTest {
     private MemberService memberService;
     @Autowired
     private MemberMapper memberMapper;
+    @Autowired
+    private LoginLogMapper loginLogMapper;
 
     @Test
     void list() {
@@ -92,6 +96,21 @@ class MemberServiceTest {
         CommonPage<Member> result = memberService.queryByPhone(1L, 5L, phone);
         assertEquals(5, result.getData().size());
         CommonPage<Member> result1 = memberService.queryByPhone(2L, 5L, phone);
+        assertEquals(5, result1.getData().size());
+    }
+
+    @Test
+    void getLoginLog() {
+        List<LoginLog> loginLogs = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            LoginLog loginLog = new LoginLog();
+            loginLog.setMemberId(1L);
+            loginLogs.add(loginLog);
+        }
+        loginLogs.forEach(loginLogMapper::insert);
+        CommonPage<LoginLog> result = memberService.getLoginLog(1L, 5L, 1L);
+        assertEquals(5, result.getData().size());
+        CommonPage<LoginLog> result1 = memberService.getLoginLog(2L, 5L, 1L);
         assertEquals(5, result1.getData().size());
     }
 }
