@@ -158,6 +158,11 @@ public class SkuServiceImpl implements SkuService {
         skuImageMapper.deleteBySkuId(skuId);
     }
 
+    @Override
+    public Sku getById(Long id) {
+        return skuMapper.selectById(id);
+    }
+
     @Data
     private static class SpecificationItemJson {
         private String key;

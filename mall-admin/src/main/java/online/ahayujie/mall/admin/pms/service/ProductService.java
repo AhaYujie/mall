@@ -197,6 +197,14 @@ public interface ProductService {
     CommonPage<Product> queryProduct(QueryProductParam param, Integer pageNum, Integer pageSize);
 
     /**
+     * 根据id获取商品。
+     * 如果商品不存在则返回null。
+     * @param id 商品id
+     * @return 商品
+     */
+    Product getById(Long id);
+
+    /**
      * 监听商品分类更新的消息。
      * 因为只需要更新商品分类下的商品的商品分类冗余信息，所以不需要保证幂等性。
      * @param channel channel

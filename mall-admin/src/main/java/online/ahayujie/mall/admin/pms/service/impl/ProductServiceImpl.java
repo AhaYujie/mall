@@ -496,6 +496,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Product getById(Long id) {
+        return productMapper.selectById(id);
+    }
+
+    @Override
     @RabbitListener(queues = RabbitmqConfig.PRODUCT_CATEGORY_UPDATE_QUEUE_PRODUCT)
     public void listenProductCategoryUpdate(Channel channel, Message message) throws IOException {
         Long productCategoryId;

@@ -69,4 +69,12 @@ public interface SkuService {
      * @param skuId sku主键
      */
     void deleteSkuImage(Long skuId);
+
+    /**
+     * 根据id获取sku。
+     * 如果sku不存在则返回null。
+     * @param id sku的id
+     * @return sku
+     */
+    Sku getById(Long id);
 }
