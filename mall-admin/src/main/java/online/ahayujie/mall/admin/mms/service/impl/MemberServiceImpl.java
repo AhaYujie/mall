@@ -6,7 +6,9 @@ import online.ahayujie.mall.admin.mms.bean.model.Member;
 import online.ahayujie.mall.admin.mms.mapper.LoginLogMapper;
 import online.ahayujie.mall.admin.mms.mapper.MemberMapper;
 import online.ahayujie.mall.admin.mms.service.MemberService;
+import online.ahayujie.mall.admin.oms.service.OrderService;
 import online.ahayujie.mall.common.api.CommonPage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -56,5 +58,10 @@ public class MemberServiceImpl implements MemberService {
         List<LoginLog> loginLogs = loginLogMapper.selectPageByMemberId((pageNum - 1) * pageSize, pageSize, id);
         Long total = loginLogMapper.selectCountByMemberId(id);
         return new CommonPage<>(pageNum, pageSize, total / pageSize + 1, total, loginLogs);
+    }
+
+    @Override
+    public Member getById(Long id) {
+        return memberMapper.selectById(id);
     }
 }

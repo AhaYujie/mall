@@ -47,4 +47,12 @@ public interface MemberService {
      * @return 登录记录
      */
     CommonPage<LoginLog> getLoginLog(Long pageNum, Long pageSize, Long id);
+
+    /**
+     * 根据id获取会员。
+     * 如果会员不存在则返回null。
+     * @param id 会员id
+     * @return 会员
+     */
+    Member getById(Long id);
 }
