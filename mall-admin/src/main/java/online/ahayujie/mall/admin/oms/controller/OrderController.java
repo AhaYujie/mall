@@ -57,7 +57,11 @@ public class OrderController {
     @ApiOperation(value = "创建订单")
     @PostMapping("create")
     public Result<Object> createOrder(@RequestBody CreateOrderParam param) {
-        orderService.createOrder(param);
-        return Result.fail();
+        try {
+            orderService.createOrder(param);
+            return Result.success();
+        } catch (IllegalOrderException e) {
+            return Result.fail(e.getResultCode(), e.getMessage());
+        }
     }
 }

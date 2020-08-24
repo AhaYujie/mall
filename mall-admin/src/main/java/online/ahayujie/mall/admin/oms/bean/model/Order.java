@@ -166,6 +166,36 @@ public class Order extends Base {
         }
     }
 
+    /**
+     * 订单支付方式
+     */
+    public enum PayType {
+        /**
+         * 未支付
+         */
+        UN_PAY(0),
+
+        /**
+         * 支付宝
+         */
+        AliPay(1),
+
+        /**
+         * 微信支付
+         */
+        WeChatPay(2)
+        ;
+        private final Integer value;
+
+        PayType(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
+
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "支付时间")
@@ -245,9 +275,6 @@ public class Order extends Base {
 
     @ApiModelProperty(value = "详细地址")
     private String receiverDetailAddress;
-
-    @ApiModelProperty(value = "收货人邮编")
-    private String receiverPostCode;
 
     @ApiModelProperty(value = "优惠券id，逗号隔开")
     private String couponIds;

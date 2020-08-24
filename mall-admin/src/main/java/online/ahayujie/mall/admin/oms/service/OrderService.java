@@ -42,12 +42,26 @@ public interface OrderService {
 
     /**
      * 创建订单。
+     * 优惠方式只支持管理员后台调整订单使用的折扣金额。
+     * 订单收货地址为会员的默认收货地址，如果不存在默认收货地址则不设置订单收货地址。
      * 创建订单成功后，发送延迟消息到消息队列。
      *
      * @see OrderPublisher#publishOrderTimeoutCancelDelayedMsg(OrderCancelMsgDTO)
      * @param param 订单信息
+     * @throws IllegalOrderException {@code param} 不合法
      */
-    void createOrder(CreateOrderParam param);
+    void createOrder(CreateOrderParam param) throws IllegalOrderException;
+
+    /**
+     * 生成订单号。
+     * 生成规则：日期(yyyyMMddHH格式) + 2位随机数 + 2位订单来源(不足2位补0)
+     * + 2位订单类型(不足2位补0) + 2位随机数 + 6位以上自增id(不足6位补0)。
+     * 自增id：每天从0开始递增，通过redis原子操作获取。
+     *
+     * @param order 订单信息
+     * @return 订单号
+     */
+    String generateOrderSn(Order order);
 
     /**
      * 监听订单超时未支付自动取消消息。

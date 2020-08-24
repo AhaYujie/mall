@@ -10,6 +10,7 @@ public interface OrderState {
     /**
      * 取消超时未支付的订单。
      * 需要考虑取消订单的同时用户可能在支付订单。
+     * 取消订单成功后，发送消息到消息队列。
      *
      * @param orderContext orderContext
      * @param id 订单id
@@ -19,6 +20,7 @@ public interface OrderState {
 
     /**
      * 用户取消未支付的订单。
+     * 取消订单成功后，发送消息到消息队列。
      *
      * @param orderContext orderContext
      * @param id 订单id

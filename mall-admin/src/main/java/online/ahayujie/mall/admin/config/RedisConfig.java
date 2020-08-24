@@ -15,6 +15,10 @@ import java.io.Serializable;
  */
 @Configuration
 public class RedisConfig {
+    public static final String ORDER_KEY_PREFIX = "order:";
+
+    public static final String STRING_KEY_SUFFIX = ":string";
+
     @Bean
     public RedisTemplate<String, Serializable> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Serializable> redisTemplate = new RedisTemplate<>();

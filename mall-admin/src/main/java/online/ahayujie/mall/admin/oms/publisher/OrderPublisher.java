@@ -2,6 +2,7 @@ package online.ahayujie.mall.admin.oms.publisher;
 
 import online.ahayujie.mall.admin.config.RabbitmqConfig;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderCancelMsgDTO;
+import online.ahayujie.mall.admin.oms.bean.dto.OrderCancelledMsgDTO;
 
 /**
  * 订单消息发送者
@@ -16,4 +17,12 @@ public interface OrderPublisher {
      * @param orderCancelMsgDTO 消息内容
      */
     void publishOrderTimeoutCancelDelayedMsg(OrderCancelMsgDTO orderCancelMsgDTO);
+
+    /**
+     * 发送订单已取消消息到消息队列，
+     * exchange为 {@link RabbitmqConfig#ORDER_CANCELLED_EXCHANGE}。
+     *
+     * @param orderCancelledMsgDTO 订单已取消消息
+     */
+    void publishOrderCancelledMsg(OrderCancelledMsgDTO orderCancelledMsgDTO);
 }

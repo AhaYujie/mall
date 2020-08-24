@@ -35,6 +35,8 @@ public class RabbitmqConfig {
     public static final String ORDER_CANCEL_TTL_QUEUE = "order.cancel.ttl";
     public static final String ORDER_CANCEL_TTL_ROUTING_KEY = "order.cancel.ttl";
 
+    public static final String ORDER_CANCELLED_EXCHANGE = "order.cancelled";
+
     @Bean
     public FanoutExchange productCategoryUpdateFanoutExchange() {
         return new FanoutExchange(PRODUCT_CATEGORY_UPDATE_EXCHANGE, true, false);
@@ -159,5 +161,10 @@ public class RabbitmqConfig {
                 .bind(orderCancelTTLQueue())
                 .to(orderTTLExchange())
                 .with(ORDER_CANCEL_TTL_ROUTING_KEY);
+    }
+
+    @Bean
+    public FanoutExchange orderCancelledExchange() {
+        return new FanoutExchange(ORDER_CANCELLED_EXCHANGE, true, false);
     }
 }

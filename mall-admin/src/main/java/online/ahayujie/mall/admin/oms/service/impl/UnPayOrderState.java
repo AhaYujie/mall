@@ -1,8 +1,10 @@
 package online.ahayujie.mall.admin.oms.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import online.ahayujie.mall.admin.oms.bean.dto.OrderCancelledMsgDTO;
 import online.ahayujie.mall.admin.oms.bean.model.Order;
 import online.ahayujie.mall.admin.oms.mapper.OrderMapper;
+import online.ahayujie.mall.admin.oms.publisher.OrderPublisher;
 import online.ahayujie.mall.admin.oms.service.AbstractOrderState;
 import online.ahayujie.mall.admin.oms.service.OrderContext;
 import online.ahayujie.mall.admin.oms.service.OrderContextFactory;
@@ -24,6 +26,8 @@ import java.util.Map;
 @Slf4j
 @Service(value = Order.UN_PAY_STATUS_NAME)
 public class UnPayOrderState extends AbstractOrderState {
+    private OrderPublisher orderPublisher;
+
     private final OrderMapper orderMapper;
 
     public UnPayOrderState(ApplicationContext applicationContext, OrderMapper orderMapper) {
@@ -53,8 +57,9 @@ public class UnPayOrderState extends AbstractOrderState {
     }
 
     /**
-     * 取消超时未支付的订单，返还用户优惠券和用户积分。
+     * 取消超时未支付的订单。
      * 订单取消后状态变为 {@link Order.Status#CLOSED}。
+     * 取消订单成功后，发送消息到消息队列。
      *
      * @param orderContext orderContext
      * @param id 订单id
@@ -67,7 +72,13 @@ public class UnPayOrderState extends AbstractOrderState {
         order.setStatus(Order.Status.CLOSED.getValue());
         order.setUpdateTime(new Date());
         orderMapper.updateById(order);
-        // TODO:返还用户优惠券和用户积分
+        OrderCancelledMsgDTO orderCancelledMsgDTO = new OrderCancelledMsgDTO(id);
+        orderPublisher.publishOrderCancelledMsg(orderCancelledMsgDTO);
         orderContext.setOrderState(getOrderState(Order.Status.CLOSED));
+    }
+
+    @Autowired
+    public void setOrderPublisher(OrderPublisher orderPublisher) {
+        this.orderPublisher = orderPublisher;
     }
 }

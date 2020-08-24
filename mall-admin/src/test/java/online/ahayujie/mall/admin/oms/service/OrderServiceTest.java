@@ -2,6 +2,13 @@ package online.ahayujie.mall.admin.oms.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.extern.slf4j.Slf4j;
+import online.ahayujie.mall.admin.config.RedisConfig;
+import online.ahayujie.mall.admin.mms.bean.model.Member;
+import online.ahayujie.mall.admin.mms.bean.model.ReceiveAddress;
+import online.ahayujie.mall.admin.mms.mapper.MemberMapper;
+import online.ahayujie.mall.admin.mms.mapper.ReceiveAddressMapper;
+import online.ahayujie.mall.admin.mms.service.MemberService;
+import online.ahayujie.mall.admin.oms.bean.dto.CreateOrderParam;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderDetailDTO;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderListDTO;
 import online.ahayujie.mall.admin.oms.bean.dto.QueryOrderListParam;
@@ -10,14 +17,26 @@ import online.ahayujie.mall.admin.oms.bean.model.OrderProduct;
 import online.ahayujie.mall.admin.oms.exception.IllegalOrderException;
 import online.ahayujie.mall.admin.oms.mapper.OrderMapper;
 import online.ahayujie.mall.admin.oms.mapper.OrderProductMapper;
+import online.ahayujie.mall.admin.pms.bean.model.Brand;
+import online.ahayujie.mall.admin.pms.bean.model.Product;
+import online.ahayujie.mall.admin.pms.bean.model.ProductCategory;
+import online.ahayujie.mall.admin.pms.bean.model.Sku;
+import online.ahayujie.mall.admin.pms.mapper.BrandMapper;
+import online.ahayujie.mall.admin.pms.mapper.ProductCategoryMapper;
+import online.ahayujie.mall.admin.pms.mapper.ProductMapper;
+import online.ahayujie.mall.admin.pms.mapper.SkuMapper;
 import online.ahayujie.mall.common.api.CommonPage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -33,6 +52,18 @@ class OrderServiceTest {
     private OrderService orderService;
     @Autowired
     private OrderProductMapper orderProductMapper;
+    @Autowired
+    private MemberMapper memberMapper;
+    @Autowired
+    private SkuMapper skuMapper;
+    @Autowired
+    private ProductMapper productMapper;
+    @Autowired
+    private BrandMapper brandMapper;
+    @Autowired
+    private ProductCategoryMapper productCategoryMapper;
+    @Autowired
+    private ReceiveAddressMapper receiveAddressMapper;
 
     @Test
     void list() {
@@ -142,5 +173,247 @@ class OrderServiceTest {
         OrderDetailDTO orderDetailDTO1 = orderService.getOrderDetail(order1.getId());
         assertEquals(order1, orderDetailDTO1.getOrder());
         assertTrue(CollectionUtils.isEmpty(orderDetailDTO1.getOrderProducts()));
+    }
+
+    @Test
+    void createOrder() {
+        // 测试检查创建订单提交的参数
+        testCreateOrderParamValidate();
+        // 测试检查库存
+        testValidateStock();
+
+        // 创建用户和默认收货地址
+        Member member = createTestMember();
+        ReceiveAddress receiveAddress = createTestReceiveAddress(member.getId());
+
+        // 创建商品
+        Product product = createTestProduct();
+        Sku sku = createTestSku(product.getId());
+        Sku sku1 = createTestSku(product.getId());
+
+        CreateOrderParam param = new CreateOrderParam();
+        param.setMemberId(member.getId());
+        param.setDiscountAmount(new BigDecimal("100"));
+        List<CreateOrderParam.Product> products = new ArrayList<>();
+        CreateOrderParam.Product productParam = new CreateOrderParam.Product();
+        productParam.setSkuId(sku.getId());
+        productParam.setProductQuantity(10);
+        products.add(productParam);
+        CreateOrderParam.Product productParam1 = new CreateOrderParam.Product();
+        productParam1.setSkuId(sku1.getId());
+        productParam1.setProductQuantity(10);
+        products.add(productParam1);
+        param.setProducts(products);
+        List<Order> orders = orderMapper.selectList(Wrappers.emptyWrapper());
+        orderService.createOrder(param);
+        List<Order> orders1 = orderMapper.selectList(Wrappers.emptyWrapper());
+        Order order = null;
+        for (Order order1 : orders1) {
+            if (!orders.contains(order1)) {
+                order = order1;
+                break;
+            }
+        }
+        assertNotNull(order);
+
+        assertEquals(member.getId(), order.getMemberId());
+        assertEquals(member.getUsername(), order.getMemberUsername());
+        assertEquals(Order.Status.UN_PAY.getValue(), order.getStatus());
+        assertEquals(Order.Type.NORMAL.getValue(), order.getOrderType());
+        assertEquals(Order.SourceType.PC.getValue(), order.getSourceType());
+        BigDecimal totalAmount = order.getFreightAmount()
+                .add(sku.getPrice().multiply(new BigDecimal(productParam.getProductQuantity())))
+                .add(sku1.getPrice().multiply(new BigDecimal(productParam1.getProductQuantity())));
+        BigDecimal payAmount = totalAmount.subtract(param.getDiscountAmount());
+        assertEquals(0, order.getTotalAmount().compareTo(totalAmount));
+        assertEquals(0, order.getPayAmount().compareTo(payAmount));
+        assertEquals(0, order.getPromotionAmount().compareTo(new BigDecimal("0")));
+        assertEquals(0, order.getIntegrationAmount().compareTo(new BigDecimal("0")));
+        assertEquals(0, order.getCouponAmount().compareTo(new BigDecimal("0")));
+        assertEquals(0, order.getDiscountAmount().compareTo(param.getDiscountAmount()));
+        assertEquals(Order.PayType.UN_PAY.getValue(), order.getPayType());
+        assertEquals(receiveAddress.getName(), order.getReceiverName());
+        assertEquals(receiveAddress.getPhoneNumber(), order.getReceiverPhone());
+        assertEquals(receiveAddress.getProvince(), order.getReceiverProvince());
+        assertEquals(receiveAddress.getCity(), order.getReceiverCity());
+        assertEquals(receiveAddress.getRegion(), order.getReceiverRegion());
+        assertEquals(receiveAddress.getStreet(), order.getReceiverStreet());
+        assertEquals(receiveAddress.getDetailAddress(), order.getReceiverDetailAddress());
+
+        List<OrderProduct> orderProducts = orderProductMapper.selectByOrderId(order.getId());
+        assertEquals(2, orderProducts.size());
+        for (OrderProduct orderProduct : orderProducts) {
+            Sku compare = null;
+            CreateOrderParam.Product compare1 = null;
+            if (orderProduct.getSkuId().equals(sku.getId())) {
+                compare = sku;
+                compare1 = productParam;
+            } else if (orderProduct.getSkuId().equals(sku1.getId())) {
+                compare = sku1;
+                compare1 = productParam1;
+            }
+            assertNotNull(compare);
+            assertNotNull(compare1);
+            assertEquals(order.getOrderSn(), orderProduct.getOrderSn());
+            assertEquals(product.getId(), orderProduct.getProductId());
+            assertEquals(compare.getSkuCode(), orderProduct.getProductSkuCode());
+            assertEquals(product.getProductSn(), orderProduct.getProductSn());
+            assertEquals(product.getName(), orderProduct.getProductName());
+            assertEquals(product.getBrandName(), orderProduct.getBrandName());
+            assertEquals(product.getProductCategoryName(), orderProduct.getProductCategoryName());
+            assertEquals(compare.getPic(), orderProduct.getProductPic());
+            assertEquals(0, orderProduct.getProductPrice().compareTo(compare.getPrice()));
+            assertEquals(compare1.getProductQuantity(), orderProduct.getProductQuantity());
+            assertEquals(compare.getSpecification(), orderProduct.getSpecification());
+            assertEquals(0, orderProduct.getRealAmount().compareTo(compare.getPrice()));
+            assertEquals(product.getGiftPoint(), orderProduct.getIntegration());
+        }
+    }
+
+    private void testCreateOrderParamValidate() {
+        Member member = createTestMember();
+        // 会员不存在
+        CreateOrderParam param = new CreateOrderParam();
+        param.setMemberId(-1L);
+        param.setDiscountAmount(new BigDecimal("0"));
+        CreateOrderParam.Product product = new CreateOrderParam.Product();
+        product.setSkuId(1L);
+        product.setProductQuantity(1);
+        param.setProducts(Collections.singletonList(product));
+        Throwable throwable = assertThrows(IllegalOrderException.class, () -> orderService.createOrder(param));
+        log.debug(throwable.getMessage());
+        // 折扣金额小于0
+        CreateOrderParam param1 = new CreateOrderParam();
+        param1.setMemberId(member.getId());
+        param1.setDiscountAmount(new BigDecimal("-1"));
+        CreateOrderParam.Product product1 = new CreateOrderParam.Product();
+        product1.setSkuId(1L);
+        product1.setProductQuantity(1);
+        param1.setProducts(Collections.singletonList(product1));
+        Throwable throwable1 = assertThrows(IllegalOrderException.class, () -> orderService.createOrder(param1));
+        log.debug(throwable1.getMessage());
+        // 购买的商品为空
+        CreateOrderParam param2 = new CreateOrderParam();
+        param2.setMemberId(member.getId());
+        param2.setDiscountAmount(new BigDecimal("0"));
+        param2.setProducts(new ArrayList<>());
+        Throwable throwable2 = assertThrows(IllegalOrderException.class, () -> orderService.createOrder(param2));
+        log.debug(throwable2.getMessage());
+    }
+
+    private void testValidateStock() {
+        Member member = createTestMember();
+        Sku sku = new Sku();
+        sku.setProductId(1L);
+        sku.setStock(10);
+        skuMapper.insert(sku);
+
+        // sku不存在
+        CreateOrderParam param = new CreateOrderParam();
+        param.setMemberId(member.getId());
+        param.setDiscountAmount(new BigDecimal("0"));
+        CreateOrderParam.Product product = new CreateOrderParam.Product();
+        product.setSkuId(-1L);
+        product.setProductQuantity(1);
+        param.setProducts(Collections.singletonList(product));
+        Throwable throwable = assertThrows(IllegalOrderException.class, () -> orderService.createOrder(param));
+        log.debug(throwable.getMessage());
+
+        // sku库存不足
+        CreateOrderParam param1 = new CreateOrderParam();
+        param1.setMemberId(member.getId());
+        param1.setDiscountAmount(new BigDecimal("0"));
+        CreateOrderParam.Product product1 = new CreateOrderParam.Product();
+        product1.setSkuId(sku.getId());
+        product1.setProductQuantity(11);
+        param1.setProducts(Collections.singletonList(product1));
+        Throwable throwable1 = assertThrows(IllegalOrderException.class, () -> orderService.createOrder(param1));
+        log.debug(throwable1.getMessage());
+    }
+
+    private static String getRandomString(int length) {
+        String str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random=new Random();
+        StringBuilder sb=new StringBuilder();
+        for(int i=0;i<length;i++){
+            int number=random.nextInt(62);
+            sb.append(str.charAt(number));
+        }
+        return sb.toString();
+    }
+
+    private static String getRandomNum(int length) {
+        String str = "0123456789";
+        Random random = new Random();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            stringBuilder.append(random.nextInt(str.length()));
+        }
+        return stringBuilder.toString();
+    }
+
+    private Member createTestMember() {
+        Member member = new Member();
+        member.setUsername(getRandomString(40));
+        member.setPhone(getRandomNum(11));
+        memberMapper.insert(member);
+        return member;
+    }
+
+    private ReceiveAddress createTestReceiveAddress(Long memberId) {
+        ReceiveAddress receiveAddress = new ReceiveAddress();
+        receiveAddress.setMemberId(memberId);
+        receiveAddress.setName(getRandomString(10));
+        receiveAddress.setPhoneNumber(getRandomString(11));
+        receiveAddress.setProvince(getRandomString(5));
+        receiveAddress.setCity(getRandomString(5));
+        receiveAddress.setRegion(getRandomString(5));
+        receiveAddress.setStreet(getRandomString(5));
+        receiveAddress.setDetailAddress(getRandomString(20));
+        receiveAddress.setIsDefault(ReceiveAddress.DEFAULT);
+        receiveAddressMapper.insert(receiveAddress);
+        return receiveAddress;
+    }
+
+    private Product createTestProduct() {
+        Brand brand = new Brand();
+        brand.setName(getRandomString(10));
+        brandMapper.insert(brand);
+        ProductCategory productCategory = new ProductCategory();
+        productCategory.setName(getRandomString(10));
+        productCategoryMapper.insert(productCategory);
+        Product product = new Product();
+        product.setBrandId(brand.getId());
+        product.setBrandName(brand.getName());
+        product.setProductCategoryId(productCategory.getId());
+        product.setProductCategoryName(productCategory.getName());
+        product.setName(getRandomString(10));
+        product.setPic(getRandomString(100));
+        product.setGiftPoint(100);
+        productMapper.insert(product);
+        return product;
+    }
+
+    private Sku createTestSku(Long productId) {
+        Sku sku = new Sku();
+        sku.setProductId(productId);
+        sku.setSkuCode(getRandomString(20));
+        sku.setPrice(new BigDecimal("99.99"));
+        sku.setStock(100);
+        sku.setPic(getRandomString(100));
+        sku.setSpecification(getRandomString(50));
+        skuMapper.insert(sku);
+        return sku;
+    }
+
+    @Test
+    void generateOrderSn() {
+        Order order = new Order();
+        order.setSourceType(Order.SourceType.PC.getValue());
+        order.setOrderType(Order.Type.NORMAL.getValue());
+        String orderSn = orderService.generateOrderSn(order);
+        log.debug("订单号：" + orderSn);
+        assertEquals(order.getSourceType(), Integer.valueOf(orderSn.substring(12, 14)));
+        assertEquals(order.getOrderType(), Integer.valueOf(orderSn.substring(14, 16)));
     }
 }

@@ -33,7 +33,6 @@
         <result column="receiver_region" property="receiverRegion" />
         <result column="receiver_street" property="receiverStreet" />
         <result column="receiver_detail_address" property="receiverDetailAddress" />
-        <result column="receiver_post_code" property="receiverPostCode" />
         <result column="coupon_ids" property="couponIds" />
         <result column="use_integration" property="useIntegration" />
         <result column="integration" property="integration" />
