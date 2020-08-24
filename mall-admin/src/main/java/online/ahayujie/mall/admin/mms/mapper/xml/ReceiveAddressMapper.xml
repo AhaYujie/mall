@@ -5,6 +5,8 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.mms.bean.model.ReceiveAddress">
     <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
         <result column="member_id" property="memberId" />
         <result column="name" property="name" />
         <result column="phone_number" property="phoneNumber" />
@@ -18,7 +20,7 @@
 
     <select id="selectDefault" resultMap="BaseResultMap">
         select
-            id, member_id, name, phone_number, province, city, region, street, detail_address, is_default
+            id, update_time, create_time, member_id, name, phone_number, province, city, region, street, detail_address, is_default
         from mms_receive_address
         where member_id = #{memberId} and is_default = #{defaultValue}
     </select>
