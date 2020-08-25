@@ -54,7 +54,6 @@ public class OrderPublisherImpl implements OrderPublisher {
         }
     }
 
-    @Async
     @Override
     public void publishOrderCancelledMsg(OrderCancelledMsgDTO orderCancelledMsgDTO) {
         try {
