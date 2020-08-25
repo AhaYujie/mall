@@ -64,6 +64,14 @@ public interface OrderService {
     String generateOrderSn(Order order);
 
     /**
+     * 订单发货
+     * @param param 发货信息
+     * @throws IllegalOrderException 订单不存在
+     * @throws UnsupportedOperationException 订单不支持此操作
+     */
+    void deliverOrder(DeliverOrderParam param) throws IllegalOrderException, UnsupportedOperationException;
+
+    /**
      * 监听订单超时未支付自动取消消息。
      * 需要保证幂等性，避免重复消费消息导致商品库存，优惠券，积分等数据不一致。
      * 相比 {@link #listenMemberCancel(Channel, Message)} 接口，需要考虑

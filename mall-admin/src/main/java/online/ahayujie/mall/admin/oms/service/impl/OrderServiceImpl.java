@@ -232,6 +232,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public void deliverOrder(DeliverOrderParam param) throws IllegalOrderException, UnsupportedOperationException {
+        Integer status = orderMapper.selectOrderStatus(param.getId());
+        if (status == null) {
+            throw new IllegalOrderException("订单不存在");
+        }
+        OrderContext orderContext = orderContextFactory.getOrderContext(status);
+        orderContext.deliverOrder(param);
+    }
+
+    @Override
     @RabbitListener(queues = RabbitmqConfig.ORDER_TIMEOUT_CANCEL_QUEUE)
     public void listenTimeoutCancel(Channel channel, Message message) throws IOException {
         try {
@@ -240,10 +250,13 @@ public class OrderServiceImpl implements OrderService {
             OrderContext orderContext = orderContextFactory.getOrderContext(status);
             orderContext.cancelTimeoutOrder(orderCancelMsgDTO.getId());
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
-        } catch (NullPointerException | UnsupportedOperationException e) {
+        } catch (NullPointerException e) {
             log.warn(e.toString());
             log.warn(Arrays.toString(e.getStackTrace()));
             channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (UnsupportedOperationException e) {
+            // 订单状态已经不是未支付状态，取消操作
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         }
     }
 

@@ -1,5 +1,6 @@
 package online.ahayujie.mall.admin.oms.service;
 
+import online.ahayujie.mall.admin.oms.bean.dto.DeliverOrderParam;
 import online.ahayujie.mall.admin.oms.bean.model.Order;
 import online.ahayujie.mall.admin.oms.service.impl.ClosedOrderState;
 import org.springframework.context.ApplicationContext;
@@ -45,6 +46,14 @@ public abstract class AbstractOrderState implements OrderState {
                 if (orderStateMap == null) {
                     orderStateMap = new HashMap<>();
                     orderStateMap.put(Order.UN_PAY_STATUS_NAME, (OrderState) applicationContext.getBean(Order.UN_PAY_STATUS_NAME));
+                    orderStateMap.put(Order.UN_DELIVER_STATUS_NAME, (OrderState) applicationContext.getBean(Order.UN_DELIVER_STATUS_NAME));
+                    orderStateMap.put(Order.DELIVERED_STATUS_NAME, (OrderState) applicationContext.getBean(Order.DELIVERED_STATUS_NAME));
+                    orderStateMap.put(Order.UN_COMMENT_STATUS_NAME, (OrderState) applicationContext.getBean(Order.UN_COMMENT_STATUS_NAME));
+                    orderStateMap.put(Order.COMPLETE_STATUS_NAME, (OrderState) applicationContext.getBean(Order.COMPLETE_STATUS_NAME));
+                    orderStateMap.put(Order.APPLY_REFUND_STATUS_NAME, (OrderState) applicationContext.getBean(Order.APPLY_REFUND_STATUS_NAME));
+                    orderStateMap.put(Order.APPLY_RETURN_STATUS_NAME, (OrderState) applicationContext.getBean(Order.APPLY_RETURN_STATUS_NAME));
+                    orderStateMap.put(Order.REFUND_STATUS_NAME, (OrderState) applicationContext.getBean(Order.REFUND_STATUS_NAME));
+                    orderStateMap.put(Order.RETURN_STATUS_NAME, (OrderState) applicationContext.getBean(Order.RETURN_STATUS_NAME));
                     orderStateMap.put(Order.CLOSED_STATUS_NAME, (OrderState) applicationContext.getBean(Order.CLOSED_STATUS_NAME));
                 }
             }
@@ -83,6 +92,11 @@ public abstract class AbstractOrderState implements OrderState {
 
     @Override
     public void memberCancelOrder(OrderContext orderContext, Long id) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void deliverOrder(OrderContext orderContext, DeliverOrderParam param) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 }

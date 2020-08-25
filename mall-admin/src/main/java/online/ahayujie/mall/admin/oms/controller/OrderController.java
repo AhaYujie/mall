@@ -3,10 +3,7 @@ package online.ahayujie.mall.admin.oms.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import online.ahayujie.mall.admin.oms.bean.dto.CreateOrderParam;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderDetailDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderListDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.QueryOrderListParam;
+import online.ahayujie.mall.admin.oms.bean.dto.*;
 import online.ahayujie.mall.admin.oms.exception.IllegalOrderException;
 import online.ahayujie.mall.admin.oms.service.OrderService;
 import online.ahayujie.mall.common.api.CommonPage;
@@ -62,6 +59,19 @@ public class OrderController {
             return Result.success();
         } catch (IllegalOrderException e) {
             return Result.fail(e.getResultCode(), e.getMessage());
+        }
+    }
+
+    @ApiOperation(value = "订单发货")
+    @PostMapping("deliver")
+    public Result<Object> deliverOrder(@RequestBody DeliverOrderParam param) {
+        try {
+            orderService.deliverOrder(param);
+            return Result.success();
+        } catch (IllegalOrderException e) {
+            return Result.fail("订单不存在");
+        } catch (UnsupportedOperationException e) {
+            return Result.fail("当前订单不支持此操作");
         }
     }
 }

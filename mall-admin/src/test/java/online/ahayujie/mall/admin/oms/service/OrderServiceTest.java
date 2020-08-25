@@ -8,10 +8,7 @@ import online.ahayujie.mall.admin.mms.bean.model.ReceiveAddress;
 import online.ahayujie.mall.admin.mms.mapper.MemberMapper;
 import online.ahayujie.mall.admin.mms.mapper.ReceiveAddressMapper;
 import online.ahayujie.mall.admin.mms.service.MemberService;
-import online.ahayujie.mall.admin.oms.bean.dto.CreateOrderParam;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderDetailDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderListDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.QueryOrderListParam;
+import online.ahayujie.mall.admin.oms.bean.dto.*;
 import online.ahayujie.mall.admin.oms.bean.model.Order;
 import online.ahayujie.mall.admin.oms.bean.model.OrderProduct;
 import online.ahayujie.mall.admin.oms.exception.IllegalOrderException;
@@ -35,10 +32,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -415,5 +409,46 @@ class OrderServiceTest {
         log.debug("订单号：" + orderSn);
         assertEquals(order.getSourceType(), Integer.valueOf(orderSn.substring(12, 14)));
         assertEquals(order.getOrderType(), Integer.valueOf(orderSn.substring(14, 16)));
+    }
+
+    @Test
+    void deliverOrder() {
+        // illegal
+        // 订单不存在
+        DeliverOrderParam param1 = new DeliverOrderParam();
+        param1.setId(-1L);
+        param1.setDeliverySn("1234567");
+        param1.setDeliveryCompany("东风快递");
+        param1.setDeliveryTime(new Date());
+        Throwable throwable = assertThrows(IllegalOrderException.class, () -> orderService.deliverOrder(param1));
+        log.debug(throwable.getMessage());
+        // 订单状态不支持此操作
+        Order order1 = new Order();
+        order1.setMemberId(1L);
+        order1.setStatus(Order.Status.UN_PAY.getValue());
+        orderMapper.insert(order1);
+        DeliverOrderParam param2 = new DeliverOrderParam();
+        param2.setId(order1.getId());
+        param2.setDeliverySn("1234567");
+        param2.setDeliveryCompany("东风快递");
+        param2.setDeliveryTime(new Date());
+        Throwable throwable1 = assertThrows(UnsupportedOperationException.class, () -> orderService.deliverOrder(param2));
+        log.debug(throwable1.getMessage());
+
+        // legal
+        Order order = new Order();
+        order.setMemberId(1L);
+        order.setStatus(Order.Status.UN_DELIVER.getValue());
+        orderMapper.insert(order);
+        DeliverOrderParam param = new DeliverOrderParam();
+        param.setId(order.getId());
+        param.setDeliverySn("1234567");
+        param.setDeliveryCompany("东风快递");
+        param.setDeliveryTime(new Date());
+        orderService.deliverOrder(param);
+        order = orderMapper.selectById(order.getId());
+        assertEquals(param.getDeliverySn(), order.getDeliverySn());
+        assertEquals(param.getDeliveryCompany(), order.getDeliveryCompany());
+        assertEquals(Order.Status.DELIVERED.getValue(), order.getStatus());
     }
 }

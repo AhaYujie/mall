@@ -37,6 +37,8 @@ public class RabbitmqConfig {
 
     public static final String ORDER_CANCELLED_EXCHANGE = "order.cancelled";
 
+    public static final String ORDER_DELIVER_EXCHANGE = "order.deliver";
+
     @Bean
     public FanoutExchange productCategoryUpdateFanoutExchange() {
         return new FanoutExchange(PRODUCT_CATEGORY_UPDATE_EXCHANGE, true, false);
@@ -166,5 +168,10 @@ public class RabbitmqConfig {
     @Bean
     public FanoutExchange orderCancelledExchange() {
         return new FanoutExchange(ORDER_CANCELLED_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public FanoutExchange orderDeliverExchange() {
+        return new FanoutExchange(ORDER_DELIVER_EXCHANGE, true, false);
     }
 }
