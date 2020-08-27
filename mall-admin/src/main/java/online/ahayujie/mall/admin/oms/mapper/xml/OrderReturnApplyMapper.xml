@@ -29,6 +29,42 @@
         <result column="region" property="region" />
         <result column="street" property="street" />
         <result column="detail_address" property="detailAddress" />
+        <result column="status" property="status" />
     </resultMap>
+
+    <select id="selectByPage" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, order_id, company_address_id, member_id, return_reason_id, order_sn,
+        member_username, return_amount, reason_name, description, proof_pics, handle_time, handle_note, receive_time,
+        receive_note, company_address_name, receiver_name, receiver_phone, province, city, region, street, detail_address, status
+        from oms_order_return_apply
+        order by create_time desc
+    </select>
+
+    <select id="queryByPage" resultMap="BaseResultMap">
+        select
+            id, update_time, create_time, order_id, company_address_id, member_id, return_reason_id, order_sn,
+            member_username, return_amount, reason_name, description, proof_pics, handle_time, handle_note, receive_time,
+            receive_note, company_address_name, receiver_name, receiver_phone, province, city, region, street, detail_address, status
+        from oms_order_return_apply
+        <where>
+            <if test="orderSn != null">
+                order_sn = #{orderSn}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        select
+            id, update_time, create_time, order_id, company_address_id, member_id, return_reason_id, order_sn,
+            member_username, return_amount, reason_name, description, proof_pics, handle_time, handle_note, receive_time,
+            receive_note, company_address_name, receiver_name, receiver_phone, province, city, region, street, detail_address, status
+        from oms_order_return_apply
+        where order_id = #{orderId}
+    </select>
 
 </mapper>

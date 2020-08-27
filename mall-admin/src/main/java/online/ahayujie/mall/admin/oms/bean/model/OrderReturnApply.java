@@ -95,5 +95,6 @@ public class OrderReturnApply extends Base {
     @ApiModelProperty(value = "详细地址")
     private String detailAddress;
 
-
+    @ApiModelProperty(value = "申请状态：0->申请中；1->已拒绝；2->处理中；3->已完成；4->已取消")
+    private Integer status;
 }

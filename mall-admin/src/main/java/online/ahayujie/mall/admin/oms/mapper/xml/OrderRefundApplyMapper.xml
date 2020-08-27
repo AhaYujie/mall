@@ -20,6 +20,39 @@
         <result column="proof_pics" property="proofPics" />
         <result column="handle_time" property="handleTime" />
         <result column="handle_note" property="handleNote" />
+        <result column="status" property="status" />
     </resultMap>
+
+    <select id="selectByPage" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, order_id, product_id, sku_id, member_id, refund_reason_id, order_sn,
+        member_username, return_amount, reason_name, description, proof_pics, handle_time, handle_note, status
+        from oms_order_refund_apply
+        order by create_time desc
+    </select>
+
+    <select id="queryByPage" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, order_id, product_id, sku_id, member_id, refund_reason_id, order_sn,
+        member_username, return_amount, reason_name, description, proof_pics, handle_time, handle_note, status
+        from oms_order_refund_apply
+        <where>
+            <if test="orderSn != null">
+                order_sn = #{orderSn}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="queryByOrderId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, order_id, product_id, sku_id, member_id, refund_reason_id, order_sn,
+        member_username, return_amount, reason_name, description, proof_pics, handle_time, handle_note, status
+        from oms_order_refund_apply
+        where order_id = #{orderId}
+    </select>
 
 </mapper>

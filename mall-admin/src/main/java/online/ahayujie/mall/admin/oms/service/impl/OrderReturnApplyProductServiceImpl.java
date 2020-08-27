@@ -1,8 +1,8 @@
 package online.ahayujie.mall.admin.oms.service.impl;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import online.ahayujie.mall.admin.oms.bean.model.OrderReturnApplyProduct;
 import online.ahayujie.mall.admin.oms.mapper.OrderReturnApplyProductMapper;
-import online.ahayujie.mall.admin.oms.service.OrderReturnApplyProductService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +15,6 @@ import org.springframework.stereotype.Service;
  * @since 2020-08-08
  */
 @Service
-public class OrderReturnApplyProductServiceImpl extends ServiceImpl<OrderReturnApplyProductMapper, OrderReturnApplyProduct> implements OrderReturnApplyProductService {
+public class OrderReturnApplyProductServiceImpl extends ServiceImpl<OrderReturnApplyProductMapper, OrderReturnApplyProduct> implements IService<OrderReturnApplyProduct> {
 
 }

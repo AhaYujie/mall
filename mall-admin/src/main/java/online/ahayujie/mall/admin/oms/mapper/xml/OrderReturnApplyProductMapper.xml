@@ -19,4 +19,12 @@
         <result column="return_quantity" property="returnQuantity" />
     </resultMap>
 
+    <select id="selectByApplyId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, order_return_apply_id, product_id, sku_id, product_name, brand_name,
+        product_category_name, product_pic, specification, real_amount, return_quantity
+        from oms_order_return_apply_product
+        where order_return_apply_id = #{orderReturnApplyId}
+    </select>
+
 </mapper>
