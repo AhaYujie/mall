@@ -31,6 +31,9 @@ public class OrderReturnApplyProduct extends Base {
     @ApiModelProperty(value = "订单退货退款申请id")
     private Long orderReturnApplyId;
 
+    @ApiModelProperty(value = "订单商品id")
+    private Long orderProductId;
+
     @ApiModelProperty(value = "商品id")
     private Long productId;
 

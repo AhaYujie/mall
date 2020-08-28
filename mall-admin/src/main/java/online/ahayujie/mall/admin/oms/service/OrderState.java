@@ -2,6 +2,8 @@ package online.ahayujie.mall.admin.oms.service;
 
 import online.ahayujie.mall.admin.oms.bean.dto.DeliverOrderParam;
 
+import java.util.List;
+
 /**
  * 状态模式实现不同状态订单的业务逻辑。
  * 每一个订单状态实现类是单例模式。
@@ -39,4 +41,12 @@ public interface OrderState {
      * @throws UnsupportedOperationException 当前订单状态不支持此操作
      */
     void deliverOrder(OrderContext orderContext, DeliverOrderParam param) throws UnsupportedOperationException;
+
+    /**
+     * 拒绝订单售后申请
+     * @param orderContext orderContext
+     * @param orderId 订单id
+     * @param orderProductIds 售后的订单商品id
+     */
+    void refuseAfterSaleApply(OrderContext orderContext, Long orderId, List<Long> orderProductIds) throws UnsupportedOperationException;
 }

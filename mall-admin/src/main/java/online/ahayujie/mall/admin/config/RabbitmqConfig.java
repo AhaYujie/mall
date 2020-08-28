@@ -39,6 +39,10 @@ public class RabbitmqConfig {
 
     public static final String ORDER_DELIVER_EXCHANGE = "order.deliver";
 
+    public static final String ORDER_REFUND_APPLY_REFUSED_EXCHANGE = "order.refund.apply.refused";
+
+    public static final String ORDER_RETURN_APPLY_REFUSED_EXCHANGE = "order.return.apply.refused";
+
     @Bean
     public FanoutExchange productCategoryUpdateFanoutExchange() {
         return new FanoutExchange(PRODUCT_CATEGORY_UPDATE_EXCHANGE, true, false);
@@ -173,5 +177,15 @@ public class RabbitmqConfig {
     @Bean
     public FanoutExchange orderDeliverExchange() {
         return new FanoutExchange(ORDER_DELIVER_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public FanoutExchange orderRefundApplyRefusedExchange() {
+        return new FanoutExchange(ORDER_REFUND_APPLY_REFUSED_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public FanoutExchange orderReturnApplyRefusedExchange() {
+        return new FanoutExchange(ORDER_RETURN_APPLY_REFUSED_EXCHANGE, true, false);
     }
 }

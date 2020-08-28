@@ -25,6 +25,40 @@ import lombok.experimental.Accessors;
 @TableName("oms_order_product")
 @ApiModel(value="OrderProduct对象", description="订单中的商品")
 public class OrderProduct extends Base {
+    public enum Status {
+        /**
+         * 未购买
+         */
+        UN_PAY(0),
+
+        /**
+         * 已购买
+         */
+        PAY(1),
+
+        /**
+         * 售后中
+         */
+        AFTER_SALE(2),
+
+        /**
+         * 售后完成
+         */
+        AFTER_SALE_COMPLETE(3)
+        ;
+        /**
+         * 状态值
+         */
+        private final Integer value;
+
+        Status(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
 
     private static final long serialVersionUID = 1L;
 
@@ -85,7 +119,7 @@ public class OrderProduct extends Base {
     @ApiModelProperty(value = "商品赠送积分")
     private Integer integration;
 
-    @ApiModelProperty(value = "商品状态：0->未购买；1->待评价；2->已评价；3->售后中；4->已退款(仅退款)；5->已退货(退货退款)")
+    @ApiModelProperty(value = "商品状态：0->未购买；1->已购买；3->售后中；4->售后完成")
     private Integer status;
 
     @ApiModelProperty(value = "是否评价：0->未评价；1->已评价")

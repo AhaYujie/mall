@@ -26,6 +26,45 @@ import lombok.experimental.Accessors;
 @TableName("oms_order_refund_apply")
 @ApiModel(value="OrderRefundApply对象", description="订单仅退款申请")
 public class OrderRefundApply extends Base {
+    public enum Status {
+        /**
+         * 申请中
+         */
+        APPLYING(0),
+
+        /**
+         * 已拒绝
+         */
+        REFUSED(1),
+
+        /**
+         * 处理中
+         */
+        PROCESSING(2),
+
+        /**
+         * 已完成
+         */
+        COMPLETED(4),
+
+        /**
+         * 已取消
+         */
+        CANCELLED(5)
+        ;
+        /**
+         * 状态值
+         */
+        private final Integer value;
+
+        Status(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
 
     private static final long serialVersionUID = 1L;
 

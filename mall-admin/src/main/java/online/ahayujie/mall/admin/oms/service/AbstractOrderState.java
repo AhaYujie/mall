@@ -6,6 +6,7 @@ import online.ahayujie.mall.admin.oms.service.impl.ClosedOrderState;
 import org.springframework.context.ApplicationContext;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -97,6 +98,11 @@ public abstract class AbstractOrderState implements OrderState {
 
     @Override
     public void deliverOrder(OrderContext orderContext, DeliverOrderParam param) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void refuseAfterSaleApply(OrderContext orderContext, Long orderId, List<Long> orderProductIds) {
         throw new UnsupportedOperationException();
     }
 }

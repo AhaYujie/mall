@@ -10,6 +10,7 @@ import online.ahayujie.mall.common.api.CommonPage;
 import org.springframework.amqp.core.Message;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * <p>
@@ -64,12 +65,22 @@ public interface OrderService {
     String generateOrderSn(Order order);
 
     /**
-     * 订单发货
+     * 订单发货。
+     * 操作完成后发送消息到消息队列。
+     *
      * @param param 发货信息
      * @throws IllegalOrderException 订单不存在
      * @throws UnsupportedOperationException 订单不支持此操作
      */
     void deliverOrder(DeliverOrderParam param) throws IllegalOrderException, UnsupportedOperationException;
+
+    /**
+     * 拒绝订单售后申请
+     * @param orderId 订单id
+     * @param orderProductIds 售后的订单商品id
+     * @throws UnsupportedOperationException 当前订单不支持此操作
+     */
+    void refuseAfterSaleApply(Long orderId, List<Long> orderProductIds) throws UnsupportedOperationException;
 
     /**
      * 监听订单超时未支付自动取消消息。

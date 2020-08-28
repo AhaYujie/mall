@@ -451,4 +451,21 @@ class OrderServiceTest {
         assertEquals(param.getDeliveryCompany(), order.getDeliveryCompany());
         assertEquals(Order.Status.DELIVERED.getValue(), order.getStatus());
     }
+
+    @Test
+    void refuseAfterSaleApply() {
+        // 当前订单不支持此操作
+        Order order = new Order();
+        order.setMemberId(1L);
+        order.setStatus(Order.Status.COMPLETE.getValue());
+        orderMapper.insert(order);
+        assertThrows(UnsupportedOperationException.class, () -> orderService.refuseAfterSaleApply(order.getId(), null));
+
+        // legal
+        Order order1 = new Order();
+        order1.setMemberId(1L);
+        order1.setStatus(Order.Status.APPLY_REFUND.getValue());
+        orderMapper.insert(order1);
+        orderService.refuseAfterSaleApply(order1.getId(), new ArrayList<>());
+    }
 }

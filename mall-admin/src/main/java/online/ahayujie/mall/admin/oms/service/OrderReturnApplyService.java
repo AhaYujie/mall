@@ -1,7 +1,9 @@
 package online.ahayujie.mall.admin.oms.service;
 
 import online.ahayujie.mall.admin.oms.bean.dto.OrderReturnApplyDetailDTO;
+import online.ahayujie.mall.admin.oms.bean.dto.RefuseOrderReturnApplyParam;
 import online.ahayujie.mall.admin.oms.bean.model.OrderReturnApply;
+import online.ahayujie.mall.admin.oms.exception.IllegalOrderReturnApplyException;
 import online.ahayujie.mall.common.api.CommonPage;
 
 import java.util.List;
@@ -53,4 +55,13 @@ public interface OrderReturnApplyService {
      * @return 退货退款申请详情
      */
     OrderReturnApplyDetailDTO getDetailById(Long id);
+
+    /**
+     * 拒绝订单退货退款申请。
+     * 操作完成后发送消息到消息队列。
+     *
+     * @param param 请求参数
+     * @throws IllegalOrderReturnApplyException 申请不存在或当前申请不支持此操作
+     */
+    void refuseApply(RefuseOrderReturnApplyParam param) throws IllegalOrderReturnApplyException;
 }

@@ -4,7 +4,9 @@ package online.ahayujie.mall.admin.oms.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderReturnApplyDetailDTO;
+import online.ahayujie.mall.admin.oms.bean.dto.RefuseOrderReturnApplyParam;
 import online.ahayujie.mall.admin.oms.bean.model.OrderReturnApply;
+import online.ahayujie.mall.admin.oms.exception.IllegalOrderReturnApplyException;
 import online.ahayujie.mall.admin.oms.service.OrderReturnApplyService;
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.api.Result;
@@ -52,9 +54,20 @@ public class OrderReturnApplyController {
         return Result.data(orderReturnApplyService.queryByOrderId(orderId));
     }
 
-    @ApiOperation(value = "获取仅退款申请详情")
+    @ApiOperation(value = "获取退货退款申请详情")
     @GetMapping("/{id}")
     public Result<OrderReturnApplyDetailDTO> getDetailById(@PathVariable Long id) {
         return Result.data(orderReturnApplyService.getDetailById(id));
+    }
+
+    @ApiOperation(value = "拒绝退货退款申请")
+    @PostMapping("refuse")
+    public Result<Object> refuseApply(@RequestBody RefuseOrderReturnApplyParam param) {
+        try {
+            orderReturnApplyService.refuseApply(param);
+            return Result.success();
+        } catch (IllegalOrderReturnApplyException e) {
+            return Result.fail(e.getResultCode(), e.getMessage());
+        }
     }
 }

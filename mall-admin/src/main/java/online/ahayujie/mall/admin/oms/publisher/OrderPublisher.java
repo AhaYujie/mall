@@ -1,9 +1,7 @@
 package online.ahayujie.mall.admin.oms.publisher;
 
 import online.ahayujie.mall.admin.config.RabbitmqConfig;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderCancelMsgDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderCancelledMsgDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderDeliverMsgDTO;
+import online.ahayujie.mall.admin.oms.bean.dto.*;
 
 /**
  * 订单消息发送者
@@ -34,4 +32,20 @@ public interface OrderPublisher {
      * @param orderDeliverMsgDTO 订单发货消息
      */
     void publishOrderDeliverMsg(OrderDeliverMsgDTO orderDeliverMsgDTO);
+
+    /**
+     * 发送订单仅退款申请被拒绝消息到消息队列。
+     * exchange为 {@link RabbitmqConfig#ORDER_REFUND_APPLY_REFUSED_EXCHANGE}
+     *
+     * @param msgDTO 订单仅退款申请被拒绝消息
+     */
+    void publishRefundApplyRefusedMsg(OrderRefundApplyRefusedMsgDTO msgDTO);
+
+    /**
+     * 发送订单退货退款申请被拒绝消息到消息队列。
+     * exchange为 {@link RabbitmqConfig#ORDER_RETURN_APPLY_REFUSED_EXCHANGE}
+     *
+     * @param msgDTO 订单退货退款申请被拒绝消息
+     */
+    void publishReturnApplyRefusedMsg(OrderReturnApplyRefusedMsgDTO msgDTO);
 }

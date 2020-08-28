@@ -2,9 +2,14 @@ package online.ahayujie.mall.admin.oms.service;
 
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderRefundApplyDetailDTO;
+import online.ahayujie.mall.admin.oms.bean.dto.RefuseOrderRefundApplyParam;
 import online.ahayujie.mall.admin.oms.bean.model.Order;
+import online.ahayujie.mall.admin.oms.bean.model.OrderProduct;
 import online.ahayujie.mall.admin.oms.bean.model.OrderRefundApply;
 import online.ahayujie.mall.admin.oms.bean.model.OrderRefundApplyProduct;
+import online.ahayujie.mall.admin.oms.exception.IllegalOrderRefundApplyException;
+import online.ahayujie.mall.admin.oms.mapper.OrderMapper;
+import online.ahayujie.mall.admin.oms.mapper.OrderProductMapper;
 import online.ahayujie.mall.admin.oms.mapper.OrderRefundApplyMapper;
 import online.ahayujie.mall.admin.oms.mapper.OrderRefundApplyProductMapper;
 import online.ahayujie.mall.common.api.CommonPage;
@@ -29,6 +34,10 @@ class OrderRefundApplyServiceTest {
     private OrderRefundApplyService orderRefundApplyService;
     @Autowired
     private OrderRefundApplyProductMapper orderRefundApplyProductMapper;
+    @Autowired
+    private OrderMapper orderMapper;
+    @Autowired
+    private OrderProductMapper orderProductMapper;
 
     @Test
     void list() {
@@ -114,5 +123,55 @@ class OrderRefundApplyServiceTest {
         // not exist
         OrderRefundApplyDetailDTO detailDTO1 = orderRefundApplyService.getDetailById(-1L);
         assertNull(detailDTO1);
+    }
+
+    @Test
+    void refuseApply() {
+        // legal
+        Order order = new Order();
+        order.setMemberId(1L);
+        order.setStatus(Order.Status.APPLY_REFUND.getValue());
+        orderMapper.insert(order);
+        List<OrderProduct> orderProducts = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            OrderProduct orderProduct = new OrderProduct();
+            orderProduct.setOrderId(order.getId());
+            orderProduct.setStatus(OrderProduct.Status.AFTER_SALE.getValue());
+            orderProducts.add(orderProduct);
+        }
+        orderProducts.forEach(orderProductMapper::insert);
+        OrderRefundApply orderRefundApply = new OrderRefundApply();
+        orderRefundApply.setOrderId(order.getId());
+        orderRefundApply.setMemberId(order.getMemberId());
+        orderRefundApply.setStatus(OrderRefundApply.Status.APPLYING.getValue());
+        orderRefundApplyMapper.insert(orderRefundApply);
+        orderRefundApply = orderRefundApplyMapper.selectById(orderRefundApply.getId());
+        List<OrderRefundApplyProduct> products = new ArrayList<>();
+        for (OrderProduct orderProduct : orderProducts) {
+            OrderRefundApplyProduct product = new OrderRefundApplyProduct();
+            product.setOrderRefundApplyId(orderRefundApply.getId());
+            product.setOrderProductId(orderProduct.getId());
+            products.add(product);
+        }
+        products.forEach(orderRefundApplyProductMapper::insert);
+        RefuseOrderRefundApplyParam param = new RefuseOrderRefundApplyParam();
+        param.setId(orderRefundApply.getId());
+        param.setHandleNote("test");
+        orderRefundApplyService.refuseApply(param);
+        orderRefundApply = orderRefundApplyMapper.selectById(orderRefundApply.getId());
+        assertEquals(OrderRefundApply.Status.REFUSED.getValue(), orderRefundApply.getStatus());
+        assertEquals(param.getHandleNote(), orderRefundApply.getHandleNote());
+
+        // 订单仅退款申请不存在
+        RefuseOrderRefundApplyParam param1 = new RefuseOrderRefundApplyParam();
+        param1.setId(-1L);
+        param1.setHandleNote("test");
+        assertThrows(IllegalOrderRefundApplyException.class, () -> orderRefundApplyService.refuseApply(param1));
+
+        // 当前订单仅退款申请不支持此操作
+        RefuseOrderRefundApplyParam param2 = new RefuseOrderRefundApplyParam();
+        param2.setId(orderRefundApply.getId());
+        param2.setHandleNote("test");
+        assertThrows(IllegalOrderRefundApplyException.class, () -> orderRefundApplyService.refuseApply(param2));
     }
 }

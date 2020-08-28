@@ -2,9 +2,14 @@ package online.ahayujie.mall.admin.oms.service;
 
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderReturnApplyDetailDTO;
+import online.ahayujie.mall.admin.oms.bean.dto.RefuseOrderReturnApplyParam;
 import online.ahayujie.mall.admin.oms.bean.model.Order;
+import online.ahayujie.mall.admin.oms.bean.model.OrderProduct;
 import online.ahayujie.mall.admin.oms.bean.model.OrderReturnApply;
 import online.ahayujie.mall.admin.oms.bean.model.OrderReturnApplyProduct;
+import online.ahayujie.mall.admin.oms.exception.IllegalOrderReturnApplyException;
+import online.ahayujie.mall.admin.oms.mapper.OrderMapper;
+import online.ahayujie.mall.admin.oms.mapper.OrderProductMapper;
 import online.ahayujie.mall.admin.oms.mapper.OrderReturnApplyMapper;
 import online.ahayujie.mall.admin.oms.mapper.OrderReturnApplyProductMapper;
 import online.ahayujie.mall.common.api.CommonPage;
@@ -29,6 +34,10 @@ class OrderReturnApplyServiceTest {
     private OrderReturnApplyService orderReturnApplyService;
     @Autowired
     private OrderReturnApplyProductMapper orderReturnApplyProductMapper;
+    @Autowired
+    private OrderMapper orderMapper;
+    @Autowired
+    private OrderProductMapper orderProductMapper;
 
     @Test
     void list() {
@@ -110,5 +119,53 @@ class OrderReturnApplyServiceTest {
         BeanUtils.copyProperties(detailDTO1, compare);
         assertEquals(apply, compare);
         assertEquals(products.size(), detailDTO1.getProducts().size());
+    }
+
+    @Test
+    void refuseApply() {
+        // legal
+        Order order = new Order();
+        order.setMemberId(1L);
+        order.setStatus(Order.Status.APPLY_REFUND.getValue());
+        orderMapper.insert(order);
+        List<OrderProduct> orderProducts = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            OrderProduct orderProduct = new OrderProduct();
+            orderProduct.setOrderId(order.getId());
+            orderProduct.setStatus(OrderProduct.Status.AFTER_SALE.getValue());
+            orderProducts.add(orderProduct);
+        }
+        orderProducts.forEach(orderProductMapper::insert);
+        OrderReturnApply apply = new OrderReturnApply();
+        apply.setMemberId(order.getMemberId());
+        apply.setOrderId(order.getId());
+        apply.setStatus(OrderReturnApply.Status.APPLYING.getValue());
+        orderReturnApplyMapper.insert(apply);
+        apply = orderReturnApplyMapper.selectById(apply.getId());
+        List<OrderReturnApplyProduct> products = new ArrayList<>();
+        for (OrderProduct orderProduct : orderProducts) {
+            OrderReturnApplyProduct product = new OrderReturnApplyProduct();
+            product.setOrderReturnApplyId(apply.getId());
+            product.setOrderProductId(orderProduct.getId());
+            products.add(product);
+        }
+        products.forEach(orderReturnApplyProductMapper::insert);
+        RefuseOrderReturnApplyParam param = new RefuseOrderReturnApplyParam();
+        param.setId(apply.getId());
+        param.setHandleNote("test");
+        orderReturnApplyService.refuseApply(param);
+        apply = orderReturnApplyMapper.selectById(apply.getId());
+        assertEquals(OrderReturnApply.Status.REFUSED.getValue(), apply.getStatus());
+        assertEquals(param.getHandleNote(), apply.getHandleNote());
+
+        // 申请不存在
+        RefuseOrderReturnApplyParam param1 = new RefuseOrderReturnApplyParam();
+        param1.setId(-1L);
+        param1.setHandleNote("test");
+        assertThrows(IllegalOrderReturnApplyException.class, () -> orderReturnApplyService.refuseApply(param1));
+
+        // 当前申请不支持此操作
+        assertThrows(IllegalOrderReturnApplyException.class, () -> orderReturnApplyService.refuseApply(param));
+
     }
 }

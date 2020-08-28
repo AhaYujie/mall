@@ -4,9 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.config.RabbitmqConfig;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderCancelMsgDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderCancelledMsgDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderDeliverMsgDTO;
+import online.ahayujie.mall.admin.oms.bean.dto.*;
 import online.ahayujie.mall.admin.oms.publisher.OrderPublisher;
 import online.ahayujie.mall.admin.oms.service.OrderSettingService;
 import online.ahayujie.mall.admin.service.MqService;
@@ -74,6 +72,34 @@ public class OrderPublisherImpl implements OrderPublisher {
         try {
             String message = objectMapper.writeValueAsString(orderDeliverMsgDTO);
             String exchange = RabbitmqConfig.ORDER_DELIVER_EXCHANGE;
+            CorrelationData correlationData = mqService.generateCorrelationData(exchange, "", message);
+            rabbitTemplate.convertAndSend(exchange, "", message, correlationData);
+        } catch (JsonProcessingException e) {
+            log.warn(e.toString());
+            log.warn(Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+    @Async
+    @Override
+    public void publishRefundApplyRefusedMsg(OrderRefundApplyRefusedMsgDTO msgDTO) {
+        try {
+            String message = objectMapper.writeValueAsString(msgDTO);
+            String exchange = RabbitmqConfig.ORDER_REFUND_APPLY_REFUSED_EXCHANGE;
+            CorrelationData correlationData = mqService.generateCorrelationData(exchange, "", message);
+            rabbitTemplate.convertAndSend(exchange, "", message, correlationData);
+        } catch (JsonProcessingException e) {
+            log.warn(e.toString());
+            log.warn(Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+    @Async
+    @Override
+    public void publishReturnApplyRefusedMsg(OrderReturnApplyRefusedMsgDTO msgDTO) {
+        try {
+            String message = objectMapper.writeValueAsString(msgDTO);
+            String exchange = RabbitmqConfig.ORDER_RETURN_APPLY_REFUSED_EXCHANGE;
             CorrelationData correlationData = mqService.generateCorrelationData(exchange, "", message);
             rabbitTemplate.convertAndSend(exchange, "", message, correlationData);
         } catch (JsonProcessingException e) {

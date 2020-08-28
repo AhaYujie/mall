@@ -8,6 +8,7 @@
     <result column="update_time" property="updateTime" />
     <result column="create_time" property="createTime" />
         <result column="order_refund_apply_id" property="orderRefundApplyId" />
+        <result column="order_product_id" property="orderProductId" />
         <result column="product_id" property="productId" />
         <result column="sku_id" property="skuId" />
         <result column="product_name" property="productName" />
@@ -21,7 +22,7 @@
 
     <select id="selectByApplyId" resultMap="BaseResultMap">
         select
-        id, update_time, create_time, order_refund_apply_id, product_id, sku_id, product_name, brand_name,
+        id, update_time, create_time, order_refund_apply_id, order_product_id, product_id, sku_id, product_name, brand_name,
         product_category_name, product_pic, specification, real_amount, return_quantity
         from oms_order_refund_apply_product
         where order_refund_apply_id = #{orderRefundApplyId}
