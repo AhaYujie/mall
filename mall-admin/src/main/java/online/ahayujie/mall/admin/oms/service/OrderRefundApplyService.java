@@ -77,4 +77,14 @@ public interface OrderRefundApplyService {
      * @throws IllegalOrderRefundApplyException 订单仅退款申请不存在或不支持此操作
      */
     void agreeApply(Long id) throws IllegalOrderRefundApplyException;
+
+    /**
+     * 完成仅退款操作。
+     * 处理完成后发送消息到消息队列。
+     *
+     * @param id 订单仅退款申请id
+     * @param handleNote 处理备注
+     * @throws IllegalOrderRefundApplyException 订单仅退款申请不存在或不支持此操作
+     */
+    void complete(Long id, String handleNote) throws IllegalOrderRefundApplyException;
 }

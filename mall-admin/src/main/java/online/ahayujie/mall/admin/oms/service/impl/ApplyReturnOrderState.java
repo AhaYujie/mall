@@ -33,6 +33,8 @@ public class ApplyReturnOrderState extends AbstractOrderState {
 
     /**
      * 拒绝订单售后申请
+     * 操作完成后订单状态变为 {@link Order.Status#COMPLETE}
+     *
      * @param orderContext orderContext
      * @param orderId 订单id
      * @param orderProductIds 售后的订单商品id

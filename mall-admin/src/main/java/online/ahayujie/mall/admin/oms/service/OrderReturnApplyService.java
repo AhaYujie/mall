@@ -3,10 +3,12 @@ package online.ahayujie.mall.admin.oms.service;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderReturnApplyDetailDTO;
 import online.ahayujie.mall.admin.oms.bean.dto.RefuseOrderReturnApplyParam;
 import online.ahayujie.mall.admin.oms.bean.model.OrderReturnApply;
+import online.ahayujie.mall.admin.oms.exception.IllegalCompanyAddressException;
 import online.ahayujie.mall.admin.oms.exception.IllegalOrderRefundApplyException;
 import online.ahayujie.mall.admin.oms.exception.IllegalOrderReturnApplyException;
 import online.ahayujie.mall.common.api.CommonPage;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -74,4 +76,33 @@ public interface OrderReturnApplyService {
      * @throws IllegalOrderReturnApplyException 订单退货退款申请不存在或不支持此操作
      */
     void agreeApply(Long id) throws IllegalOrderReturnApplyException;
+
+    /**
+     * 设置公司收货地址
+     * @param orderReturnApplyId 订单退货退款申请id
+     * @param companyAddressId 公司地址id
+     * @throws IllegalOrderReturnApplyException 订单退货退款申请不存在
+     * @throws IllegalCompanyAddressException 公司地址不存在
+     */
+    void setCompanyAddress(Long orderReturnApplyId, Long companyAddressId) throws IllegalOrderReturnApplyException,
+            IllegalCompanyAddressException;
+
+    /**
+     * 确认收货
+     * @param orderReturnApplyId 订单退货退款申请id
+     * @param receiveNote 收货备注
+     * @param receiveTime 收货时间
+     * @throws IllegalOrderReturnApplyException 订单退货退款申请不存在
+     */
+    void receive(Long orderReturnApplyId, String receiveNote, Date receiveTime) throws IllegalOrderReturnApplyException;
+
+    /**
+     * 完成退货退款操作。
+     * 处理完成后发送消息到消息队列。
+     *
+     * @param id 订单退货退款申请id
+     * @param handleNote 处理备注
+     * @throws IllegalOrderRefundApplyException 订单退货退款申请不存在或不支持此操作
+     */
+    void complete(Long id, String handleNote) throws IllegalOrderRefundApplyException;
 }

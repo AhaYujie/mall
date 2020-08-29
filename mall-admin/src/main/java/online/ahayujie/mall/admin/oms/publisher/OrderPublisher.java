@@ -64,4 +64,20 @@ public interface OrderPublisher {
      * @param msgDTO 同意订单退货退款申请消息
      */
     void publishReturnApplyAgreeMsg(OrderReturnApplyAgreeMsgDTO msgDTO);
+
+    /**
+     * 发送完成订单仅退款消息到消息队列。
+     * exchange为 {@link RabbitmqConfig#ORDER_REFUND_COMPLETE_EXCHANGE}
+     *
+     * @param msgDTO 订单仅退款消息
+     */
+    void publishRefundCompleteMsg(OrderRefundCompleteMsgDTO msgDTO);
+
+    /**
+     * 发送完成订单退货退款消息到消息队列。
+     * exchange为 {@link RabbitmqConfig#ORDER_RETURN_COMPLETE_EXCHANGE}
+     *
+     * @param msgDTO 完成订单退货退款消息
+     */
+    void publishReturnCompleteMsg(OrderReturnCompleteMsgDTO msgDTO);
 }

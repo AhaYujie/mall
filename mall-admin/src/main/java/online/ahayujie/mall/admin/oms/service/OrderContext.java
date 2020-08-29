@@ -68,6 +68,16 @@ public class OrderContext {
         orderState.agreeAfterSaleApply(this, orderId);
     }
 
+    /**
+     * 完成订单售后
+     * @param orderId 订单id
+     * @param orderProductIds 售后的订单商品id
+     * @throws UnsupportedOperationException 当前订单状态不支持此操作
+     */
+    public void completeAfterSale(Long orderId, List<Long> orderProductIds) throws UnsupportedOperationException {
+        orderState.completeAfterSale(this, orderId, orderProductIds);
+    }
+
 
     public void setOrderState(OrderState orderState) {
         this.orderState = orderState;

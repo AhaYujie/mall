@@ -199,4 +199,48 @@ class OrderRefundApplyServiceTest {
         assertThrows(IllegalOrderRefundApplyException.class, () -> orderRefundApplyService.agreeApply(applyId));
 
     }
+
+    @Test
+    void complete() {
+        // legal
+        Order order = new Order();
+        order.setMemberId(1L);
+        order.setStatus(Order.Status.REFUND.getValue());
+        orderMapper.insert(order);
+        List<OrderProduct> orderProducts = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            OrderProduct orderProduct = new OrderProduct();
+            orderProduct.setOrderId(order.getId());
+            orderProduct.setStatus(OrderProduct.Status.AFTER_SALE.getValue());
+            orderProducts.add(orderProduct);
+        }
+        orderProducts.forEach(orderProductMapper::insert);
+        OrderRefundApply orderRefundApply = new OrderRefundApply();
+        orderRefundApply.setOrderId(order.getId());
+        orderRefundApply.setMemberId(order.getMemberId());
+        orderRefundApply.setStatus(OrderRefundApply.Status.PROCESSING.getValue());
+        orderRefundApplyMapper.insert(orderRefundApply);
+        orderRefundApply = orderRefundApplyMapper.selectById(orderRefundApply.getId());
+        List<OrderRefundApplyProduct> products = new ArrayList<>();
+        for (OrderProduct orderProduct : orderProducts) {
+            OrderRefundApplyProduct product = new OrderRefundApplyProduct();
+            product.setOrderRefundApplyId(orderRefundApply.getId());
+            product.setOrderProductId(orderProduct.getId());
+            products.add(product);
+        }
+        products.forEach(orderRefundApplyProductMapper::insert);
+        String handleNote = "note";
+        orderRefundApplyService.complete(orderRefundApply.getId(), handleNote);
+        orderRefundApply = orderRefundApplyMapper.selectById(orderRefundApply.getId());
+        assertEquals(OrderRefundApply.Status.COMPLETED.getValue(), orderRefundApply.getStatus());
+        assertEquals(handleNote, orderRefundApply.getHandleNote());
+
+        // 订单仅退款申请不存在
+        assertThrows(IllegalOrderRefundApplyException.class, () -> orderRefundApplyService.complete(-1L, handleNote));
+
+        // 当前订单仅退款申请不支持此操作
+        Long applyId = orderRefundApply.getId();
+        assertThrows(IllegalOrderRefundApplyException.class, () -> orderRefundApplyService.complete(applyId, handleNote));
+
+    }
 }

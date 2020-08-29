@@ -2,10 +2,7 @@ package online.ahayujie.mall.admin.oms.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderRefundApplyAgreeMsgDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderRefundApplyDetailDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderRefundApplyRefusedMsgDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.RefuseOrderRefundApplyParam;
+import online.ahayujie.mall.admin.oms.bean.dto.*;
 import online.ahayujie.mall.admin.oms.bean.model.OrderRefundApply;
 import online.ahayujie.mall.admin.oms.bean.model.OrderRefundApplyProduct;
 import online.ahayujie.mall.admin.oms.exception.IllegalOrderRefundApplyException;
@@ -122,6 +119,31 @@ public class OrderRefundApplyServiceImpl implements OrderRefundApplyService {
         // 发送消息到消息队列
         OrderRefundApplyAgreeMsgDTO msgDTO = new OrderRefundApplyAgreeMsgDTO(apply.getOrderId(), id);
         orderPublisher.publishRefundApplyAgreeMsg(msgDTO);
+    }
+
+    @Override
+    public void complete(Long id, String handleNote) throws IllegalOrderRefundApplyException {
+        OrderRefundApply apply = orderRefundApplyMapper.selectById(id);
+        if (apply == null) {
+            throw new IllegalOrderRefundApplyException("订单仅退款申请不存在");
+        }
+        if (!OrderRefundApply.Status.PROCESSING.getValue().equals(apply.getStatus())) {
+            throw new IllegalOrderRefundApplyException("订单仅退款申请不支持此操作");
+        }
+        OrderRefundApply updateApply = new OrderRefundApply();
+        updateApply.setId(id);
+        updateApply.setUpdateTime(new Date());
+        updateApply.setHandleTime(new Date());
+        updateApply.setHandleNote(handleNote);
+        updateApply.setStatus(OrderRefundApply.Status.COMPLETED.getValue());
+        orderRefundApplyMapper.updateById(updateApply);
+        Long orderId = apply.getOrderId();
+        List<OrderRefundApplyProduct> products = orderRefundApplyProductMapper.selectByApplyId(id);
+        List<Long> ids = products.stream().map(OrderRefundApplyProduct::getOrderProductId).collect(Collectors.toList());
+        orderService.completeAfterSale(orderId, ids);
+        // 发送消息到消息队列
+        OrderRefundCompleteMsgDTO msgDTO = new OrderRefundCompleteMsgDTO(orderId, id, handleNote);
+        orderPublisher.publishRefundCompleteMsg(msgDTO);
     }
 
     @Autowired

@@ -67,6 +67,11 @@ public class CompanyAddressServiceImpl implements CompanyAddressService {
         return new CommonPage<>(companyAddressPage);
     }
 
+    @Override
+    public CompanyAddress getById(Long id) {
+        return companyAddressMapper.selectById(id);
+    }
+
     /**
      * 检查公司地址信息合法性。
      * 若某一字段为null，则忽略该字段不检查。

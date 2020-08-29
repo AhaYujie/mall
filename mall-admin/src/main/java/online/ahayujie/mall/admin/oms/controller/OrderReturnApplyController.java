@@ -6,12 +6,15 @@ import io.swagger.annotations.ApiOperation;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderReturnApplyDetailDTO;
 import online.ahayujie.mall.admin.oms.bean.dto.RefuseOrderReturnApplyParam;
 import online.ahayujie.mall.admin.oms.bean.model.OrderReturnApply;
+import online.ahayujie.mall.admin.oms.exception.IllegalCompanyAddressException;
+import online.ahayujie.mall.admin.oms.exception.IllegalOrderRefundApplyException;
 import online.ahayujie.mall.admin.oms.exception.IllegalOrderReturnApplyException;
 import online.ahayujie.mall.admin.oms.service.OrderReturnApplyService;
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.api.Result;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -78,6 +81,42 @@ public class OrderReturnApplyController {
             orderReturnApplyService.agreeApply(orderReturnApplyId);
             return Result.success();
         } catch (IllegalOrderReturnApplyException e) {
+            return Result.fail(e.getResultCode(), e.getMessage());
+        }
+    }
+
+    @ApiOperation(value = "设置公司收货地址")
+    @PostMapping("company-address")
+    public Result<Object> setCompanyAddress(@RequestParam Long orderReturnApplyId, @RequestParam Long companyAddressId) {
+        try {
+            orderReturnApplyService.setCompanyAddress(orderReturnApplyId, companyAddressId);
+            return Result.success();
+        } catch (IllegalOrderReturnApplyException e) {
+            return Result.fail("订单退货退款申请不存在");
+        } catch (IllegalCompanyAddressException e) {
+            return Result.fail("公司地址不存在");
+        }
+    }
+
+    @ApiOperation(value = "确认收货")
+    @PostMapping("receive")
+    public Result<Object> receive(@RequestParam Long orderReturnApplyId, @RequestParam String receiveNote,
+                                  @RequestParam Date receiveTime) {
+        try {
+            orderReturnApplyService.receive(orderReturnApplyId, receiveNote, receiveTime);
+            return Result.success();
+        } catch (IllegalOrderReturnApplyException e) {
+            return Result.fail("订单退货退款申请不存在");
+        }
+    }
+
+    @ApiOperation(value = "完成退货退款操作")
+    @PostMapping("complete")
+    public Result<Object> complete(@RequestParam Long orderRefundApplyId, @RequestParam String handleNote) {
+        try {
+            orderReturnApplyService.complete(orderRefundApplyId, handleNote);
+            return Result.success();
+        } catch (IllegalOrderRefundApplyException e) {
             return Result.fail(e.getResultCode(), e.getMessage());
         }
     }

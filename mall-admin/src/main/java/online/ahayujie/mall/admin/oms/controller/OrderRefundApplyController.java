@@ -81,4 +81,15 @@ public class OrderRefundApplyController {
             return Result.fail(e.getResultCode(), e.getMessage());
         }
     }
+
+    @ApiOperation(value = "完成仅退款操作")
+    @PostMapping("complete")
+    public Result<Object> complete(@RequestParam Long orderRefundApplyId, @RequestParam String handleNote) {
+        try {
+            orderRefundApplyService.complete(orderRefundApplyId, handleNote);
+            return Result.success();
+        } catch (IllegalOrderRefundApplyException e) {
+            return Result.fail(e.getResultCode(), e.getMessage());
+        }
+    }
 }

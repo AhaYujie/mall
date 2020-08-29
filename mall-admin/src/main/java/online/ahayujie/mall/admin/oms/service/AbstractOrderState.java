@@ -110,4 +110,9 @@ public abstract class AbstractOrderState implements OrderState {
     public void agreeAfterSaleApply(OrderContext orderContext, Long orderId) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void completeAfterSale(OrderContext orderContext, Long orderId, List<Long> orderProductIds) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
 }

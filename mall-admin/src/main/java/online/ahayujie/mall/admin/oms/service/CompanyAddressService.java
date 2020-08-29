@@ -49,4 +49,11 @@ public interface CompanyAddressService {
      * @return 公司地址
      */
     CommonPage<CompanyAddress> list(Integer pageNum, Integer pageSize);
+
+    /**
+     * 根据id获取公司地址，如果不存在则返回null。
+     * @param id 公司地址id
+     * @return 公司地址
+     */
+    CompanyAddress getById(Long id);
 }

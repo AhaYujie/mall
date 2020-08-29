@@ -256,6 +256,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public void completeAfterSale(Long orderId, List<Long> orderProductIds) throws UnsupportedOperationException {
+        Integer status = orderMapper.selectOrderStatus(orderId);
+        OrderContext orderContext = orderContextFactory.getOrderContext(status);
+        orderContext.completeAfterSale(orderId, orderProductIds);
+    }
+
+    @Override
     @RabbitListener(queues = RabbitmqConfig.ORDER_TIMEOUT_CANCEL_QUEUE)
     public void listenTimeoutCancel(Channel channel, Message message) throws IOException {
         try {

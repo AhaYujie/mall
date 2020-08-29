@@ -2,16 +2,17 @@ package online.ahayujie.mall.admin.oms.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderReturnApplyAgreeMsgDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderReturnApplyDetailDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.OrderReturnApplyRefusedMsgDTO;
-import online.ahayujie.mall.admin.oms.bean.dto.RefuseOrderReturnApplyParam;
+import online.ahayujie.mall.admin.oms.bean.dto.*;
+import online.ahayujie.mall.admin.oms.bean.model.CompanyAddress;
 import online.ahayujie.mall.admin.oms.bean.model.OrderReturnApply;
 import online.ahayujie.mall.admin.oms.bean.model.OrderReturnApplyProduct;
+import online.ahayujie.mall.admin.oms.exception.IllegalCompanyAddressException;
+import online.ahayujie.mall.admin.oms.exception.IllegalOrderRefundApplyException;
 import online.ahayujie.mall.admin.oms.exception.IllegalOrderReturnApplyException;
 import online.ahayujie.mall.admin.oms.mapper.OrderReturnApplyMapper;
 import online.ahayujie.mall.admin.oms.mapper.OrderReturnApplyProductMapper;
 import online.ahayujie.mall.admin.oms.publisher.OrderPublisher;
+import online.ahayujie.mall.admin.oms.service.CompanyAddressService;
 import online.ahayujie.mall.admin.oms.service.OrderReturnApplyService;
 import online.ahayujie.mall.admin.oms.service.OrderService;
 import online.ahayujie.mall.common.api.CommonPage;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 public class OrderReturnApplyServiceImpl implements OrderReturnApplyService {
     private OrderService orderService;
     private OrderPublisher orderPublisher;
+    private CompanyAddressService companyAddressService;
 
     private final OrderReturnApplyMapper orderReturnApplyMapper;
     private final OrderReturnApplyProductMapper orderReturnApplyProductMapper;
@@ -122,6 +124,70 @@ public class OrderReturnApplyServiceImpl implements OrderReturnApplyService {
         orderPublisher.publishReturnApplyAgreeMsg(msgDTO);
     }
 
+    @Override
+    public void setCompanyAddress(Long orderReturnApplyId, Long companyAddressId) throws IllegalOrderReturnApplyException {
+        OrderReturnApply apply = orderReturnApplyMapper.selectById(orderReturnApplyId);
+        if (apply == null) {
+            throw new IllegalOrderReturnApplyException("订单退货退款申请不存在");
+        }
+        CompanyAddress companyAddress = companyAddressService.getById(companyAddressId);
+        if (companyAddress == null) {
+            throw new IllegalCompanyAddressException("公司地址不存在");
+        }
+        OrderReturnApply updateApply = new OrderReturnApply();
+        updateApply.setId(orderReturnApplyId);
+        updateApply.setUpdateTime(new Date());
+        updateApply.setCompanyAddressId(companyAddressId);
+        updateApply.setCompanyAddressName(companyAddress.getName());
+        updateApply.setReceiverName(companyAddress.getReceiverName());
+        updateApply.setReceiverPhone(companyAddress.getReceiverPhone());
+        updateApply.setProvince(companyAddress.getProvince());
+        updateApply.setCity(companyAddress.getCity());
+        updateApply.setRegion(companyAddress.getRegion());
+        updateApply.setStreet(companyAddress.getStreet());
+        updateApply.setDetailAddress(companyAddress.getDetailAddress());
+        orderReturnApplyMapper.updateById(updateApply);
+    }
+
+    @Override
+    public void receive(Long orderReturnApplyId, String receiveNote, Date receiveTime) throws IllegalOrderReturnApplyException {
+        OrderReturnApply apply = orderReturnApplyMapper.selectById(orderReturnApplyId);
+        if (apply == null) {
+            throw new IllegalOrderReturnApplyException("订单退货退款申请不存在");
+        }
+        OrderReturnApply updateApply = new OrderReturnApply();
+        updateApply.setId(orderReturnApplyId);
+        updateApply.setUpdateTime(new Date());
+        updateApply.setReceiveNote(receiveNote);
+        updateApply.setReceiveTime(receiveTime);
+        orderReturnApplyMapper.updateById(updateApply);
+    }
+
+    @Override
+    public void complete(Long id, String handleNote) throws IllegalOrderRefundApplyException {
+        OrderReturnApply apply = orderReturnApplyMapper.selectById(id);
+        if (apply == null) {
+            throw new IllegalOrderReturnApplyException("订单退货退款申请不存在");
+        }
+        if (!OrderReturnApply.Status.PROCESSING.getValue().equals(apply.getStatus())) {
+            throw new IllegalOrderReturnApplyException("当前订单退货退款申请不支持此操作");
+        }
+        OrderReturnApply updateApply = new OrderReturnApply();
+        updateApply.setId(id);
+        updateApply.setUpdateTime(new Date());
+        updateApply.setHandleTime(new Date());
+        updateApply.setHandleNote(handleNote);
+        updateApply.setStatus(OrderReturnApply.Status.COMPLETED.getValue());
+        orderReturnApplyMapper.updateById(updateApply);
+        Long orderId = apply.getOrderId();
+        List<OrderReturnApplyProduct> products = orderReturnApplyProductMapper.selectByApplyId(id);
+        List<Long> ids = products.stream().map(OrderReturnApplyProduct::getOrderProductId).collect(Collectors.toList());
+        orderService.completeAfterSale(orderId, ids);
+        // 发送消息到消息队列
+        OrderReturnCompleteMsgDTO msgDTO = new OrderReturnCompleteMsgDTO(orderId, id, handleNote);
+        orderPublisher.publishReturnCompleteMsg(msgDTO);
+    }
+
     @Autowired
     public void setOrderService(OrderService orderService) {
         this.orderService = orderService;
@@ -130,5 +196,10 @@ public class OrderReturnApplyServiceImpl implements OrderReturnApplyService {
     @Autowired
     public void setOrderPublisher(OrderPublisher orderPublisher) {
         this.orderPublisher = orderPublisher;
+    }
+
+    @Autowired
+    public void setCompanyAddressService(CompanyAddressService companyAddressService) {
+        this.companyAddressService = companyAddressService;
     }
 }

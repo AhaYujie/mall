@@ -3,15 +3,10 @@ package online.ahayujie.mall.admin.oms.service;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderReturnApplyDetailDTO;
 import online.ahayujie.mall.admin.oms.bean.dto.RefuseOrderReturnApplyParam;
-import online.ahayujie.mall.admin.oms.bean.model.Order;
-import online.ahayujie.mall.admin.oms.bean.model.OrderProduct;
-import online.ahayujie.mall.admin.oms.bean.model.OrderReturnApply;
-import online.ahayujie.mall.admin.oms.bean.model.OrderReturnApplyProduct;
+import online.ahayujie.mall.admin.oms.bean.model.*;
+import online.ahayujie.mall.admin.oms.exception.IllegalCompanyAddressException;
 import online.ahayujie.mall.admin.oms.exception.IllegalOrderReturnApplyException;
-import online.ahayujie.mall.admin.oms.mapper.OrderMapper;
-import online.ahayujie.mall.admin.oms.mapper.OrderProductMapper;
-import online.ahayujie.mall.admin.oms.mapper.OrderReturnApplyMapper;
-import online.ahayujie.mall.admin.oms.mapper.OrderReturnApplyProductMapper;
+import online.ahayujie.mall.admin.oms.mapper.*;
 import online.ahayujie.mall.common.api.CommonPage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
@@ -20,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,6 +34,8 @@ class OrderReturnApplyServiceTest {
     private OrderMapper orderMapper;
     @Autowired
     private OrderProductMapper orderProductMapper;
+    @Autowired
+    private CompanyAddressMapper companyAddressMapper;
 
     @Test
     void list() {
@@ -191,6 +189,102 @@ class OrderReturnApplyServiceTest {
         // 当前申请不支持此操作
         Long applyId = apply.getId();
         assertThrows(IllegalOrderReturnApplyException.class, () -> orderReturnApplyService.agreeApply(applyId));
+
+    }
+
+    @Test
+    void setCompanyAddress() {
+        // legal
+        OrderReturnApply apply = new OrderReturnApply();
+        apply.setOrderId(1L);
+        apply.setMemberId(1L);
+        orderReturnApplyMapper.insert(apply);
+        CompanyAddress address = new CompanyAddress();
+        address.setName("name");
+        address.setReceiverName("receiverName");
+        address.setReceiverPhone("phone");
+        address.setProvince("province");
+        address.setCity("city");
+        address.setRegion("region");
+        address.setStreet("street");
+        address.setDetailAddress("detailAddress");
+        companyAddressMapper.insert(address);
+        orderReturnApplyService.setCompanyAddress(apply.getId(), address.getId());
+        apply = orderReturnApplyMapper.selectById(apply.getId());
+        assertEquals(address.getId(), apply.getCompanyAddressId());
+        assertEquals(address.getName(), apply.getCompanyAddressName());
+        assertEquals(address.getReceiverName(), apply.getReceiverName());
+        assertEquals(address.getReceiverPhone(), apply.getReceiverPhone());
+        assertEquals(address.getProvince(), apply.getProvince());
+        assertEquals(address.getCity(), apply.getCity());
+        assertEquals(address.getRegion(), apply.getRegion());
+        assertEquals(address.getStreet(), apply.getStreet());
+        assertEquals(address.getDetailAddress(), apply.getDetailAddress());
+
+        // illegal
+        Long applyId = apply.getId();
+        assertThrows(IllegalOrderReturnApplyException.class, () -> orderReturnApplyService.setCompanyAddress(-1L, address.getId()));
+        assertThrows(IllegalCompanyAddressException.class, () -> orderReturnApplyService.setCompanyAddress(applyId, -1L));
+    }
+
+    @Test
+    void receive() {
+        // illegal
+        assertThrows(IllegalOrderReturnApplyException.class, () -> orderReturnApplyService.receive(-1L, null, null));
+
+        // legal
+        OrderReturnApply apply = new OrderReturnApply();
+        apply.setOrderId(1L);
+        apply.setMemberId(1L);
+        orderReturnApplyMapper.insert(apply);
+        String receiveNote = "note";
+        Date receiveDate = new Date();
+        orderReturnApplyService.receive(apply.getId(), receiveNote, receiveDate);
+        apply = orderReturnApplyMapper.selectById(apply.getId());
+        assertEquals(receiveNote, apply.getReceiveNote());
+    }
+
+    @Test
+    void complete() {
+        // legal
+        Order order = new Order();
+        order.setMemberId(1L);
+        order.setStatus(Order.Status.RETURN.getValue());
+        orderMapper.insert(order);
+        List<OrderProduct> orderProducts = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            OrderProduct orderProduct = new OrderProduct();
+            orderProduct.setOrderId(order.getId());
+            orderProduct.setStatus(OrderProduct.Status.AFTER_SALE.getValue());
+            orderProducts.add(orderProduct);
+        }
+        orderProducts.forEach(orderProductMapper::insert);
+        OrderReturnApply apply = new OrderReturnApply();
+        apply.setMemberId(order.getMemberId());
+        apply.setOrderId(order.getId());
+        apply.setStatus(OrderReturnApply.Status.PROCESSING.getValue());
+        orderReturnApplyMapper.insert(apply);
+        apply = orderReturnApplyMapper.selectById(apply.getId());
+        List<OrderReturnApplyProduct> products = new ArrayList<>();
+        for (OrderProduct orderProduct : orderProducts) {
+            OrderReturnApplyProduct product = new OrderReturnApplyProduct();
+            product.setOrderReturnApplyId(apply.getId());
+            product.setOrderProductId(orderProduct.getId());
+            products.add(product);
+        }
+        products.forEach(orderReturnApplyProductMapper::insert);
+        String handleNote = "note";
+        orderReturnApplyService.complete(apply.getId(), handleNote);
+        apply = orderReturnApplyMapper.selectById(apply.getId());
+        assertEquals(OrderReturnApply.Status.COMPLETED.getValue(), apply.getStatus());
+        assertEquals(handleNote, apply.getHandleNote());
+
+        // 申请不存在
+        assertThrows(IllegalOrderReturnApplyException.class, () -> orderReturnApplyService.complete(-1L, handleNote));
+
+        // 当前申请不支持此操作
+        Long applyId = apply.getId();
+        assertThrows(IllegalOrderReturnApplyException.class, () -> orderReturnApplyService.complete(applyId, handleNote));
 
     }
 }
