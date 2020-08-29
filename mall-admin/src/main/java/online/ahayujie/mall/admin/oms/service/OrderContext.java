@@ -59,6 +59,16 @@ public class OrderContext {
         orderState.refuseAfterSaleApply(this, orderId, orderProductIds);
     }
 
+    /**
+     * 同意订单售后申请
+     * @param orderId 订单id
+     * @throws UnsupportedOperationException 当前订单状态不支持此操作
+     */
+    public void agreeAfterSaleApply(Long orderId) throws UnsupportedOperationException {
+        orderState.agreeAfterSaleApply(this, orderId);
+    }
+
+
     public void setOrderState(OrderState orderState) {
         this.orderState = orderState;
     }

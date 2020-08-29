@@ -5,6 +5,7 @@ import online.ahayujie.mall.admin.oms.bean.dto.OrderRefundApplyRefusedMsgDTO;
 import online.ahayujie.mall.admin.oms.bean.dto.RefuseOrderRefundApplyParam;
 import online.ahayujie.mall.admin.oms.bean.model.OrderRefundApply;
 import online.ahayujie.mall.admin.oms.exception.IllegalOrderRefundApplyException;
+import online.ahayujie.mall.admin.oms.exception.IllegalOrderReturnApplyException;
 import online.ahayujie.mall.admin.oms.publisher.OrderPublisher;
 import online.ahayujie.mall.common.api.CommonPage;
 
@@ -67,4 +68,13 @@ public interface OrderRefundApplyService {
      * @throws IllegalOrderRefundApplyException 订单仅退款申请不存在或当前订单仅退款申请不支持此操作
      */
     void refuseApply(RefuseOrderRefundApplyParam param) throws IllegalOrderRefundApplyException;
+
+    /**
+     * 同意订单仅退款申请。
+     * 处理完成后发送消息到消息队列。
+     *
+     * @param id 订单仅退款申请id
+     * @throws IllegalOrderRefundApplyException 订单仅退款申请不存在或不支持此操作
+     */
+    void agreeApply(Long id) throws IllegalOrderRefundApplyException;
 }

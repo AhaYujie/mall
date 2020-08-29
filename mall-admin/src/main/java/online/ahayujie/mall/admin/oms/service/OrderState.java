@@ -47,6 +47,15 @@ public interface OrderState {
      * @param orderContext orderContext
      * @param orderId 订单id
      * @param orderProductIds 售后的订单商品id
+     * @throws UnsupportedOperationException 当前订单状态不支持此操作
      */
     void refuseAfterSaleApply(OrderContext orderContext, Long orderId, List<Long> orderProductIds) throws UnsupportedOperationException;
+
+    /**
+     * 同意订单售后申请
+     * @param orderContext orderContext
+     * @param orderId 订单id
+     * @throws UnsupportedOperationException 当前订单状态不支持此操作
+     */
+    void agreeAfterSaleApply(OrderContext orderContext, Long orderId) throws UnsupportedOperationException;
 }

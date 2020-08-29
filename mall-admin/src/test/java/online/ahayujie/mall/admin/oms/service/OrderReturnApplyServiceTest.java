@@ -126,7 +126,7 @@ class OrderReturnApplyServiceTest {
         // legal
         Order order = new Order();
         order.setMemberId(1L);
-        order.setStatus(Order.Status.APPLY_REFUND.getValue());
+        order.setStatus(Order.Status.APPLY_RETURN.getValue());
         orderMapper.insert(order);
         List<OrderProduct> orderProducts = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -166,6 +166,31 @@ class OrderReturnApplyServiceTest {
 
         // 当前申请不支持此操作
         assertThrows(IllegalOrderReturnApplyException.class, () -> orderReturnApplyService.refuseApply(param));
+    }
+
+    @Test
+    void agreeApply() {
+        // legal
+        Order order = new Order();
+        order.setMemberId(1L);
+        order.setStatus(Order.Status.APPLY_REFUND.getValue());
+        orderMapper.insert(order);
+        OrderReturnApply apply = new OrderReturnApply();
+        apply.setMemberId(order.getMemberId());
+        apply.setOrderId(order.getId());
+        apply.setStatus(OrderReturnApply.Status.APPLYING.getValue());
+        orderReturnApplyMapper.insert(apply);
+        apply = orderReturnApplyMapper.selectById(apply.getId());
+        orderReturnApplyService.agreeApply(apply.getId());
+        apply = orderReturnApplyMapper.selectById(apply.getId());
+        assertEquals(OrderReturnApply.Status.PROCESSING.getValue(), apply.getStatus());
+
+        // 申请不存在
+        assertThrows(IllegalOrderReturnApplyException.class, () -> orderReturnApplyService.agreeApply(-1L));
+
+        // 当前申请不支持此操作
+        Long applyId = apply.getId();
+        assertThrows(IllegalOrderReturnApplyException.class, () -> orderReturnApplyService.agreeApply(applyId));
 
     }
 }

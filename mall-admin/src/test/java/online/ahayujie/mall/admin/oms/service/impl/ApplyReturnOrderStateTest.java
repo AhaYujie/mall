@@ -27,13 +27,13 @@ class ApplyReturnOrderStateTest {
     @Autowired
     private OrderProductMapper orderProductMapper;
     @Autowired
-    private ApplyRefundOrderState applyRefundOrderState;
+    private ApplyReturnOrderState applyReturnOrderState;
 
     @Test
     void refuseAfterSaleApply() {
         Order order = new Order();
         order.setMemberId(1L);
-        order.setStatus(Order.Status.APPLY_REFUND.getValue());
+        order.setStatus(Order.Status.APPLY_RETURN.getValue());
         orderMapper.insert(order);
         List<OrderProduct> orderProducts = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -45,7 +45,7 @@ class ApplyReturnOrderStateTest {
         orderProducts.forEach(orderProductMapper::insert);
         List<Long> ids = orderProducts.stream().map(Base::getId).collect(Collectors.toList());
         OrderContext orderContext = new OrderContext(null);
-        applyRefundOrderState.refuseAfterSaleApply(orderContext, order.getId(), ids);
+        applyReturnOrderState.refuseAfterSaleApply(orderContext, order.getId(), ids);
         assertEquals(CompleteOrderState.class, orderContext.getOrderState().getClass());
         order = orderMapper.selectById(order.getId());
         assertEquals(Order.Status.COMPLETE.getValue(), order.getStatus());
@@ -53,5 +53,18 @@ class ApplyReturnOrderStateTest {
         for (OrderProduct orderProduct : orderProducts1) {
             assertEquals(OrderProduct.Status.PAY.getValue(), orderProduct.getStatus());
         }
+    }
+
+    @Test
+    void agreeAfterSaleApply() {
+        Order order = new Order();
+        order.setMemberId(1L);
+        order.setStatus(Order.Status.APPLY_RETURN.getValue());
+        orderMapper.insert(order);
+        OrderContext orderContext = new OrderContext(null);
+        applyReturnOrderState.agreeAfterSaleApply(orderContext, order.getId());
+        assertEquals(ReturnOrderState.class, orderContext.getOrderState().getClass());
+        order = orderMapper.selectById(order.getId());
+        assertEquals(Order.Status.RETURN.getValue(), order.getStatus());
     }
 }

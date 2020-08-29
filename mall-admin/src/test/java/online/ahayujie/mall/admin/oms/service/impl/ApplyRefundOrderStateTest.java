@@ -54,4 +54,17 @@ class ApplyRefundOrderStateTest {
             assertEquals(OrderProduct.Status.PAY.getValue(), orderProduct.getStatus());
         }
     }
+
+    @Test
+    void agreeAfterSaleApply() {
+        Order order = new Order();
+        order.setMemberId(1L);
+        order.setStatus(Order.Status.APPLY_REFUND.getValue());
+        orderMapper.insert(order);
+        OrderContext orderContext = new OrderContext(null);
+        applyRefundOrderState.agreeAfterSaleApply(orderContext, order.getId());
+        assertEquals(RefundOrderState.class, orderContext.getOrderState().getClass());
+        order = orderMapper.selectById(order.getId());
+        assertEquals(Order.Status.REFUND.getValue(), order.getStatus());
+    }
 }

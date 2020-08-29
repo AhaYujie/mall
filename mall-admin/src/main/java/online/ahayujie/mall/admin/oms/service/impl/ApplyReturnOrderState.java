@@ -53,4 +53,21 @@ public class ApplyReturnOrderState extends AbstractOrderState {
         }
         orderContext.setOrderState(getOrderState(Order.Status.COMPLETE));
     }
+
+    /**
+     * 同意订单售后申请。
+     * 操作完成后订单状态变为 {@link Order.Status#RETURN}
+     *
+     * @param orderContext orderContext
+     * @param orderId 订单id
+     */
+    @Override
+    public void agreeAfterSaleApply(OrderContext orderContext, Long orderId) throws UnsupportedOperationException {
+        Order order = new Order();
+        order.setId(orderId);
+        order.setUpdateTime(new Date());
+        order.setStatus(Order.Status.RETURN.getValue());
+        orderMapper.updateById(order);
+        orderContext.setOrderState(getOrderState(Order.Status.RETURN));
+    }
 }

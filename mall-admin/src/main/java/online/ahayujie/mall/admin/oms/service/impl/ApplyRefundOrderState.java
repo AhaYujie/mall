@@ -55,4 +55,21 @@ public class ApplyRefundOrderState extends AbstractOrderState {
         }
         orderContext.setOrderState(getOrderState(Order.Status.COMPLETE));
     }
+
+    /**
+     * 同意订单售后申请。
+     * 操作完成后订单状态变为 {@link Order.Status#REFUND}
+     *
+     * @param orderContext orderContext
+     * @param orderId 订单id
+     */
+    @Override
+    public void agreeAfterSaleApply(OrderContext orderContext, Long orderId) {
+        Order order = new Order();
+        order.setId(orderId);
+        order.setUpdateTime(new Date());
+        order.setStatus(Order.Status.REFUND.getValue());
+        orderMapper.updateById(order);
+        orderContext.setOrderState(getOrderState(Order.Status.REFUND));
+    }
 }

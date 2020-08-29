@@ -108,6 +108,33 @@ public class OrderPublisherImpl implements OrderPublisher {
         }
     }
 
+    @Async
+    @Override
+    public void publishRefundApplyAgreeMsg(OrderRefundApplyAgreeMsgDTO msgDTO) {
+        try {
+            String message = objectMapper.writeValueAsString(msgDTO);
+            String exchange = RabbitmqConfig.ORDER_REFUND_APPLY_AGREE_EXCHANGE;
+            CorrelationData correlationData = mqService.generateCorrelationData(exchange, "", message);
+            rabbitTemplate.convertAndSend(exchange, "", message, correlationData);
+        } catch (JsonProcessingException e) {
+            log.warn(e.toString());
+            log.warn(Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+    @Override
+    public void publishReturnApplyAgreeMsg(OrderReturnApplyAgreeMsgDTO msgDTO) {
+        try {
+            String message = objectMapper.writeValueAsString(msgDTO);
+            String exchange = RabbitmqConfig.ORDER_RETURN_APPLY_AGREE_EXCHANGE;
+            CorrelationData correlationData = mqService.generateCorrelationData(exchange, "", message);
+            rabbitTemplate.convertAndSend(exchange, "", message, correlationData);
+        } catch (JsonProcessingException e) {
+            log.warn(e.toString());
+            log.warn(Arrays.toString(e.getStackTrace()));
+        }
+    }
+
     @Autowired
     public void setMqService(MqService mqService) {
         this.mqService = mqService;

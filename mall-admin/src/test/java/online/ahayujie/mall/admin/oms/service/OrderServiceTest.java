@@ -467,5 +467,32 @@ class OrderServiceTest {
         order1.setStatus(Order.Status.APPLY_REFUND.getValue());
         orderMapper.insert(order1);
         orderService.refuseAfterSaleApply(order1.getId(), new ArrayList<>());
+        Order order2 = new Order();
+        order2.setMemberId(1L);
+        order2.setStatus(Order.Status.APPLY_RETURN.getValue());
+        orderMapper.insert(order2);
+        orderService.refuseAfterSaleApply(order2.getId(), new ArrayList<>());
+    }
+
+    @Test
+    void agreeAfterSaleApply() {
+        // 当前订单不支持此操作
+        Order order = new Order();
+        order.setMemberId(1L);
+        order.setStatus(Order.Status.COMPLETE.getValue());
+        orderMapper.insert(order);
+        assertThrows(UnsupportedOperationException.class, () -> orderService.agreeAfterSaleApply(order.getId()));
+
+        // legal
+        Order order1 = new Order();
+        order1.setMemberId(1L);
+        order1.setStatus(Order.Status.APPLY_REFUND.getValue());
+        orderMapper.insert(order1);
+        orderService.agreeAfterSaleApply(order1.getId());
+        Order order2 = new Order();
+        order2.setMemberId(1L);
+        order2.setStatus(Order.Status.APPLY_RETURN.getValue());
+        orderMapper.insert(order2);
+        orderService.agreeAfterSaleApply(order2.getId());
     }
 }

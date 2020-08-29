@@ -2,6 +2,7 @@ package online.ahayujie.mall.admin.oms.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import online.ahayujie.mall.admin.oms.bean.dto.OrderReturnApplyAgreeMsgDTO;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderReturnApplyDetailDTO;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderReturnApplyRefusedMsgDTO;
 import online.ahayujie.mall.admin.oms.bean.dto.RefuseOrderReturnApplyParam;
@@ -99,6 +100,26 @@ public class OrderReturnApplyServiceImpl implements OrderReturnApplyService {
         // 发送消息到消息队列
         OrderReturnApplyRefusedMsgDTO msgDTO = new OrderReturnApplyRefusedMsgDTO(orderId, param.getId(), param.getHandleNote());
         orderPublisher.publishReturnApplyRefusedMsg(msgDTO);
+    }
+
+    @Override
+    public void agreeApply(Long id) throws IllegalOrderReturnApplyException {
+        OrderReturnApply apply = orderReturnApplyMapper.selectById(id);
+        if (apply == null) {
+            throw new IllegalOrderReturnApplyException("订单退货退款申请不存在");
+        }
+        if (!OrderReturnApply.Status.APPLYING.getValue().equals(apply.getStatus())) {
+            throw new IllegalOrderReturnApplyException("订单退货退款申请不支持此操作");
+        }
+        OrderReturnApply updateApply = new OrderReturnApply();
+        updateApply.setId(id);
+        updateApply.setUpdateTime(new Date());
+        updateApply.setStatus(OrderReturnApply.Status.PROCESSING.getValue());
+        orderReturnApplyMapper.updateById(updateApply);
+        orderService.agreeAfterSaleApply(apply.getOrderId());
+        // 发送消息到消息队列
+        OrderReturnApplyAgreeMsgDTO msgDTO = new OrderReturnApplyAgreeMsgDTO(apply.getOrderId(), id);
+        orderPublisher.publishReturnApplyAgreeMsg(msgDTO);
     }
 
     @Autowired

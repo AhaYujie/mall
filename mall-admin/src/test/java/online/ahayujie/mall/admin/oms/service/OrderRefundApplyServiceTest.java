@@ -174,4 +174,29 @@ class OrderRefundApplyServiceTest {
         param2.setHandleNote("test");
         assertThrows(IllegalOrderRefundApplyException.class, () -> orderRefundApplyService.refuseApply(param2));
     }
+
+    @Test
+    void agreeApply() {
+        // legal
+        Order order = new Order();
+        order.setMemberId(1L);
+        order.setStatus(Order.Status.APPLY_REFUND.getValue());
+        orderMapper.insert(order);
+        OrderRefundApply orderRefundApply = new OrderRefundApply();
+        orderRefundApply.setOrderId(order.getId());
+        orderRefundApply.setMemberId(order.getMemberId());
+        orderRefundApply.setStatus(OrderRefundApply.Status.APPLYING.getValue());
+        orderRefundApplyMapper.insert(orderRefundApply);
+        orderRefundApplyService.agreeApply(orderRefundApply.getId());
+        orderRefundApply = orderRefundApplyMapper.selectById(orderRefundApply.getId());
+        assertEquals(OrderRefundApply.Status.PROCESSING.getValue(), orderRefundApply.getStatus());
+
+        // 订单仅退款申请不存在
+        assertThrows(IllegalOrderRefundApplyException.class, () -> orderRefundApplyService.agreeApply(-1L));
+
+        Long applyId = orderRefundApply.getId();
+        // 当前订单仅退款申请不支持此操作
+        assertThrows(IllegalOrderRefundApplyException.class, () -> orderRefundApplyService.agreeApply(applyId));
+
+    }
 }

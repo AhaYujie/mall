@@ -48,4 +48,20 @@ public interface OrderPublisher {
      * @param msgDTO 订单退货退款申请被拒绝消息
      */
     void publishReturnApplyRefusedMsg(OrderReturnApplyRefusedMsgDTO msgDTO);
+
+    /**
+     * 发送同意订单仅退款申请消息到消息队列。
+     * exchange为 {@link RabbitmqConfig#ORDER_REFUND_APPLY_AGREE_EXCHANGE}
+     *
+     * @param msgDTO 同意订单仅退款申请消息
+     */
+    void publishRefundApplyAgreeMsg(OrderRefundApplyAgreeMsgDTO msgDTO);
+
+    /**
+     * 发送同意订单退货退款申请消息到消息队列。
+     * exchange为 {@link RabbitmqConfig#ORDER_RETURN_APPLY_AGREE_EXCHANGE}
+     *
+     * @param msgDTO 同意订单退货退款申请消息
+     */
+    void publishReturnApplyAgreeMsg(OrderReturnApplyAgreeMsgDTO msgDTO);
 }

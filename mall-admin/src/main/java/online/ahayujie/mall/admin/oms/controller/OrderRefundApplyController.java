@@ -70,4 +70,15 @@ public class OrderRefundApplyController {
             return Result.fail(e.getResultCode(), e.getMessage());
         }
     }
+
+    @ApiOperation(value = "同意订单仅退款申请")
+    @PostMapping("agree")
+    public Result<Object> agreeApply(@RequestParam Long orderRefundApplyId) {
+        try {
+            orderRefundApplyService.agreeApply(orderRefundApplyId);
+            return Result.success();
+        } catch (IllegalOrderRefundApplyException e) {
+            return Result.fail(e.getResultCode(), e.getMessage());
+        }
+    }
 }
