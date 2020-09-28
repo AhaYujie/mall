@@ -1,6 +1,7 @@
 package online.ahayujie.mall.admin.pms.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
@@ -423,10 +424,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public CommonPage<Product> list(Integer pageNum, Integer pageSize) {
-        Page<Product> page = new Page<>(pageNum, pageSize);
-        IPage<Product> productPage = productMapper.selectPage(page);
-        return new CommonPage<>(productPage);
+    public CommonPage<Product> list(Long pageNum, Long pageSize) {
+        Long count = Long.valueOf(productMapper.selectCount(Wrappers.emptyWrapper()));
+        List<Product> products = productMapper.selectByPage((pageNum - 1) * pageSize, pageSize);
+        return new CommonPage<>(pageNum, pageSize, count / pageSize, count, products);
     }
 
     @Override

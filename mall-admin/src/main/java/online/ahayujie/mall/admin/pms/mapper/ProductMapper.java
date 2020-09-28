@@ -30,10 +30,11 @@ public interface ProductMapper extends BaseMapper<Product> {
 
     /**
      * 分页获取，根据排序字段和创建时间排序
-     * @param page 分页参数
+     * @param start 页开始
+     * @param size 页大小
      * @return 商品列表
      */
-    IPage<Product> selectPage(@Param("page") Page<?> page);
+    List<Product> selectByPage(@Param("start") Long start, @Param("size") Long size);
 
     /**
      * 根据商品id列表更新

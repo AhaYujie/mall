@@ -94,8 +94,8 @@ public class ProductController {
 
     @ApiOperation(value = "分页获取商品列表", notes = "分页获取商品列表，根据排序字段和创建时间排序")
     @GetMapping("/list")
-    public Result<CommonPage<Product>> list(@RequestParam(defaultValue = "1", required = false) Integer pageNum,
-                                            @RequestParam(defaultValue = "5", required = false) Integer pageSize) {
+    public Result<CommonPage<Product>> list(@RequestParam(defaultValue = "1", required = false) Long pageNum,
+                                            @RequestParam(defaultValue = "5", required = false) Long pageSize) {
         return Result.data(productService.list(pageNum, pageSize));
     }
 

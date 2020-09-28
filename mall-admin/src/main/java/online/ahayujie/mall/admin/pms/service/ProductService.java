@@ -122,7 +122,7 @@ public interface ProductService {
      * @param pageSize 页大小
      * @return 商品列表
      */
-    CommonPage<Product> list(Integer pageNum, Integer pageSize);
+    CommonPage<Product> list(Long pageNum, Long pageSize);
 
     /**
      * 根据商品id批量更新商品信息。

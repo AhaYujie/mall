@@ -50,14 +50,15 @@
         from pms_product
     </select>
 
-    <select id="selectPage" resultMap="BaseResultMap">
+    <select id="selectByPage" resultMap="BaseResultMap">
         select
             id, update_time, create_time, brand_id, product_category_id, product_sn, name, brand_name, product_category_name,
             pic, sub_title, description, detail_title, detail_description, detail_html, detail_mobile_html, price,
             original_price, sale, stock, low_stock, unit, note, keywords, sort, gift_point, use_point_limit,
             service_ids, promotion_type, is_deleted, is_publish, is_new, is_recommend, is_verify, is_preview
         from pms_product
-        order by sort desc, create_time desc
+        inner join (select id from pms_product order by sort desc, create_time desc limit #{start}, #{size}) as tmp
+        using(id)
     </select>
 
     <update id="updateByIds">
