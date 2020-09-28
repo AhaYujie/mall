@@ -182,6 +182,8 @@ public class ProductServiceImpl implements ProductService {
         }
         ProductDTO productDTO = new ProductDTO();
         productDTO.setProduct(product);
+        List<ProductImage> productImages = productImageMapper.selectByProductId(id);
+        productDTO.setProductImages(productImages);
         // 商品参数
         List<ProductParam> productParams = productParamService.getByProductId(id);
         productDTO.setProductParams(productParams);
