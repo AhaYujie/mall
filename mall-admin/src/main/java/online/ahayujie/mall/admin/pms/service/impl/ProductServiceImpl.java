@@ -1,11 +1,9 @@
 package online.ahayujie.mall.admin.pms.service.impl;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
+import online.ahayujie.mall.admin.bean.model.MysqlExplain;
 import online.ahayujie.mall.admin.config.RabbitmqConfig;
 import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.*;
@@ -425,7 +423,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public CommonPage<Product> list(Long pageNum, Long pageSize) {
-        Long count = Long.valueOf(productMapper.selectCount(Wrappers.emptyWrapper()));
+        Long count = getProductExplainCount();
         List<Product> products = productMapper.selectByPage((pageNum - 1) * pageSize, pageSize);
         return new CommonPage<>(pageNum, pageSize, count / pageSize, count, products);
     }
@@ -492,10 +490,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public CommonPage<Product> queryProduct(QueryProductParam param, Integer pageNum, Integer pageSize) {
-        Page<Product> page = new Page<>(pageNum, pageSize);
-        IPage<Product> productPage = productMapper.query(page, param);
-        return new CommonPage<>(productPage);
+    public CommonPage<Product> queryProduct(QueryProductParam param, Long pageNum, Long pageSize) {
+        List<Product> products = productMapper.query((pageNum - 1) * pageSize, pageSize, param);
+        Long count = productMapper.explainQuery(param).getRows();
+        count = (count == null ? 0 : count);
+        return new CommonPage<>(pageNum, pageSize, count / pageSize, count, products);
     }
 
     @Override
@@ -842,6 +841,15 @@ public class ProductServiceImpl implements ProductService {
                 }
             }
         }
+    }
+
+    /**
+     * 根据mysql explain获取商品的数量
+     * @return 商品的大致数量
+     */
+    private long getProductExplainCount() {
+        MysqlExplain mysqlExplain = productMapper.explain();
+        return mysqlExplain.getRows() == null ? 0 : mysqlExplain.getRows();
     }
 
     @Autowired

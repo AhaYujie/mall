@@ -567,17 +567,11 @@ class ProductServiceImplTest {
         assertNull(productDTO1);
 
         // exist
-        List<Product> oldProducts = productMapper.selectAll();
-        testSaveCreateSkus();
-        List<Product> newProducts = productMapper.selectAll();
-        Product product = null;
-        for (Product newProduct : newProducts) {
-            if (!oldProducts.contains(newProduct)) {
-                product = newProduct;
-            }
-        }
-        assertNotNull(product);
+        Product product = new Product();
+        product.setName("test");
+        productMapper.insert(product);
         ProductDTO productDTO = productService.getProductById(product.getId());
+        assertNotNull(productDTO);
         log.debug("商品信息：" + productDTO);
     }
 
@@ -1180,33 +1174,33 @@ class ProductServiceImplTest {
         // not exist
         QueryProductParam param = new QueryProductParam();
         param.setName("123456不存在的商品名称");
-        CommonPage<Product> result = productService.queryProduct(param, 1, 10);
+        CommonPage<Product> result = productService.queryProduct(param, 1L, 10L);
         assertEquals(0, result.getData().size());
 
         QueryProductParam param1 = new QueryProductParam();
         param1.setProductSn("123456不存在的商品货号");
-        CommonPage<Product> result1 = productService.queryProduct(param1, 1, 10);
+        CommonPage<Product> result1 = productService.queryProduct(param1, 1L, 10L);
         assertEquals(0, result1.getData().size());
 
         QueryProductParam param2 = new QueryProductParam();
         param2.setIsPublish(-1);
-        CommonPage<Product> result2 = productService.queryProduct(param2, 1, 10);
+        CommonPage<Product> result2 = productService.queryProduct(param2, 1L, 10L);
         assertEquals(0, result2.getData().size());
 
         // exist
         QueryProductParam param3 = new QueryProductParam();
         param3.setName(product.getName());
-        CommonPage<Product> result3 = productService.queryProduct(param3, 1, 10);
+        CommonPage<Product> result3 = productService.queryProduct(param3, 1L, 10L);
         assertEquals(1, result3.getData().size());
 
         QueryProductParam param4 = new QueryProductParam();
         param4.setProductSn(product.getProductSn());
-        CommonPage<Product> result4 = productService.queryProduct(param4, 1, 10);
+        CommonPage<Product> result4 = productService.queryProduct(param4, 1L, 10L);
         assertEquals(1, result4.getData().size());
 
         QueryProductParam param5 = new QueryProductParam();
         BeanUtils.copyProperties(product, param5);
-        CommonPage<Product> result5 = productService.queryProduct(param5, 1, 10);
+        CommonPage<Product> result5 = productService.queryProduct(param5, 1L, 10L);
         assertEquals(1, result5.getData().size());
     }
 }

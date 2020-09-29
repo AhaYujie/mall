@@ -61,6 +61,10 @@
         using(id)
     </select>
 
+    <select id="explain" resultType="online.ahayujie.mall.admin.bean.model.MysqlExplain">
+        explain select * from pms_product
+    </select>
+
     <update id="updateByIds">
         update pms_product
         <set>
@@ -223,7 +227,42 @@
                 and is_preview = #{param.isPreview}
             </if>
         </where>
-        order by create_time desc
+        order by sort desc, create_time desc
+        limit #{start}, #{size}
+    </select>
+
+    <select id="explainQuery" resultType="online.ahayujie.mall.admin.bean.model.MysqlExplain">
+        explain select * from pms_product
+        <where>
+            <if test="name != null">
+                name like concat('%', #{name}, '%')
+            </if>
+            <if test="productSn != null">
+                and product_sn like concat('%', #{productSn}, '%')
+            </if>
+            <if test="brandId != null">
+                and brand_id = #{brandId}
+            </if>
+            <if test="productCategoryId != null">
+                and product_category_id = #{productCategoryId}
+            </if>
+            <if test="isPublish != null">
+                and is_publish = #{isPublish}
+            </if>
+            <if test="isNew != null">
+                and is_new = #{isNew}
+            </if>
+            <if test="isRecommend != null">
+                and is_recommend = #{isRecommend}
+            </if>
+            <if test="isVerify != null">
+                and is_verify = #{isVerify}
+            </if>
+            <if test="isPreview != null">
+                and is_preview = #{isPreview}
+            </if>
+        </where>
+        order by sort desc, create_time desc
     </select>
 
 </mapper>
