@@ -37,7 +37,12 @@ class ResourceCategoryServiceImplTest {
 
     @Test
     void listAll() {
-        // TODO:修复依赖资源分类数据库数据的BUG
+        for (int i = 0; i < 10; i++) {
+            ResourceCategory resourceCategory = new ResourceCategory();
+            resourceCategory.setName("for test: " + i);
+            resourceCategory.setSort(i);
+            resourceCategoryMapper.insert(resourceCategory);
+        }
         List<ResourceCategory> resourceCategories = resourceCategoryService.listAll();
         assertDoesNotThrow(() -> {
             int sort = resourceCategories.get(0).getSort();
@@ -45,6 +50,7 @@ class ResourceCategoryServiceImplTest {
                 if (sort < resourceCategory.getSort()) {
                     throw new IllegalArgumentException();
                 }
+                sort = resourceCategory.getSort();
             }
         });
         log.debug("resourceCategories: " + resourceCategories);

@@ -126,10 +126,12 @@ class ResourceServiceImplTest {
         log.debug(throwable1.getMessage());
 
         // legal
+        ResourceCategory resourceCategory = new ResourceCategory();
+        resourceCategory.setName("for test");
+        resourceCategoryMapper.insert(resourceCategory);
         resource.setName("test");
         resource.setUrl("/test/**");
         resource.setDescription("setDescription");
-        // TODO:修复依赖资源分类数据库数据的BUG
         resource.setCategoryId(resourceCategoryService.listAll().get(0).getId());
         List<Resource> oldResources = resourceService.list();
         resourceService.createResource(resource);

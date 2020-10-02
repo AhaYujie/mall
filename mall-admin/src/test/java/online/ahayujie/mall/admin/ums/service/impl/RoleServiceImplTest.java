@@ -245,13 +245,17 @@ class RoleServiceImplTest {
 
     @Test
     void list() {
+        for (int i = 0; i < 10; i++) {
+            Role role = new Role();
+            role.setName("for test: " + i);
+            roleMapper.insert(role);
+        }
         int pageNum;
         int pageSize;
         String keyword;
         List<Role> allRoles = roleService.list();
 
         // keyword ""
-        // TODO:修复依赖角色数据库数据的BUG
         keyword = "";
         pageNum = 1;
         pageSize = 2;
