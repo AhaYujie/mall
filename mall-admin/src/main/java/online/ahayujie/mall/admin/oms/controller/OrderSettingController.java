@@ -39,51 +39,51 @@ public class OrderSettingController {
         }
     }
 
-    @ApiOperation(value = "获取发货未确认收货超时自动确认时间(单位天)")
-    @GetMapping("auto-confirm-receive-time")
-    public Result<Integer> getAutoConfirmReceiveTime() {
-        return Result.data(orderSettingService.getAutoConfirmReceiveTime());
+    @ApiOperation(value = "获取发货未确认收货超时自动确认cron设置")
+    @GetMapping("auto-confirm-receive-cron")
+    public Result<String> getAutoConfirmReceiveCron() {
+        return Result.data(orderSettingService.getAutoConfirmReceiveCron());
     }
 
-    @ApiOperation(value = "设置发货未确认收货超时自动确认时间(单位天)")
-    @PostMapping("/auto-confirm-receive-time/update")
-    public Result<Object> updateAutoConfirmReceiveTime(@RequestParam Integer time) {
+    @ApiOperation(value = "设置发货未确认收货超时自动确认cron设置")
+    @PostMapping("/auto-confirm-receive-cron/update")
+    public Result<Object> updateAutoConfirmReceiveCron(@RequestParam String cron) {
         try {
-            orderSettingService.updateAutoConfirmReceiveTime(time);
+            orderSettingService.updateAutoConfirmReceiveCron(cron);
             return Result.success();
         } catch (IllegalArgumentException e) {
             return Result.fail(e.getMessage());
         }
     }
 
-    @ApiOperation(value = "获取确认收货后未评价超时自动评价时间(单位天)")
-    @GetMapping("auto-comment-time")
-    public Result<Integer> getAutoCommentTime() {
-        return Result.data(orderSettingService.getAutoCommentTime());
+    @ApiOperation(value = "获取确认收货后未评价超时自动评价cron设置")
+    @GetMapping("auto-comment-cron")
+    public Result<String> getAutoCommentCron() {
+        return Result.data(orderSettingService.getAutoCommentCron());
     }
 
-    @ApiOperation(value = "设置确认收货后未评价超时自动评价时间(单位天)")
-    @PostMapping("/auto-comment-time/update")
-    public Result<Object> updateAutoCommentTime(@RequestParam Integer time) {
+    @ApiOperation(value = "设置确认收货后未评价超时自动评价cron设置")
+    @PostMapping("/auto-comment-cron/update")
+    public Result<Object> updateAutoCommentCron(@RequestParam String cron) {
         try {
-            orderSettingService.updateAutoCommentTime(time);
+            orderSettingService.updateAutoCommentCron(cron);
             return Result.success();
         } catch (IllegalArgumentException e) {
             return Result.fail(e.getMessage());
         }
     }
 
-    @ApiOperation(value = "获取订单交易完成后自动关闭交易，不能申请售后的时间(单位天)")
-    @GetMapping("auto-close-time")
-    public Result<Integer> getAutoCloseTime() {
-        return Result.data(orderSettingService.getAutoCloseTime());
+    @ApiOperation(value = "获取订单交易完成后自动关闭交易，不能申请售后的cron设置")
+    @GetMapping("auto-close-cron")
+    public Result<String> getAutoCloseCron() {
+        return Result.data(orderSettingService.getAutoCloseCron());
     }
 
-    @ApiOperation(value = "设置订单交易完成后自动关闭交易，不能申请售后的时间(单位天)")
-    @PostMapping("/auto-close-time/update")
-    public Result<Object> updateAutoCloseTime(@RequestParam Integer time) {
+    @ApiOperation(value = "设置订单交易完成后自动关闭交易，不能申请售后的cron")
+    @PostMapping("/auto-close-cron/update")
+    public Result<Object> updateAutoCloseCron(@RequestParam String cron) {
         try {
-            orderSettingService.updateAutoCloseTime(time);
+            orderSettingService.updateAutoCloseCron(cron);
             return Result.success();
         } catch (IllegalArgumentException e) {
             return Result.fail(e.getMessage());

@@ -22,43 +22,43 @@ public interface OrderSettingService {
     void updateUnPayTimeOut(Integer time) throws IllegalArgumentException;
 
     /**
-     * 获取发货未确认收货超时自动确认时间(单位天)
-     * @return 发货未确认收货超时自动确认时间
+     * 获取发货未确认收货超时自动确认cron设置
+     * @return 发货未确认收货超时自动确认cron设置
      */
-    Integer getAutoConfirmReceiveTime();
+    String getAutoConfirmReceiveCron();
 
     /**
-     * 设置发货未确认收货超时自动确认时间(单位天)
-     * @param time 发货未确认收货超时自动确认时间
-     * @throws IllegalArgumentException 时间不合法
+     * 设置发货未确认收货超时自动确认cron设置
+     * @param cron 发货未确认收货超时自动确认cron设置
+     * @throws IllegalArgumentException cron不合法
      */
-    void updateAutoConfirmReceiveTime(Integer time) throws IllegalArgumentException;
+    void updateAutoConfirmReceiveCron(String cron) throws IllegalArgumentException;
 
     /**
-     * 获取确认收货后未评价超时自动评价时间(单位天)
-     * @return 确认收货后未评价超时自动评价时间
+     * 获取确认收货后未评价超时自动评价cron设置
+     * @return 确认收货后未评价超时自动评价cron设置
      */
-    Integer getAutoCommentTime();
+    String getAutoCommentCron();
 
     /**
-     * 设置确认收货后未评价超时自动评价时间(单位天)
-     * @param time 确认收货后未评价超时自动评价时间
-     * @throws IllegalArgumentException 时间不合法
+     * 设置确认收货后未评价超时自动评价cron设置
+     * @param cron 确认收货后未评价超时自动评价cron设置
+     * @throws IllegalArgumentException cron不合法
      */
-    void updateAutoCommentTime(Integer time) throws IllegalArgumentException;
+    void updateAutoCommentCron(String cron) throws IllegalArgumentException;
 
     /**
-     * 获取订单交易完成后自动关闭交易，不能申请售后的时间(单位天)
-     * @return 获取订单交易完成后自动关闭交易，不能申请售后的时间
+     * 获取订单交易完成后自动关闭交易，不能申请售后的cron设置
+     * @return 订单交易完成后自动关闭交易，不能申请售后的cron设置
      */
-    Integer getAutoCloseTime();
+    String getAutoCloseCron();
 
     /**
-     * 设置订单交易完成后自动关闭交易，不能申请售后的时间(单位天)
-     * @param time 订单交易完成后自动关闭交易，不能申请售后的时间
-     * @throws IllegalArgumentException 时间不合法
+     * 设置订单交易完成后自动关闭交易，不能申请售后的cron设置
+     * @param cron 订单交易完成后自动关闭交易，不能申请售后的cron设置
+     * @throws IllegalArgumentException cron不合法
      */
-    void updateAutoCloseTime(Integer time) throws IllegalArgumentException;
+    void updateAutoCloseCron(String cron) throws IllegalArgumentException;
 
     /**
      * 获取全部订单设置

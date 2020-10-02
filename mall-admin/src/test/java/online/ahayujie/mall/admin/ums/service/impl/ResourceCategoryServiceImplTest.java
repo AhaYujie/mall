@@ -37,6 +37,7 @@ class ResourceCategoryServiceImplTest {
 
     @Test
     void listAll() {
+        // TODO:修复依赖资源分类数据库数据的BUG
         List<ResourceCategory> resourceCategories = resourceCategoryService.listAll();
         assertDoesNotThrow(() -> {
             int sort = resourceCategories.get(0).getSort();

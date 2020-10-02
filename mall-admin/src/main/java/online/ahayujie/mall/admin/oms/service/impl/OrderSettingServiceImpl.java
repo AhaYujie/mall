@@ -4,6 +4,7 @@ import online.ahayujie.mall.admin.bean.model.Dict;
 import online.ahayujie.mall.admin.mapper.DictMapper;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderSettingDTO;
 import online.ahayujie.mall.admin.oms.service.OrderSettingService;
+import org.quartz.CronExpression;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -48,60 +49,36 @@ public class OrderSettingServiceImpl implements OrderSettingService {
     }
 
     @Override
-    public Integer getAutoConfirmReceiveTime() {
+    public String getAutoConfirmReceiveCron() {
         Dict dict = dictMapper.selectByCodeAndDictKey(CODE, AUTO_CONFIRM_RECEIVE_TIME_KEY);
-        return Integer.valueOf(dict.getDictValue());
+        return dict.getDictValue();
     }
 
     @Override
-    public void updateAutoConfirmReceiveTime(Integer time) throws IllegalArgumentException {
-        if (time <= 0) {
-            throw new IllegalArgumentException("发货未确认收货超时自动确认时间小于等于0");
-        }
-        Dict dict = new Dict();
-        dict.setCode(CODE);
-        dict.setDictKey(AUTO_CONFIRM_RECEIVE_TIME_KEY);
-        dict.setDictValue(time.toString());
-        dict.setUpdateTime(new Date());
-        dictMapper.updateByCodeAndDictKey(dict);
+    public void updateAutoConfirmReceiveCron(String cron) throws IllegalArgumentException {
+        updateCronSetting(cron, AUTO_CONFIRM_RECEIVE_TIME_KEY);
     }
 
     @Override
-    public Integer getAutoCommentTime() {
+    public String getAutoCommentCron() {
         Dict dict = dictMapper.selectByCodeAndDictKey(CODE, AUTO_COMMENT_TIME_KEY);
-        return Integer.valueOf(dict.getDictValue());
+        return dict.getDictValue();
     }
 
     @Override
-    public void updateAutoCommentTime(Integer time) throws IllegalArgumentException {
-        if (time <= 0) {
-            throw new IllegalArgumentException("确认收货后未评价超时自动评价时间小于等于0");
-        }
-        Dict dict = new Dict();
-        dict.setCode(CODE);
-        dict.setDictKey(AUTO_COMMENT_TIME_KEY);
-        dict.setDictValue(time.toString());
-        dict.setUpdateTime(new Date());
-        dictMapper.updateByCodeAndDictKey(dict);
+    public void updateAutoCommentCron(String cron) throws IllegalArgumentException {
+        updateCronSetting(cron, AUTO_COMMENT_TIME_KEY);
     }
 
     @Override
-    public Integer getAutoCloseTime() {
+    public String getAutoCloseCron() {
         Dict dict = dictMapper.selectByCodeAndDictKey(CODE, AUTO_CLOSE_TIME_KEY);
-        return Integer.valueOf(dict.getDictValue());
+        return dict.getDictValue();
     }
 
     @Override
-    public void updateAutoCloseTime(Integer time) throws IllegalArgumentException {
-        if (time <= 0) {
-            throw new IllegalArgumentException("订单交易完成后自动关闭交易，不能申请售后的时间小于等于0");
-        }
-        Dict dict = new Dict();
-        dict.setCode(CODE);
-        dict.setDictKey(AUTO_CLOSE_TIME_KEY);
-        dict.setDictValue(time.toString());
-        dict.setUpdateTime(new Date());
-        dictMapper.updateByCodeAndDictKey(dict);
+    public void updateAutoCloseCron(String cron) throws IllegalArgumentException {
+        updateCronSetting(cron, AUTO_CLOSE_TIME_KEY);
     }
 
     @Override
@@ -116,16 +93,28 @@ public class OrderSettingServiceImpl implements OrderSettingService {
                     orderSettingDTO.setUnPayTimeOut(Integer.valueOf(dict.getDictValue()));
                     break;
                 case AUTO_CONFIRM_RECEIVE_TIME_KEY:
-                    orderSettingDTO.setAutoConfirmReceiveTime(Integer.valueOf(dict.getDictValue()));
+                    orderSettingDTO.setAutoConfirmReceiveCron(dict.getDictValue());
                     break;
                 case AUTO_COMMENT_TIME_KEY:
-                    orderSettingDTO.setAutoCommentTime(Integer.valueOf(dict.getDictValue()));
+                    orderSettingDTO.setAutoCommentCron(dict.getDictValue());
                     break;
                 case AUTO_CLOSE_TIME_KEY:
-                    orderSettingDTO.setAutoCloseTime(Integer.valueOf(dict.getDictValue()));
+                    orderSettingDTO.setAutoCloseCron(dict.getDictValue());
                     break;
             }
         }
         return orderSettingDTO;
+    }
+
+    private void updateCronSetting(String cron, String dictKey) {
+        if (!CronExpression.isValidExpression(cron)) {
+            throw new IllegalArgumentException("cron表达式不合法");
+        }
+        Dict dict = new Dict();
+        dict.setCode(CODE);
+        dict.setDictKey(dictKey);
+        dict.setDictValue(cron);
+        dict.setUpdateTime(new Date());
+        dictMapper.updateByCodeAndDictKey(dict);
     }
 }
