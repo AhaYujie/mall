@@ -10,6 +10,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
+import java.util.List;
+
 /**
  * <p>
  * 订单表 Mapper 接口
@@ -38,4 +41,20 @@ public interface OrderMapper extends BaseMapper<Order> {
      * @return 订单状态
      */
     Integer selectOrderStatus(Long id);
+
+    /**
+     * 根据订单状态和小于time的deliveryTime查找订单id
+     * @param status 订单状态
+     * @param time 日期
+     * @return 订单id
+     */
+    List<Long> selectByStatusAndBeforeDeliveryTime(@Param("status") Integer status, @Param("time") Date time);
+
+    /**
+     * 根据订单状态和小于time的receiveTime查找订单id
+     * @param status 订单状态
+     * @param time 日期
+     * @return 订单id
+     */
+    List<Long> selectByStatusAndBeforeReceiveTime(@Param("status") Integer status, @Param("time") Date time);
 }

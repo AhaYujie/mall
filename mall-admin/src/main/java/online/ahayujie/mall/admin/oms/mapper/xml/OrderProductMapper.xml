@@ -40,4 +40,11 @@
         where order_id = #{orderId}
     </select>
 
+    <select id="selectByOrderIdAndIsComment" resultType="java.lang.Long">
+        select
+            id
+        from oms_order_product
+        where order_id = #{orderId} and is_comment = #{isComment}
+    </select>
+
 </mapper>

@@ -86,4 +86,18 @@
         where id = #{id}
     </select>
 
+    <select id="selectByStatusAndBeforeDeliveryTime" resultType="java.lang.Long">
+        select
+            id
+        from oms_order
+        where status = #{status} and delivery_time &lt; #{time}
+    </select>
+
+    <select id="selectByStatusAndBeforeReceiveTime" resultType="java.lang.Long">
+        select
+            id
+        from oms_order
+        where status = #{status} and receive_time &lt; #{time}
+    </select>
+
 </mapper>

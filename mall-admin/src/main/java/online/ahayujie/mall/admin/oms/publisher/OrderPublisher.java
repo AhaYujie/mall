@@ -80,4 +80,24 @@ public interface OrderPublisher {
      * @param msgDTO 完成订单退货退款消息
      */
     void publishReturnCompleteMsg(OrderReturnCompleteMsgDTO msgDTO);
+
+    /**
+     * 发送订单确认收货消息到消息队列。
+     * exchange为 {@link RabbitmqConfig#ORDER_CONFIRM_RECEIVE_EXCHANGE}
+     *
+     * @param msgDTO 订单确认收货消息
+     */
+    void publishConfirmReceiveMsg(OrderConfirmReceiveMsgDTO msgDTO);
+
+    /**
+     * 发送订单关闭消息到消息队列
+     * @param msgDTO 订单关闭消息
+     */
+    void publishCloseMsg(OrderCloseMsgDTO msgDTO);
+
+    /**
+     * 发送评价订单消息到消息队列
+     * @param msgDTO 评价订单消息
+     */
+    void publishCommentMsg(OrderCommentMsgDTO msgDTO);
 }

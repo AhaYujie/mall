@@ -67,4 +67,39 @@ public interface OrderState {
      * @throws UnsupportedOperationException 当前订单状态不支持此操作
      */
     void completeAfterSale(OrderContext orderContext, Long orderId, List<Long> orderProductIds) throws UnsupportedOperationException;
+
+    /**
+     * 订单确认收货。
+     * 操作成功后发送消息到消息队列。
+     *
+     * @param orderContext orderContext
+     * @param orderId 订单id
+     * @throws UnsupportedOperationException 当前订单状态不支持此操作
+     */
+    void confirmReceive(OrderContext orderContext, Long orderId) throws UnsupportedOperationException;
+
+    /**
+     * 关闭订单。
+     * 操作成功后发送消息到消息队列。
+     *
+     * @param orderContext orderContext
+     * @param orderId 订单id
+     * @throws UnsupportedOperationException 当前订单状态不支持此操作
+     */
+    void closeOrder(OrderContext orderContext, Long orderId) throws UnsupportedOperationException;
+
+    /**
+     * 评价订单。
+     * 操作成功后发送消息到消息队列。
+     *
+     * @param orderContext orderContext
+     * @param orderId 订单id
+     * @param orderProductIds 订单商品id
+     * @param content 评价内容
+     * @param pics 评价图片
+     * @param star 评价星数
+     * @throws UnsupportedOperationException 当前订单状态不支持此操作
+     */
+    void comment(OrderContext orderContext, Long orderId, List<Long> orderProductIds, String content, String pics, Integer star)
+            throws UnsupportedOperationException;
 }

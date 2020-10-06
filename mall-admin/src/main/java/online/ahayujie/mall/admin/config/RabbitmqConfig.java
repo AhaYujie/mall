@@ -51,6 +51,12 @@ public class RabbitmqConfig {
 
     public static final String ORDER_RETURN_COMPLETE_EXCHANGE = "order.return.complete";
 
+    public static final String ORDER_CONFIRM_RECEIVE_EXCHANGE = "order.confirm.receive";
+
+    public static final String ORDER_CLOSE_EXCHANGE = "order.close";
+
+    public static final String ORDER_COMMENT_EXCHANGE = "order.comment";
+
     @Bean
     public FanoutExchange productCategoryUpdateFanoutExchange() {
         return new FanoutExchange(PRODUCT_CATEGORY_UPDATE_EXCHANGE, true, false);
@@ -215,5 +221,20 @@ public class RabbitmqConfig {
     @Bean
     public FanoutExchange orderReturnCompleteExchange() {
         return new FanoutExchange(ORDER_RETURN_COMPLETE_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public FanoutExchange orderConfirmReceiveExchange() {
+        return new FanoutExchange(ORDER_CONFIRM_RECEIVE_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public FanoutExchange orderCloseExchange() {
+        return new FanoutExchange(ORDER_CLOSE_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public FanoutExchange orderCommentExchange() {
+        return new FanoutExchange(ORDER_COMMENT_EXCHANGE, true, false);
     }
 }

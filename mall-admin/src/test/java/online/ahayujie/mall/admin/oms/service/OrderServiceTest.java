@@ -517,4 +517,139 @@ class OrderServiceTest {
         orderMapper.insert(order2);
         orderService.completeAfterSale(order2.getId(), new ArrayList<>());
     }
+
+    @Test
+    void getOrderNeedToAutoConfirmReceive() {
+        long aDay = 1000 * 60 * 60 * 24;
+        Date now = new Date();
+        // deliverTime在now之前的订单
+        List<Long> before = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Order order = new Order();
+            order.setMemberId(1L);
+            order.setStatus(Order.Status.DELIVERED.getValue());
+            order.setDeliveryTime(new Date(now.getTime() - aDay));
+            orderMapper.insert(order);
+            before.add(order.getId());
+        }
+        // deliverTime在now之后的订单
+        List<Long> after = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Order order = new Order();
+            order.setMemberId(1L);
+            order.setStatus(Order.Status.DELIVERED.getValue());
+            order.setDeliveryTime(new Date(now.getTime() + aDay));
+            orderMapper.insert(order);
+            after.add(order.getId());
+        }
+        // deliverTime在now之前但是状态不是已发货的订单
+        List<Long> notDeliverd = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Order order = new Order();
+            order.setMemberId(1L);
+            order.setStatus(Order.Status.UN_DELIVER.getValue());
+            order.setDeliveryTime(new Date(now.getTime() - aDay));
+            orderMapper.insert(order);
+            notDeliverd.add(order.getId());
+        }
+
+        List<Long> ids = orderService.getOrderNeedToAutoConfirmReceive(now);
+        assertTrue(ids.containsAll(before));
+        for (Long id : after) {
+            assertFalse(ids.contains(id));
+        }
+        for (Long id : notDeliverd) {
+            assertFalse(ids.contains(id));
+        }
+    }
+
+    @Test
+    void getOrderNeedToAutoClose() {
+        long aDay = 1000 * 60 * 60 * 24;
+        Date now = new Date();
+        // receive_time在now之前的订单
+        List<Long> before = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Order order = new Order();
+            order.setMemberId(1L);
+            order.setStatus(Order.Status.COMPLETE.getValue());
+            order.setReceiveTime(new Date(now.getTime() - aDay));
+            orderMapper.insert(order);
+            before.add(order.getId());
+        }
+        // receive_time在now之后的订单
+        List<Long> after = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Order order = new Order();
+            order.setMemberId(1L);
+            order.setStatus(Order.Status.COMPLETE.getValue());
+            order.setReceiveTime(new Date(now.getTime() + aDay));
+            orderMapper.insert(order);
+            after.add(order.getId());
+        }
+        // receive_time在now之前但是状态不是已完成的订单
+        List<Long> notComplete = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Order order = new Order();
+            order.setMemberId(1L);
+            order.setStatus(Order.Status.UN_COMMENT.getValue());
+            order.setReceiveTime(new Date(now.getTime() - aDay));
+            orderMapper.insert(order);
+            notComplete.add(order.getId());
+        }
+
+        List<Long> ids = orderService.getOrderNeedToAutoClose(now);
+        assertTrue(ids.containsAll(before));
+        for (Long id : after) {
+            assertFalse(ids.contains(id));
+        }
+        for (Long id : notComplete) {
+            assertFalse(ids.contains(id));
+        }
+    }
+
+    @Test
+    void getOrderNeedToAutoComment() {
+        long aDay = 1000 * 60 * 60 * 24;
+        Date now = new Date();
+        // receive_time在now之前的订单
+        List<Long> before = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Order order = new Order();
+            order.setMemberId(1L);
+            order.setStatus(Order.Status.UN_COMMENT.getValue());
+            order.setReceiveTime(new Date(now.getTime() - aDay));
+            orderMapper.insert(order);
+            before.add(order.getId());
+        }
+        // receive_time在now之后的订单
+        List<Long> after = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Order order = new Order();
+            order.setMemberId(1L);
+            order.setStatus(Order.Status.UN_COMMENT.getValue());
+            order.setReceiveTime(new Date(now.getTime() + aDay));
+            orderMapper.insert(order);
+            after.add(order.getId());
+        }
+        // receive_time在now之前但是状态不是已完成的订单
+        List<Long> notComplete = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Order order = new Order();
+            order.setMemberId(1L);
+            order.setStatus(Order.Status.DELIVERED.getValue());
+            order.setReceiveTime(new Date(now.getTime() - aDay));
+            orderMapper.insert(order);
+            notComplete.add(order.getId());
+        }
+
+        List<Long> ids = orderService.getOrderNeedToAutoComment(now);
+        assertTrue(ids.containsAll(before));
+        for (Long id : after) {
+            assertFalse(ids.contains(id));
+        }
+        for (Long id : notComplete) {
+            assertFalse(ids.contains(id));
+        }
+    }
 }

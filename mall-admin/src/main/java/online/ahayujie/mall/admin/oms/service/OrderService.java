@@ -10,6 +10,7 @@ import online.ahayujie.mall.common.api.CommonPage;
 import org.springframework.amqp.core.Message;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -117,4 +118,63 @@ public interface OrderService {
      * @throws IOException 确认消息失败
      */
     void listenMemberCancel(Channel channel, Message message) throws IOException;
+
+    /**
+     * 获取需要自动确认收货的订单id
+     * @param time 在这个日期之前发货的订单
+     * @return 订单id
+     */
+    List<Long> getOrderNeedToAutoConfirmReceive(Date time);
+
+    /**
+     * 订单确认收货
+     * 
+     * @see OrderContext#confirmReceive(Long) 
+     * @param orderId 订单id
+     * @throws UnsupportedOperationException 当前订单不支持此操作
+     */
+    void confirmReceive(Long orderId) throws UnsupportedOperationException;
+
+    /**
+     * 获取需要自动关闭的订单
+     * @param time 在这个日期前收货的订单
+     * @return 订单id
+     */
+    List<Long> getOrderNeedToAutoClose(Date time);
+
+    /**
+     * 关闭订单。
+     * 
+     * @see OrderContext#closeOrder(Long) 
+     * @param orderId 订单id
+     * @throws UnsupportedOperationException 当前订单不支持此操作
+     */
+    void closeOrder(Long orderId) throws UnsupportedOperationException;
+
+    /**
+     * 获取需要自动评价的订单
+     * @param time 在这个日期前收货的订单
+     * @return 订单id
+     */
+    List<Long> getOrderNeedToAutoComment(Date time);
+
+    /**
+     * 获取未评价的订单商品
+     * @param orderId 订单id
+     * @return 订单商品id
+     */
+    List<Long> getUnCommentOrderProduct(Long orderId);
+
+    /**
+     * 评价订单商品。
+     *
+     * @see OrderContext#comment(Long, List, String, String, Integer)
+     * @param orderId 订单id
+     * @param orderProductIds 订单商品id
+     * @param content 评价内容
+     * @param pics 评价图片
+     * @param star 评价星数
+     * @throws UnsupportedOperationException 当前订单不支持此操作
+     */
+    void comment(Long orderId, List<Long> orderProductIds, String content, String pics, Integer star) throws UnsupportedOperationException;
 }

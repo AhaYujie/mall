@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.admin.pms.mapper.CommentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.admin.pms.bean.model.Comment">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="product_id" property="productId" />
+        <result column="member_id" property="memberId" />
+        <result column="member_nickname" property="memberNickname" />
+        <result column="member_icon" property="memberIcon" />
+        <result column="product_name" property="productName" />
+        <result column="specification" property="specification" />
+        <result column="content" property="content" />
+        <result column="pics" property="pics" />
+        <result column="star" property="star" />
+        <result column="collect_count" property="collectCount" />
+        <result column="read_count" property="readCount" />
+        <result column="replay_count" property="replayCount" />
+        <result column="is_show" property="isShow" />
+    </resultMap>
+
+</mapper>

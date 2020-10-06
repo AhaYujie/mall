@@ -115,4 +115,19 @@ public abstract class AbstractOrderState implements OrderState {
     public void completeAfterSale(OrderContext orderContext, Long orderId, List<Long> orderProductIds) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void confirmReceive(OrderContext orderContext, Long orderId) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void closeOrder(OrderContext orderContext, Long orderId) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void comment(OrderContext orderContext, Long orderId, List<Long> orderProductIds, String content, String pics, Integer star) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -3,6 +3,7 @@ package online.ahayujie.mall.admin.oms.bean.model;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
+import lombok.ToString;
 import online.ahayujie.mall.common.bean.model.Base;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -22,6 +23,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @Accessors(chain = true)
 @TableName("oms_order")
 @ApiModel(value="Order对象", description="订单表")

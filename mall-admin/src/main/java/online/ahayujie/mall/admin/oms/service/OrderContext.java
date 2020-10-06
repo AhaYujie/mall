@@ -78,6 +78,43 @@ public class OrderContext {
         orderState.completeAfterSale(this, orderId, orderProductIds);
     }
 
+    /**
+     * 订单确认收货。
+     * 操作成功后发送消息到消息队列。
+     *
+     * @param orderId 订单id
+     * @throws UnsupportedOperationException 当前订单状态不支持此操作
+     */
+    public void confirmReceive(Long orderId) throws UnsupportedOperationException {
+        orderState.confirmReceive(this, orderId);
+    }
+
+    /**
+     * 关闭订单。
+     * 操作成功后发送消息到消息队列。
+     *
+     * @param orderId 订单id
+     * @throws UnsupportedOperationException 当前订单状态不支持此操作
+     */
+    public void closeOrder(Long orderId) throws UnsupportedOperationException {
+        orderState.closeOrder(this, orderId);
+    }
+
+    /**
+     * 评价订单。
+     * 操作成功后发送消息到消息队列。
+     *
+     * @param orderId 订单id
+     * @param orderProductIds 订单商品id
+     * @param content 评价内容
+     * @param pics 评价图片
+     * @param star 评价星数
+     * @throws UnsupportedOperationException 当前订单状态不支持此操作
+     */
+    public void comment(Long orderId, List<Long> orderProductIds, String content, String pics, Integer star)
+            throws UnsupportedOperationException {
+        orderState.comment(this, orderId, orderProductIds, content, pics, star);
+    }
 
     public void setOrderState(OrderState orderState) {
         this.orderState = orderState;

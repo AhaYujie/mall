@@ -297,6 +297,47 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @Override
+    public List<Long> getOrderNeedToAutoConfirmReceive(Date time) {
+        return orderMapper.selectByStatusAndBeforeDeliveryTime(Order.Status.DELIVERED.getValue(), time);
+    }
+
+    @Override
+    public void confirmReceive(Long orderId) throws UnsupportedOperationException {
+        Integer status = orderMapper.selectOrderStatus(orderId);
+        OrderContext orderContext = orderContextFactory.getOrderContext(status);
+        orderContext.confirmReceive(orderId);
+    }
+
+    @Override
+    public List<Long> getOrderNeedToAutoClose(Date time) {
+        return orderMapper.selectByStatusAndBeforeReceiveTime(Order.Status.COMPLETE.getValue(), time);
+    }
+
+    @Override
+    public void closeOrder(Long orderId) throws UnsupportedOperationException {
+        Integer status = orderMapper.selectOrderStatus(orderId);
+        OrderContext orderContext = orderContextFactory.getOrderContext(status);
+        orderContext.closeOrder(orderId);
+    }
+
+    @Override
+    public List<Long> getOrderNeedToAutoComment(Date time) {
+        return orderMapper.selectByStatusAndBeforeReceiveTime(Order.Status.UN_COMMENT.getValue(), time);
+    }
+
+    @Override
+    public List<Long> getUnCommentOrderProduct(Long orderId) {
+        return orderProductMapper.selectByOrderIdAndIsComment(orderId, OrderProduct.UN_COMMENT);
+    }
+
+    @Override
+    public void comment(Long orderId, List<Long> orderProductIds, String content, String pics, Integer star) throws UnsupportedOperationException {
+        Integer status = orderMapper.selectOrderStatus(orderId);
+        OrderContext orderContext = orderContextFactory.getOrderContext(status);
+        orderContext.comment(orderId, orderProductIds, content, pics, star);
+    }
+
     @Autowired
     public void setSkuService(SkuService skuService) {
         this.skuService = skuService;

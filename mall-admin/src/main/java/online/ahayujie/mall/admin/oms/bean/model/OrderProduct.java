@@ -25,6 +25,9 @@ import lombok.experimental.Accessors;
 @TableName("oms_order_product")
 @ApiModel(value="OrderProduct对象", description="订单中的商品")
 public class OrderProduct extends Base {
+    public static final int UN_COMMENT = 0;
+    public static final int COMMENT = 1;
+
     public enum Status {
         /**
          * 未购买

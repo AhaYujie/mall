@@ -164,6 +164,46 @@ public class OrderPublisherImpl implements OrderPublisher {
         }
     }
 
+    @Async
+    @Override
+    public void publishConfirmReceiveMsg(OrderConfirmReceiveMsgDTO msgDTO) {
+        try {
+            String message = objectMapper.writeValueAsString(msgDTO);
+            String exchange = RabbitmqConfig.ORDER_CONFIRM_RECEIVE_EXCHANGE;
+            CorrelationData correlationData = mqService.generateCorrelationData(exchange, "", message);
+            rabbitTemplate.convertAndSend(exchange, "", message, correlationData);
+        } catch (JsonProcessingException e) {
+            log.warn(e.getMessage());
+            log.warn(Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+    @Override
+    public void publishCloseMsg(OrderCloseMsgDTO msgDTO) {
+        try {
+            String message = objectMapper.writeValueAsString(msgDTO);
+            String exchange = RabbitmqConfig.ORDER_CLOSE_EXCHANGE;
+            CorrelationData correlationData = mqService.generateCorrelationData(exchange, "", message);
+            rabbitTemplate.convertAndSend(exchange, "", message, correlationData);
+        } catch (JsonProcessingException e) {
+            log.warn(e.getMessage());
+            log.warn(Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+    @Override
+    public void publishCommentMsg(OrderCommentMsgDTO msgDTO) {
+        try {
+            String message = objectMapper.writeValueAsString(msgDTO);
+            String exchange = RabbitmqConfig.ORDER_COMMENT_EXCHANGE;
+            CorrelationData correlationData = mqService.generateCorrelationData(exchange, "", message);
+            rabbitTemplate.convertAndSend(exchange, "", message, correlationData);
+        } catch (JsonProcessingException e) {
+            log.warn(e.getMessage());
+            log.warn(Arrays.toString(e.getStackTrace()));
+        }
+    }
+
     @Autowired
     public void setMqService(MqService mqService) {
         this.mqService = mqService;
