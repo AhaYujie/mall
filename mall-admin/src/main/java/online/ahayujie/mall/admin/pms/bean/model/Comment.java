@@ -24,6 +24,8 @@ import lombok.experimental.Accessors;
 @TableName("pms_comment")
 @ApiModel(value="Comment对象", description="商品评价表")
 public class Comment extends Base {
+    public static final int HIDE = 0;
+    public static final int SHOW = 1;
 
     private static final long serialVersionUID = 1L;
 

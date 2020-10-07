@@ -22,4 +22,12 @@
         <result column="is_show" property="isShow" />
     </resultMap>
 
+    <select id="selectPageByProductId" resultMap="BaseResultMap">
+        select
+            id, update_time, create_time, product_id, member_id, member_nickname, member_icon, product_name,
+            specification, content, pics, star, collect_count, read_count, replay_count, is_show
+        from pms_comment
+        where product_id = #{productId}
+    </select>
+
 </mapper>

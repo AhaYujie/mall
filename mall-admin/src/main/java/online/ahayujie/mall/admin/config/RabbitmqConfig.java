@@ -25,6 +25,8 @@ public class RabbitmqConfig {
 
     public static final String PRODUCT_UPDATE_EXCHANGE = "product.update";
 
+    public static final String PRODUCT_COMMENT_REPLY_EXCHANGE = "product.comment.reply";
+
     public static final String ORDER_CANCEL_EXCHANGE = "order.cancel";
     public static final String ORDER_TIMEOUT_CANCEL_QUEUE = "order.timeout.cancel";
     public static final String ORDER_TIMEOUT_CANCEL_ROUTING_KEY = "order.timeout.cancel";
@@ -236,5 +238,10 @@ public class RabbitmqConfig {
     @Bean
     public FanoutExchange orderCommentExchange() {
         return new FanoutExchange(ORDER_COMMENT_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public FanoutExchange productCommentReplyExchange() {
+        return new FanoutExchange(PRODUCT_COMMENT_REPLY_EXCHANGE, true, false);
     }
 }
