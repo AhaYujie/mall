@@ -20,7 +20,6 @@ import java.util.Collection;
  * @date 2020/6/7
  */
 @Slf4j
-@Component
 public class DynamicAccessDecisionManager implements AccessDecisionManager {
     private DynamicSecurityService dynamicSecurityService;
 

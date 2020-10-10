@@ -21,7 +21,6 @@ import java.io.IOException;
  * @author aha
  * @date 2020/6/7
  */
-@Component
 public class DynamicSecurityFilter extends AbstractSecurityInterceptor implements Filter {
     private IgnoreUrlsConfig ignoreUrlsConfig;
     private DynamicSecurityMetadataSource dynamicSecurityMetadataSource;

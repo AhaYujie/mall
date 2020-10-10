@@ -14,7 +14,6 @@ import java.util.Collection;
  * @author aha
  * @date 2020/6/7
  */
-@Component
 public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
     private DynamicSecurityService dynamicSecurityService;
 

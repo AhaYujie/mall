@@ -7,8 +7,11 @@ import online.ahayujie.mall.security.component.JwtAuthenticationEntryPoint;
 import online.ahayujie.mall.security.jwt.JwtConfigurer;
 import online.ahayujie.mall.security.jwt.JwtUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,26 +22,23 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  * @author aha
  * @date 2020/3/25
  */
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
     private JwtConfigurer jwtConfigurer;
 
-    @Autowired
     private IgnoreUrlsConfig ignoreUrlsConfig;
 
     @Autowired
     private JwtUserDetailService jwtUserDetailService;
 
-    @Autowired(required = false)
     private DynamicSecurityFilter dynamicSecurityFilter;
 
-    @Autowired(required = false)
     private DynamicSecurityService dynamicSecurityService;
 
-    @Autowired
     private JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
-    @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Autowired
@@ -75,6 +75,35 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .apply(jwtConfigurer);
     }
 
+    @Autowired
+    public void setJwtConfigurer(JwtConfigurer jwtConfigurer) {
+        this.jwtConfigurer = jwtConfigurer;
+    }
+
+    @Autowired
+    public void setIgnoreUrlsConfig(IgnoreUrlsConfig ignoreUrlsConfig) {
+        this.ignoreUrlsConfig = ignoreUrlsConfig;
+    }
+
+    @Autowired(required = false)
+    public void setDynamicSecurityFilter(DynamicSecurityFilter dynamicSecurityFilter) {
+        this.dynamicSecurityFilter = dynamicSecurityFilter;
+    }
+
+    @Autowired(required = false)
+    public void setDynamicSecurityService(DynamicSecurityService dynamicSecurityService) {
+        this.dynamicSecurityService = dynamicSecurityService;
+    }
+
+    @Autowired
+    public void setJwtAccessDeniedHandler(JwtAccessDeniedHandler jwtAccessDeniedHandler) {
+        this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
+    }
+
+    @Autowired
+    public void setJwtAuthenticationEntryPoint(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+    }
 }
 
 

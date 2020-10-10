@@ -1,23 +1,29 @@
 package online.ahayujie.mall.admin.config;
 
-import online.ahayujie.mall.security.config.WebSecurityConfig;
-import online.ahayujie.mall.security.jwt.JwtUserDetailService;
+import online.ahayujie.mall.security.component.DynamicAccessDecisionManager;
+import online.ahayujie.mall.security.component.DynamicSecurityFilter;
+import online.ahayujie.mall.security.component.DynamicSecurityMetadataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
-import java.util.List;
 
 /**
  * @author aha
  * @date 2020/6/4
  */
 @Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class AdminSecurityConfig extends WebSecurityConfig {
+public class AdminSecurityConfig {
+    @Bean
+    public DynamicSecurityFilter dynamicSecurityFilter() {
+        return new DynamicSecurityFilter();
+    }
+
+    @Bean
+    public DynamicSecurityMetadataSource dynamicSecurityMetadataSource() {
+        return new DynamicSecurityMetadataSource();
+    }
+
+    @Bean
+    public DynamicAccessDecisionManager dynamicAccessDecisionManager() {
+        return new DynamicAccessDecisionManager();
+    }
 }
