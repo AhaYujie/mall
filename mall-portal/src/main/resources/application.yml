@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: dev
+
+mybatis-plus:
+  mapper-locations: classpath*:online/ahayujie/**/*.xml
+
+secure:
+  ignored:
+    urls:
+      - /member/register
+      - /member/login
+      - /member/refresh-access-token
