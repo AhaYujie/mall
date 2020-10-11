@@ -1,6 +1,7 @@
 package online.ahayujie.mall.portal.mms.service.impl;
 
 import io.jsonwebtoken.Claims;
+import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.portal.mms.bean.dto.MemberLoginDTO;
 import online.ahayujie.mall.portal.mms.bean.dto.MemberLoginParam;
 import online.ahayujie.mall.portal.mms.bean.dto.MemberRegisterParam;
@@ -13,6 +14,7 @@ import online.ahayujie.mall.portal.mms.service.MemberService;
 import online.ahayujie.mall.security.jwt.TokenProvider;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
@@ -22,7 +24,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -33,9 +39,15 @@ import java.util.*;
  * @author aha
  * @since 2020-10-09
  */
+@Slf4j
 @Service
 public class MemberServiceImpl implements MemberService {
     private TokenProvider tokenProvider;
+
+    @Value("${jwt.header}")
+    private String jwtHeader;
+    @Value("${jwt.header-prefix}")
+    private String jwtHeaderPrefix;
 
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
@@ -96,6 +108,38 @@ public class MemberServiceImpl implements MemberService {
         memberLoginDTO.setRefreshToken(refreshToken);
         memberLoginDTO.setExpireIn(tokenProvider.getAccessTokenValidityInSeconds());
         return memberLoginDTO;
+    }
+
+    @Override
+    public Member getMemberFromToken() {
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (servletRequestAttributes == null) {
+            return null;
+        }
+        HttpServletRequest request = servletRequestAttributes.getRequest();
+        String bearerToken = request.getHeader(jwtHeader);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(jwtHeaderPrefix)) {
+            return getMemberFromToken(bearerToken.substring(jwtHeaderPrefix.length()));
+        }
+        return null;
+    }
+
+    @Override
+    public Member getMemberFromToken(String token) {
+        Claims claims;
+        try {
+            claims = tokenProvider.getClaimsFromAccessToken(token);
+        } catch (Exception e) {
+            try {
+                claims = tokenProvider.getClaimsFromRefreshToken(token);
+            } catch (Exception e1) {
+                return null;
+            }
+        }
+        Member member = new Member();
+        member.setId(claims.get("id", Long.class));
+        member.setUsername(claims.get("username", String.class));
+        return member;
     }
 
     private Map<String, Object> getClaims(MemberUserDetailsDTO memberUserDetailsDTO) {

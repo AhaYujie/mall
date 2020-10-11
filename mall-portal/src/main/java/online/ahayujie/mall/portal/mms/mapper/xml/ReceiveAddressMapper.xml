@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.portal.mms.mapper.ReceiveAddressMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.portal.mms.bean.model.ReceiveAddress">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="member_id" property="memberId" />
+        <result column="name" property="name" />
+        <result column="phone_number" property="phoneNumber" />
+        <result column="province" property="province" />
+        <result column="city" property="city" />
+        <result column="region" property="region" />
+        <result column="street" property="street" />
+        <result column="detail_address" property="detailAddress" />
+        <result column="is_default" property="isDefault" />
+    </resultMap>
+
+    <resultMap id="DTOResultMap" type="online.ahayujie.mall.portal.mms.bean.dto.ReceiveAddressDTO">
+        <result column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="phone_number" property="phoneNumber" />
+        <result column="province" property="province" />
+        <result column="city" property="city" />
+        <result column="region" property="region" />
+        <result column="street" property="street" />
+        <result column="detail_address" property="detailAddress" />
+        <result column="is_default" property="isDefault" />
+    </resultMap>
+
+    <select id="selectPageByMemberId" resultMap="DTOResultMap">
+        select
+        id, name, phone_number, province, city, region, street, detail_address, is_default
+        from mms_receive_address
+        where member_id = #{memberId}
+        order by is_default desc
+    </select>
+
+    <select id="selectDefaultByMemberId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, member_id, name, phone_number, province, city, region, street, detail_address, is_default
+        from mms_receive_address
+        where member_id = #{memberId} and is_default = #{defaultValue}
+    </select>
+
+</mapper>

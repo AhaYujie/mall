@@ -3,6 +3,7 @@ package online.ahayujie.mall.portal.mms.service;
 import online.ahayujie.mall.portal.mms.bean.dto.MemberLoginDTO;
 import online.ahayujie.mall.portal.mms.bean.dto.MemberLoginParam;
 import online.ahayujie.mall.portal.mms.bean.dto.MemberRegisterParam;
+import online.ahayujie.mall.portal.mms.bean.model.Member;
 import online.ahayujie.mall.portal.mms.exception.DuplicatePhoneException;
 import online.ahayujie.mall.portal.mms.exception.DuplicateUsernameException;
 import online.ahayujie.mall.security.jwt.JwtUserDetailService;
@@ -44,4 +45,21 @@ public interface MemberService extends JwtUserDetailService {
      * @throws IllegalArgumentException refreshToken不合法
      */
     MemberLoginDTO refreshAccessToken(String refreshToken) throws IllegalArgumentException;
+
+    /**
+     * 从http request header中的accessToken获取会员信息。
+     * 如果accessToken不存在则返回null。
+     *
+     * @return 会员，包含id和用户名。
+     */
+    Member getMemberFromToken();
+
+    /**
+     * 根据accessToken或者refreshToken获取会员信息。
+     * 如果token不合法则返回null。
+     *
+     * @param token accessToken或者refreshToken
+     * @return 会员，包含id和用户名。
+     */
+    Member getMemberFromToken(String token);
 }
