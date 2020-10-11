@@ -49,6 +49,33 @@ public class Member extends Base {
         }
     }
 
+    public enum Gender {
+        /**
+         * 未知
+         */
+        UN_KNOW(0),
+
+        /**
+         * 男
+         */
+        MALE(1),
+
+        /**
+         * 女
+         */
+        FEMALE(1)
+        ;
+        private final Integer value;
+
+        Gender(Integer value) {
+            this.value = value;
+        }
+
+        public Integer value() {
+            return value;
+        }
+    }
+
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "用户名")
@@ -67,7 +94,7 @@ public class Member extends Base {
     private String icon;
 
     @ApiModelProperty(value = "性别：0->未知；1->男；2->女")
-    private Boolean gender;
+    private Integer gender;
 
     @ApiModelProperty(value = "生日")
     private Date birthday;

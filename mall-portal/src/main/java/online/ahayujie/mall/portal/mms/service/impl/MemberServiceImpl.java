@@ -2,10 +2,7 @@ package online.ahayujie.mall.portal.mms.service.impl;
 
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
-import online.ahayujie.mall.portal.mms.bean.dto.MemberLoginDTO;
-import online.ahayujie.mall.portal.mms.bean.dto.MemberLoginParam;
-import online.ahayujie.mall.portal.mms.bean.dto.MemberRegisterParam;
-import online.ahayujie.mall.portal.mms.bean.dto.MemberUserDetailsDTO;
+import online.ahayujie.mall.portal.mms.bean.dto.*;
 import online.ahayujie.mall.portal.mms.bean.model.Member;
 import online.ahayujie.mall.portal.mms.exception.DuplicatePhoneException;
 import online.ahayujie.mall.portal.mms.exception.DuplicateUsernameException;
@@ -30,6 +27,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -140,6 +138,32 @@ public class MemberServiceImpl implements MemberService {
         member.setId(claims.get("id", Long.class));
         member.setUsername(claims.get("username", String.class));
         return member;
+    }
+
+    @Override
+    public MemberDTO getInfo() {
+        Member member = memberMapper.selectById(getMemberFromToken().getId());
+        MemberDTO memberDTO = new MemberDTO();
+        BeanUtils.copyProperties(member, memberDTO);
+        return memberDTO;
+    }
+
+    @Override
+    public void updateInfo(UpdateMemberParam param) {
+        if (param.getGender() != null) {
+            if (!Arrays.stream(Member.Gender.values())
+                    .map(Member.Gender::value)
+                    .collect(Collectors.toList())
+                    .contains(param.getGender())) {
+                throw new IllegalArgumentException("性别不合法");
+            }
+        }
+        Member member = getMemberFromToken();
+        Member update = new Member();
+        update.setId(member.getId());
+        BeanUtils.copyProperties(param, update);
+        update.setUpdateTime(new Date());
+        memberMapper.updateById(update);
     }
 
     private Map<String, Object> getClaims(MemberUserDetailsDTO memberUserDetailsDTO) {

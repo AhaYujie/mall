@@ -1,8 +1,6 @@
 package online.ahayujie.mall.portal.mms.service;
 
-import online.ahayujie.mall.portal.mms.bean.dto.MemberLoginDTO;
-import online.ahayujie.mall.portal.mms.bean.dto.MemberLoginParam;
-import online.ahayujie.mall.portal.mms.bean.dto.MemberRegisterParam;
+import online.ahayujie.mall.portal.mms.bean.dto.*;
 import online.ahayujie.mall.portal.mms.bean.model.Member;
 import online.ahayujie.mall.portal.mms.exception.DuplicatePhoneException;
 import online.ahayujie.mall.portal.mms.exception.DuplicateUsernameException;
@@ -62,4 +60,17 @@ public interface MemberService extends JwtUserDetailService {
      * @return 会员，包含id和用户名。
      */
     Member getMemberFromToken(String token);
+
+    /**
+     * 获取会员信息
+     * @return 会员信息
+     */
+    MemberDTO getInfo();
+
+    /**
+     * 更新会员信息
+     * @param param 会员信息参数
+     * @throws IllegalArgumentException 参数不合法
+     */
+    void updateInfo(UpdateMemberParam param) throws IllegalArgumentException;
 }

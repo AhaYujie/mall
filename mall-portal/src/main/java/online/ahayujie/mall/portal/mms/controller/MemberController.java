@@ -4,9 +4,7 @@ package online.ahayujie.mall.portal.mms.controller;
 import io.swagger.annotations.ApiOperation;
 import online.ahayujie.mall.common.api.Result;
 import online.ahayujie.mall.common.api.ResultCode;
-import online.ahayujie.mall.portal.mms.bean.dto.MemberLoginDTO;
-import online.ahayujie.mall.portal.mms.bean.dto.MemberLoginParam;
-import online.ahayujie.mall.portal.mms.bean.dto.MemberRegisterParam;
+import online.ahayujie.mall.portal.mms.bean.dto.*;
 import online.ahayujie.mall.portal.mms.exception.DuplicatePhoneException;
 import online.ahayujie.mall.portal.mms.exception.DuplicateUsernameException;
 import online.ahayujie.mall.portal.mms.service.MemberService;
@@ -104,6 +102,23 @@ public class MemberController {
             return Result.data(memberService.refreshAccessToken(refreshToken));
         } catch (IllegalArgumentException e) {
             return Result.fail("refreshToken不合法");
+        }
+    }
+
+    @ApiOperation(value = "获取会员信息")
+    @GetMapping("info")
+    public Result<MemberDTO> getInfo() {
+        return Result.data(memberService.getInfo());
+    }
+
+    @ApiOperation(value = "更新会员信息")
+    @PostMapping("/info/update")
+    public Result<Object> updateInfo(@RequestBody UpdateMemberParam param) {
+        try {
+            memberService.updateInfo(param);
+            return Result.success();
+        } catch (IllegalArgumentException e) {
+            return Result.fail(e.getMessage());
         }
     }
 }

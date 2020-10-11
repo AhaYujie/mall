@@ -3,15 +3,15 @@ package online.ahayujie.mall.portal.mms.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.portal.TestBase;
-import online.ahayujie.mall.portal.mms.bean.dto.MemberLoginDTO;
-import online.ahayujie.mall.portal.mms.bean.dto.MemberLoginParam;
-import online.ahayujie.mall.portal.mms.bean.dto.MemberRegisterParam;
+import online.ahayujie.mall.portal.mms.bean.dto.*;
 import online.ahayujie.mall.portal.mms.bean.model.Member;
 import online.ahayujie.mall.portal.mms.exception.DuplicatePhoneException;
 import online.ahayujie.mall.portal.mms.exception.DuplicateUsernameException;
 import online.ahayujie.mall.portal.mms.mapper.MemberMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -34,6 +35,15 @@ class MemberServiceTest extends TestBase {
     private MemberMapper memberMapper;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Value("${jwt.header}")
+    private String JWT_HEADER;
+    @Value("${jwt.header-prefix}")
+    private String JWT_HEADER_PREFIX;
+
+    @BeforeEach
+    void setUp() {
+        initMember(passwordEncoder, memberMapper, memberService, JWT_HEADER, JWT_HEADER_PREFIX);
+    }
 
     @Test
     void register() {
@@ -137,5 +147,38 @@ class MemberServiceTest extends TestBase {
 
         // illegal
         assertThrows(IllegalArgumentException.class, () -> memberService.refreshAccessToken("illegal"));
+    }
+
+    @Test
+    void getInfo() {
+        MemberDTO memberDTO = memberService.getInfo();
+        member = memberMapper.selectById(member.getId());
+        assertEquals(member.getUsername(), memberDTO.getUsername());
+        assertEquals(member.getNickname(), memberDTO.getNickname());
+        assertEquals(member.getPhone(), memberDTO.getPhone());
+        assertEquals(member.getIcon(), memberDTO.getIcon());
+        assertEquals(member.getGender(), memberDTO.getGender());
+        assertEquals(member.getBirthday(), memberDTO.getBirthday());
+        assertEquals(member.getIntegration(), memberDTO.getIntegration());
+    }
+
+    @Test
+    void updateInfo() {
+        // legal
+        UpdateMemberParam param = new UpdateMemberParam();
+        param.setNickname(getRandomString(10));
+        param.setIcon("http://" + getRandomString(50) + ".jpg");
+        param.setBirthday(new Date());
+        param.setGender(Member.Gender.UN_KNOW.value());
+        memberService.updateInfo(param);
+        member = memberMapper.selectById(member.getId());
+        assertEquals(param.getNickname(), member.getNickname());
+        assertEquals(param.getIcon(), member.getIcon());
+        assertEquals(param.getGender(), member.getGender());
+
+        // 性别不合法
+        UpdateMemberParam param1 = new UpdateMemberParam();
+        param1.setGender(-1);
+        assertThrows(IllegalArgumentException.class, () -> memberService.updateInfo(param1));
     }
 }
