@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.portal.pms.mapper.BrandMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.portal.pms.bean.model.Brand">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="name" property="name" />
+        <result column="first_letter" property="firstLetter" />
+        <result column="sort" property="sort" />
+        <result column="is_factory" property="isFactory" />
+        <result column="is_show" property="isShow" />
+        <result column="product_count" property="productCount" />
+        <result column="product_comment_count" property="productCommentCount" />
+        <result column="logo" property="logo" />
+        <result column="big_pic" property="bigPic" />
+        <result column="brand_story" property="brandStory" />
+    </resultMap>
+
+    <resultMap id="DTOResultMap" type="online.ahayujie.mall.portal.pms.bean.dto.BrandDTO">
+        <result column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="first_letter" property="firstLetter" />
+        <result column="is_factory" property="isFactory" />
+        <result column="product_count" property="productCount" />
+        <result column="logo" property="logo" />
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="online.ahayujie.mall.portal.pms.bean.dto.BrandDetailDTO">
+        <result column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="first_letter" property="firstLetter" />
+        <result column="is_factory" property="isFactory" />
+        <result column="product_count" property="productCount" />
+        <result column="product_comment_count" property="productCommentCount" />
+        <result column="logo" property="logo" />
+        <result column="big_pic" property="bigPic" />
+        <result column="brand_story" property="brandStory" />
+    </resultMap>
+
+    <select id="selectByPage" resultMap="DTOResultMap">
+        select
+            id, name, first_letter, is_factory, product_count, logo
+        from pms_brand
+        where is_show = #{isShow}
+        order by sort desc
+    </select>
+
+    <select id="selectByIdAndIsShow" resultMap="DetailResultMap">
+        select
+        id, name, first_letter, is_factory, product_count, product_comment_count, logo, big_pic, brand_story
+        from pms_brand
+        where id = #{id} and is_show = #{isShow}
+    </select>
+
+</mapper>
