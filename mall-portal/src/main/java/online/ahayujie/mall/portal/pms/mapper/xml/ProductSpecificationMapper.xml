@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.portal.pms.mapper.ProductSpecificationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.portal.pms.bean.model.ProductSpecification">
+    <id column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="product_id" property="productId" />
+        <result column="name" property="name" />
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO$Specification">
+        <id column="s_id" property="id" />
+        <result column="s_name" property="name" />
+        <collection property="values" ofType="online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO$SpecificationValue">
+            <id column="v_id" property="id" />
+            <result column="v_value" property="value" />
+            <result column="v_type" property="type" />
+        </collection>
+    </resultMap>
+
+    <select id="selectDetailSpecification" resultMap="DetailResultMap">
+        select
+            s.id as s_id, s.name as s_name, v.id as v_id, v.value as v_value, v.type as v_type
+        from pms_product_specification s
+        left join pms_product_specification_value v on v.product_specification_id = s.id
+        where product_id = #{productId}
+    </select>
+
+</mapper>

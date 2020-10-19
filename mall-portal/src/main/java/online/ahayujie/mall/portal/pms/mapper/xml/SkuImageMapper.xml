@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.portal.pms.mapper.SkuImageMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.portal.pms.bean.model.SkuImage">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="sku_id" property="skuId" />
+        <result column="image" property="image" />
+    </resultMap>
+
+    <select id="selectBySkuId" resultType="java.lang.String">
+        select
+        image
+        from pms_sku_image
+        where sku_id = #{skuId}
+    </select>
+
+</mapper>

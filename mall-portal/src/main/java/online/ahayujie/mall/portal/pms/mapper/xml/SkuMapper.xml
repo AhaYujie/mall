@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.portal.pms.mapper.SkuMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.portal.pms.bean.model.Sku">
+    <id column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="product_id" property="productId" />
+        <result column="sku_code" property="skuCode" />
+        <result column="price" property="price" />
+        <result column="promotion_price" property="promotionPrice" />
+        <result column="stock" property="stock" />
+        <result column="low_stock" property="lowStock" />
+        <result column="sale" property="sale" />
+        <result column="pic" property="pic" />
+        <result column="specification" property="specification" />
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO$Sku">
+        <id column="s_id" property="id" />
+        <result column="s_price" property="price" />
+        <result column="s_promotion_price" property="promotionPrice" />
+        <result column="s_stock" property="stock" />
+        <result column="s_pic" property="pic" />
+        <result column="s_specification" property="specification" />
+        <collection property="relationships" ofType="online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO$SkuSpecificationRelationship">
+            <result column="r_specification_id" property="specificationId" />
+            <result column="r_specification_value_id" property="specificationValueId" />
+        </collection>
+    </resultMap>
+
+    <select id="selectDetailSku" resultMap="DetailResultMap">
+        select
+        s.id as s_id, s.price as s_price, s.promotion_price as s_promotion_price, s.stock as s_stock, s.pic as s_pic,
+        s.specification as s_specification, r.specification_id as r_specification_id, r.specification_value_id as r_specification_value_id
+        from pms_sku s
+        left join pms_sku_specification_relationship r on r.sku_id = s.id
+        where product_id = #{productId}
+    </select>
+
+    <select id="selectProductId" resultType="java.lang.Long">
+        select
+        product_id
+        from pms_sku
+        where id = #{id}
+    </select>
+
+</mapper>

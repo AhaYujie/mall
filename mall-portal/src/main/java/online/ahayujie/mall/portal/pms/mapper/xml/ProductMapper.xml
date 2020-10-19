@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.portal.pms.mapper.ProductMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.portal.pms.bean.model.Product">
+    <id column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="brand_id" property="brandId" />
+        <result column="product_category_id" property="productCategoryId" />
+        <result column="product_sn" property="productSn" />
+        <result column="name" property="name" />
+        <result column="brand_name" property="brandName" />
+        <result column="product_category_name" property="productCategoryName" />
+        <result column="pic" property="pic" />
+        <result column="sub_title" property="subTitle" />
+        <result column="description" property="description" />
+        <result column="detail_title" property="detailTitle" />
+        <result column="detail_description" property="detailDescription" />
+        <result column="detail_html" property="detailHtml" />
+        <result column="detail_mobile_html" property="detailMobileHtml" />
+        <result column="price" property="price" />
+        <result column="original_price" property="originalPrice" />
+        <result column="sale" property="sale" />
+        <result column="stock" property="stock" />
+        <result column="low_stock" property="lowStock" />
+        <result column="unit" property="unit" />
+        <result column="note" property="note" />
+        <result column="keywords" property="keywords" />
+        <result column="sort" property="sort" />
+        <result column="gift_point" property="giftPoint" />
+        <result column="use_point_limit" property="usePointLimit" />
+        <result column="service_ids" property="serviceIds" />
+        <result column="promotion_type" property="promotionType" />
+        <result column="is_deleted" property="isDeleted" />
+        <result column="is_publish" property="isPublish" />
+        <result column="is_new" property="isNew" />
+        <result column="is_recommend" property="isRecommend" />
+        <result column="is_verify" property="isVerify" />
+        <result column="is_preview" property="isPreview" />
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO$ProductInfo">
+        <id column="id" property="id" />
+        <result column="brand_id" property="brandId" />
+        <result column="product_category_id" property="productCategoryId" />
+        <result column="name" property="name" />
+        <result column="brand_name" property="brandName" />
+        <result column="product_category_name" property="productCategoryName" />
+        <result column="detail_title" property="detailTitle" />
+        <result column="detail_description" property="detailDescription" />
+        <result column="detail_html" property="detailHtml" />
+        <result column="detail_mobile_html" property="detailMobileHtml" />
+        <result column="price" property="price" />
+        <result column="original_price" property="originalPrice" />
+        <result column="unit" property="unit" />
+        <result column="gift_point" property="giftPoint" />
+        <result column="use_point_limit" property="usePointLimit" />
+        <result column="service_ids" property="serviceIds" />
+        <result column="promotion_type" property="promotionType" />
+        <result column="is_new" property="isNew" />
+    </resultMap>
+
+    <select id="selectDetail" resultMap="DetailResultMap">
+        select
+        id, brand_id, product_category_id, name, brand_name, product_category_name, detail_title, detail_description,
+        detail_html, price, original_price, unit, gift_point, use_point_limit, service_ids, promotion_type, is_new
+        from pms_product
+        where id = #{id} and is_deleted = 0 and is_publish = #{isPublish} and is_verify = #{isVerify}
+    </select>
+
+    <select id="selectMobileDetail" resultMap="DetailResultMap">
+        select
+        id, brand_id, product_category_id, name, brand_name, product_category_name, detail_title, detail_description,
+        detail_mobile_html, price, original_price, unit, gift_point, use_point_limit, service_ids, promotion_type, is_new
+        from pms_product
+        where id = #{id} and is_deleted = 0 and is_publish = #{isPublish} and is_verify = #{isVerify}
+    </select>
+
+    <select id="selectIsPublishAndIsVerify" resultMap="BaseResultMap">
+        select
+        is_publish, is_verify
+        from pms_product
+        where id = #{id}
+    </select>
+
+</mapper>
