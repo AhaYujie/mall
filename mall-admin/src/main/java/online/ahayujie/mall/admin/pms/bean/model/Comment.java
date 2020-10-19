@@ -56,8 +56,8 @@ public class Comment extends Base {
     @ApiModelProperty(value = "评价星数：0->5")
     private Integer star;
 
-    @ApiModelProperty(value = "收藏数")
-    private Integer collectCount;
+    @ApiModelProperty(value = "点赞数")
+    private Integer likeCount;
 
     @ApiModelProperty(value = "阅读数")
     private Integer readCount;

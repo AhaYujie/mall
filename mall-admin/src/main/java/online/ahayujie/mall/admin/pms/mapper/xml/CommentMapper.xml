@@ -16,7 +16,7 @@
         <result column="content" property="content" />
         <result column="pics" property="pics" />
         <result column="star" property="star" />
-        <result column="collect_count" property="collectCount" />
+        <result column="like_count" property="likeCount" />
         <result column="read_count" property="readCount" />
         <result column="replay_count" property="replayCount" />
         <result column="is_show" property="isShow" />
@@ -25,7 +25,7 @@
     <select id="selectPageByProductId" resultMap="BaseResultMap">
         select
             id, update_time, create_time, product_id, member_id, member_nickname, member_icon, product_name,
-            specification, content, pics, star, collect_count, read_count, replay_count, is_show
+            specification, content, pics, star, like_count, read_count, replay_count, is_show
         from pms_comment
         where product_id = #{productId}
     </select>
