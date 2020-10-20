@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.portal.pms.mapper.CommentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.portal.pms.bean.model.Comment">
+    <id column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="product_id" property="productId" />
+        <result column="member_id" property="memberId" />
+        <result column="member_nickname" property="memberNickname" />
+        <result column="member_icon" property="memberIcon" />
+        <result column="product_name" property="productName" />
+        <result column="specification" property="specification" />
+        <result column="content" property="content" />
+        <result column="pics" property="pics" />
+        <result column="star" property="star" />
+        <result column="like_count" property="likeCount" />
+        <result column="read_count" property="readCount" />
+        <result column="replay_count" property="replayCount" />
+        <result column="is_show" property="isShow" />
+        <result column="is_pic" property="isPic" />
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="online.ahayujie.mall.portal.pms.bean.dto.CommentDTO">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="member_nickname" property="memberNickname" />
+        <result column="member_icon" property="memberIcon" />
+        <result column="product_name" property="productName" />
+        <result column="specification" property="specification" />
+        <result column="content" property="content" />
+        <result column="pics" property="pics" />
+        <result column="star" property="star" />
+        <result column="like_count" property="likeCount" />
+        <result column="read_count" property="readCount" />
+        <result column="replay_count" property="replayCount" />
+    </resultMap>
+
+    <select id="selectByPage" resultMap="DetailResultMap">
+        select
+        id, create_time, member_nickname, member_icon, product_name, specification, content, pics, star, like_count,
+        replay_count, replay_count
+        from pms_comment
+        where product_id = #{productId} and is_show = #{isShow}
+        <if test="sort == 0">
+            order by like_count desc
+        </if>
+        <if test="sort == 1">
+            order by id desc
+        </if>
+    </select>
+
+    <select id="selectPageByStar" resultMap="DetailResultMap">
+        select
+        id, create_time, member_nickname, member_icon, product_name, specification, content, pics, star, like_count,
+        replay_count, replay_count
+        from pms_comment
+        where product_id = #{productId} and is_show = #{isShow} and star = #{star}
+        <if test="sort == 0">
+            order by like_count desc
+        </if>
+        <if test="sort == 1">
+            order by id desc
+        </if>
+    </select>
+
+    <select id="selectPageByIsPic" resultMap="DetailResultMap">
+        select
+        id, create_time, member_nickname, member_icon, product_name, specification, content, pics, star, like_count,
+        replay_count, replay_count
+        from pms_comment
+        where product_id = #{productId} and is_show = #{isShow} and is_pic = #{isPic}
+        <if test="sort == 0">
+            order by like_count desc
+        </if>
+        <if test="sort == 1">
+            order by id desc
+        </if>
+    </select>
+
+</mapper>
