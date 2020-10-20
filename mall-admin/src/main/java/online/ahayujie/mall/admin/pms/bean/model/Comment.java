@@ -68,4 +68,7 @@ public class Comment extends Base {
     @ApiModelProperty(value = "是否显示，0->不显示，1->显示")
     private Integer isShow;
 
+    @ApiModelProperty(value = "是否有图，0->无图，1->有图")
+    private Integer isPic;
+
 }
