@@ -25,6 +25,28 @@ import lombok.experimental.Accessors;
 @ApiModel(value="CommentReplay对象", description="商品评价回复表")
 public class CommentReplay extends Base {
 
+    public enum Type {
+        /**
+         * 会员回复
+         */
+        MEMBER(0),
+
+        /**
+         * 管理员回复
+         */
+        ADMIN(1)
+        ;
+        private final Integer value;
+
+        Type(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
+
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "评论id")

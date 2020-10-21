@@ -80,4 +80,24 @@
         </if>
     </select>
 
+    <select id="selectCountByStarAndIsPic" resultType="java.lang.Long">
+        select
+        count(*)
+        from pms_comment
+        where product_id = #{productId} and is_show = #{isShow}
+        <if test="star != null">
+            and star = #{star}
+        </if>
+        <if test="isPic != null">
+            and is_pic = #{isPic}
+        </if>
+    </select>
+
+    <select id="selectReplayCount" resultMap="BaseResultMap">
+        select
+        id, replay_count
+        from pms_comment
+        where id = #{id}
+    </select>
+
 </mapper>

@@ -58,4 +58,24 @@ public interface CommentMapper extends BaseMapper<Comment> {
     Page<CommentDTO> selectPageByIsPic(@Param("page") Page<CommentDTO> page, @Param("productId") Long productId,
                                        @Param("sort") Integer sort, @Param("isShow") Integer isShow,
                                        @Param("isPic") Integer isPic);
+
+    /**
+     * 根据star和isPic获取商品评价数量
+     *
+     * @param productId 商品id
+     * @param isShow 是否显示
+     * @param star 评价星数：0->5，为null时不作为查询条件
+     * @param isPic 是否有图，为null时不作为查询条件
+     * @return 商品评价数量
+     */
+    Long selectCountByStarAndIsPic(@Param("productId") Long productId, @Param("isShow") Integer isShow,
+                                   @Param("star") Integer star, @Param("isPic") Integer isPic);
+
+    /**
+     * 根据id查询回复数。
+     *
+     * @param id 商品评价id
+     * @return 商品评价回复数
+     */
+    Comment selectReplayCount(Long id);
 }
