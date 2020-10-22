@@ -70,9 +70,14 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void replyComment(CommentReplyParam param) throws IllegalArgumentException {
-        if (commentMapper.selectById(param.getCommentId()) == null) {
+        Comment comment = commentMapper.selectById(param.getCommentId());
+        if (comment == null) {
             throw new IllegalArgumentException("商品评价不存在");
         }
+        Comment update = new Comment();
+        update.setId(param.getCommentId());
+        update.setReplayCount(comment.getReplayCount() + 1);
+        commentMapper.updateById(update);
         CommentReplay commentReplay = new CommentReplay();
         BeanUtils.copyProperties(param, commentReplay);
         commentReplay.setCreateTime(new Date());

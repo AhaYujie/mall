@@ -103,6 +103,8 @@ class CommentServiceTest {
         Page<CommentReplay> page = new Page<>(1, 10);
         Page<CommentReplay> commentReplayPage = commentReplayMapper.selectPageByCommentId(page, comment.getId());
         assertEquals(1, commentReplayPage.getTotal());
+        comment = commentMapper.selectById(comment.getId());
+        assertEquals(1, comment.getReplayCount());
     }
 
     void test() {

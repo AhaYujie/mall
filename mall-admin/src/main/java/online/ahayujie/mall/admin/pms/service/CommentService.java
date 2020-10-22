@@ -50,6 +50,7 @@ public interface CommentService {
 
     /**
      * 管理员回复商品评价。
+     * 操作成功则增加商品评价的replyCount
      * 操作成功发送消息到消息队列。
      *
      * @param param 商品评价回复参数
