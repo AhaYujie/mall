@@ -85,4 +85,14 @@
         where id = #{id}
     </select>
 
+    <select id="selectIsPublish" resultMap="BaseResultMap">
+        select
+        id, is_publish
+        from pms_product
+        where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
 </mapper>

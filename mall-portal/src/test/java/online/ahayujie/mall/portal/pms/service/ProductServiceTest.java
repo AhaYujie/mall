@@ -1,6 +1,7 @@
 package online.ahayujie.mall.portal.pms.service;
 
 import lombok.extern.slf4j.Slf4j;
+import online.ahayujie.mall.common.bean.model.Base;
 import online.ahayujie.mall.portal.TestBase;
 import online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO;
 import online.ahayujie.mall.portal.pms.bean.model.*;
@@ -243,5 +244,27 @@ class ProductServiceTest extends TestBase {
         productMapper.updateById(product);
         List<String> images3 = productService.getSkuImages(product.getId());
         assertNull(images3);
+    }
+
+    @Test
+    void getIsPublish() {
+        List<Product> products = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Product product = new Product();
+            product.setIsPublish(Product.PublishStatus.PUBLISH.getValue());
+            productMapper.insert(product);
+            products.add(product);
+        }
+        List<Long> ids = products.stream().map(Base::getId).collect(Collectors.toList());
+        ids.add(-1L);
+        Map<Long, Integer> map = productService.getIsPublish(ids);
+        for (Product product : products) {
+            assertEquals(product.getIsPublish(), map.get(product.getId()));
+        }
+        assertFalse(map.containsKey(-1L));
+
+        // null or empty
+        assertNull(productService.getIsPublish(null));
+        assertNull(productService.getIsPublish(Collections.emptyList()));
     }
 }

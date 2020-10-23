@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -32,4 +33,11 @@ public interface SkuMapper extends BaseMapper<Sku> {
      * @return 商品id
      */
     Long selectProductId(Long id);
+
+    /**
+     * 根据id查询price
+     * @param ids 主键
+     * @return price
+     */
+    List<Sku> selectPrice(List<Long> ids);
 }

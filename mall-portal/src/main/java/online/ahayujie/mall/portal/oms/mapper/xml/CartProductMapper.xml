@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.portal.oms.mapper.CartProductMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.portal.oms.bean.model.CartProduct">
+    <id column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="product_id" property="productId" />
+        <result column="sku_id" property="skuId" />
+        <result column="brand_id" property="brandId" />
+        <result column="product_category_id" property="productCategoryId" />
+        <result column="member_id" property="memberId" />
+        <result column="member_username" property="memberUsername" />
+        <result column="name" property="name" />
+        <result column="brand_name" property="brandName" />
+        <result column="product_category_name" property="productCategoryName" />
+        <result column="product_sn" property="productSn" />
+        <result column="sku_code" property="skuCode" />
+        <result column="sku_pic" property="skuPic" />
+        <result column="specification" property="specification" />
+        <result column="quantity" property="quantity" />
+    </resultMap>
+
+    <resultMap id="DTOResultMap" type="online.ahayujie.mall.portal.oms.bean.dto.CartProductDTO">
+        <id column="id" property="id" />
+        <result column="product_id" property="productId" />
+        <result column="sku_id" property="skuId" />
+        <result column="brand_id" property="brandId" />
+        <result column="product_category_id" property="productCategoryId" />
+        <result column="name" property="name" />
+        <result column="brand_name" property="brandName" />
+        <result column="product_category_name" property="productCategoryName" />
+        <result column="sku_pic" property="skuPic" />
+        <result column="specification" property="specification" />
+        <result column="quantity" property="quantity" />
+    </resultMap>
+
+    <select id="selectPageByMemberId" resultMap="DTOResultMap">
+        select
+        id, product_id, sku_id, brand_id, product_category_id, name, brand_name, product_category_name,
+        sku_pic, specification, quantity
+        from oms_cart_product
+        where member_id = #{memberId}
+    </select>
+
+    <select id="selectQuantityByMemberIdAndSkuId" resultMap="BaseResultMap">
+        select
+        id, quantity
+        from oms_cart_product
+        where member_id = #{memberId} and sku_id = #{skuId}
+    </select>
+
+    <select id="selectByIdAndMemberId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, product_id, sku_id, brand_id, product_category_id, member_id, member_username,
+        name, brand_name, product_category_name, product_sn, sku_code, sku_pic, specification, quantity
+        from oms_cart_product
+        where id = #{id} and member_id = #{memberId}
+    </select>
+
+    <delete id="deleteByIdAndMemberId">
+        delete
+        from oms_cart_product
+        where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and member_id = #{memberId}
+    </delete>
+
+</mapper>

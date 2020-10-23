@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * <p>
  * 商品信息 Mapper 接口
@@ -44,4 +46,11 @@ public interface ProductMapper extends BaseMapper<Product> {
      * @return 是否上架和是否审核通过
      */
     Product selectIsPublishAndIsVerify(Long id);
+
+    /**
+     * 查询是否上架
+     * @param ids 商品id
+     * @return 商品id和isPublish
+     */
+    List<Product> selectIsPublish(@Param("list") List<Long> ids);
 }

@@ -47,4 +47,14 @@
         where id = #{id}
     </select>
 
+    <select id="selectPrice" resultMap="BaseResultMap">
+        select
+        id, price
+        from pms_sku
+        where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
 </mapper>

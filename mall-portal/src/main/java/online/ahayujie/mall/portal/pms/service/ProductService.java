@@ -1,8 +1,10 @@
 package online.ahayujie.mall.portal.pms.service;
 
 import online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO;
+import online.ahayujie.mall.portal.pms.bean.model.Product;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -33,4 +35,21 @@ public interface ProductService {
      * @return 图片
      */
     List<String> getSkuImages(Long skuId);
+
+    /**
+     * 获取商品是否上架。
+     * 如果商品不存在，则返回的map不包括这个键值对，即 {@code map.containsKey(id) = false}。
+     * 如果ids为空或者null则直接返回null。
+     *
+     * @param ids 商品id
+     * @return 商品id和isPublish的map
+     */
+    Map<Long, Integer> getIsPublish(List<Long> ids);
+
+    /**
+     * 获取商品信息
+     * @param id 商品id
+     * @return 商品信息
+     */
+    Product getById(Long id);
 }
