@@ -52,5 +52,12 @@ public interface ProductMapper extends BaseMapper<Product> {
      * @param ids 商品id
      * @return 商品id和isPublish
      */
-    List<Product> selectIsPublish(@Param("list") List<Long> ids);
+    List<Product> selectIsPublishBatch(@Param("list") List<Long> ids);
+
+    /**
+     * 查询是否上架
+     * @param id 商品id
+     * @return 商品id和isPublish
+     */
+    Product selectIsPublish(Long id);
 }

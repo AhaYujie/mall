@@ -1,6 +1,7 @@
 package online.ahayujie.mall.portal.pms.service.impl;
 
 import online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO;
+import online.ahayujie.mall.portal.pms.bean.dto.SkuDTO;
 import online.ahayujie.mall.portal.pms.bean.model.Product;
 import online.ahayujie.mall.portal.pms.mapper.*;
 import online.ahayujie.mall.portal.pms.service.ProductService;
@@ -73,7 +74,7 @@ public class ProductServiceImpl implements ProductService {
         if (CollectionUtils.isEmpty(ids)) {
             return null;
         }
-        List<Product> products = productMapper.selectIsPublish(ids);
+        List<Product> products = productMapper.selectIsPublishBatch(ids);
         Map<Long, Integer> map = new HashMap<>();
         for (Product product : products) {
             map.put(product.getId(), product.getIsPublish());
@@ -84,5 +85,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product getById(Long id) {
         return productMapper.selectById(id);
+    }
+
+    @Override
+    public SkuDTO getSku(Long id) {
+        Product product = productMapper.selectIsPublish(id);
+        if (product == null || !Product.PublishStatus.PUBLISH.getValue().equals(product.getIsPublish())) {
+            return null;
+        }
+        List<ProductDetailDTO.Specification> specifications = productSpecificationMapper.selectDetailSpecification(id);
+        List<ProductDetailDTO.Sku> skus = skuMapper.selectDetailSku(id);
+        return new SkuDTO(specifications, skus);
     }
 }

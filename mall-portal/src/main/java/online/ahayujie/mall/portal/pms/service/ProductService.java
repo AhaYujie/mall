@@ -1,6 +1,7 @@
 package online.ahayujie.mall.portal.pms.service;
 
 import online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO;
+import online.ahayujie.mall.portal.pms.bean.dto.SkuDTO;
 import online.ahayujie.mall.portal.pms.bean.model.Product;
 
 import java.util.List;
@@ -52,4 +53,13 @@ public interface ProductService {
      * @return 商品信息
      */
     Product getById(Long id);
+
+    /**
+     * 获取商品的sku。
+     * 如果商品不存在或者未上架则返回null。
+     *
+     * @param id 商品id
+     * @return 商品的sku
+     */
+    SkuDTO getSku(Long id);
 }

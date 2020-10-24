@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.common.bean.model.Base;
 import online.ahayujie.mall.portal.TestBase;
 import online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO;
+import online.ahayujie.mall.portal.pms.bean.dto.SkuDTO;
 import online.ahayujie.mall.portal.pms.bean.model.*;
 import online.ahayujie.mall.portal.pms.mapper.*;
 import org.junit.jupiter.api.Test;
@@ -237,12 +238,12 @@ class ProductServiceTest extends TestBase {
         assertNull(images1);
         product.setIsPublish(Product.PublishStatus.NOT_PUBLISH.getValue());
         productMapper.updateById(product);
-        List<String> images2 = productService.getSkuImages(product.getId());
+        List<String> images2 = productService.getSkuImages(sku.getId());
         assertNull(images2);
         product.setIsPublish(Product.PublishStatus.PUBLISH.getValue());
         product.setIsVerify(Product.VerifyStatus.NOT_VERIFY.getValue());
         productMapper.updateById(product);
-        List<String> images3 = productService.getSkuImages(product.getId());
+        List<String> images3 = productService.getSkuImages(sku.getId());
         assertNull(images3);
     }
 
@@ -266,5 +267,107 @@ class ProductServiceTest extends TestBase {
         // null or empty
         assertNull(productService.getIsPublish(null));
         assertNull(productService.getIsPublish(Collections.emptyList()));
+    }
+
+    @Test
+    void getSku() {
+        // exist
+        Random random = new Random();
+        Product product = new Product();
+        product.setIsPublish(Product.PublishStatus.PUBLISH.getValue());
+        productMapper.insert(product);
+        product = productMapper.selectById(product.getId());
+        Map<ProductSpecification, List<ProductSpecificationValue>> specificationMap = new HashMap<>();
+        for (int i = 0; i < 2; i++) {
+            ProductSpecification specification = new ProductSpecification();
+            specification.setProductId(product.getId());
+            specification.setName(getRandomString(random.nextInt(2) + 2));
+            productSpecificationMapper.insert(specification);
+            specification = productSpecificationMapper.selectById(specification.getId());
+            List<ProductSpecificationValue> values = new ArrayList<>();
+            for (int j = 0; j < 3; j++) {
+                ProductSpecificationValue value = new ProductSpecificationValue();
+                value.setProductSpecificationId(specification.getId());
+                value.setValue(getRandomString(random.nextInt(10) + 10));
+                productSpecificationValueMapper.insert(value);
+                value = productSpecificationValueMapper.selectById(value.getId());
+                values.add(value);
+            }
+            specificationMap.put(specification, values);
+        }
+        List<ProductSpecification> specifications = new ArrayList<>(specificationMap.keySet());
+        List<Sku> skus = new ArrayList<>();
+        Map<Sku, List<SkuSpecificationRelationship>> relationshipMap = new HashMap<>();
+        for (int i = 0; i < specificationMap.get(specifications.get(0)).size(); i++) {
+            for (int j = 0; j < specificationMap.get(specifications.get(1)).size(); j++) {
+                Sku sku = new Sku();
+                sku.setProductId(product.getId());
+                skuMapper.insert(sku);
+                sku = skuMapper.selectById(sku.getId());
+                skus.add(sku);
+                List<SkuSpecificationRelationship> relationships = new ArrayList<>();
+                SkuSpecificationRelationship relationship = new SkuSpecificationRelationship();
+                relationship.setSkuId(sku.getId());
+                relationship.setSpecificationId(specifications.get(0).getId());
+                relationship.setSpecificationValueId(specificationMap.get(specifications.get(0)).get(i).getId());
+                skuSpecificationRelationshipMapper.insert(relationship);
+                relationship = skuSpecificationRelationshipMapper.selectById(relationship.getId());
+                SkuSpecificationRelationship relationship1 = new SkuSpecificationRelationship();
+                relationship1.setSkuId(sku.getId());
+                relationship1.setSpecificationId(specifications.get(1).getId());
+                relationship1.setSpecificationValueId(specificationMap.get(specifications.get(1)).get(j).getId());
+                skuSpecificationRelationshipMapper.insert(relationship1);
+                relationship1 = skuSpecificationRelationshipMapper.selectById(relationship1.getId());
+                relationships.add(relationship);
+                relationships.add(relationship1);
+                relationshipMap.put(sku, relationships);
+            }
+        }
+
+        SkuDTO result = productService.getSku(product.getId());
+        assertEquals(specificationMap.keySet().size(), result.getSpecifications().size());
+        for (ProductDetailDTO.Specification specificationDTO : result.getSpecifications()) {
+            List<ProductSpecificationValue> values = null;
+            for (ProductSpecification specification : specificationMap.keySet()) {
+                if (specification.getId().equals(specificationDTO.getId())) {
+                    values = specificationMap.get(specification);
+                    break;
+                }
+            }
+            assertNotNull(values);
+            List<ProductDetailDTO.SpecificationValue> valueDTOS = values.stream().map(source -> {
+                ProductDetailDTO.SpecificationValue target = new ProductDetailDTO.SpecificationValue();
+                BeanUtils.copyProperties(source, target);
+                return target;
+            }).collect(Collectors.toList());
+            assertEquals(valueDTOS.size(), specificationDTO.getValues().size());
+            assertTrue(valueDTOS.containsAll(specificationDTO.getValues()));
+        }
+        assertEquals(skus.size(), result.getSkus().size());
+        for (ProductDetailDTO.Sku skuDTO : result.getSkus()) {
+            List<SkuSpecificationRelationship> relationships = null;
+            for (Sku sku : relationshipMap.keySet()) {
+                if (sku.getId().equals(skuDTO.getId())) {
+                    relationships = relationshipMap.get(sku);
+                    break;
+                }
+            }
+            assertNotNull(relationships);
+            List<ProductDetailDTO.SkuSpecificationRelationship> relationshipDTOS = relationships.stream().map(source -> {
+                ProductDetailDTO.SkuSpecificationRelationship target = new ProductDetailDTO.SkuSpecificationRelationship();
+                BeanUtils.copyProperties(source, target);
+                return target;
+            }).collect(Collectors.toList());
+            assertEquals(relationshipDTOS.size(), skuDTO.getRelationships().size());
+            assertTrue(relationshipDTOS.containsAll(skuDTO.getRelationships()));
+        }
+
+        // null
+        assertNull(productService.getSku(-1L));
+        Product update = new Product();
+        update.setId(product.getId());
+        update.setIsPublish(Product.PublishStatus.NOT_PUBLISH.getValue());
+        productMapper.updateById(update);
+        assertNull(productService.getSku(product.getId()));
     }
 }
