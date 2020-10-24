@@ -18,7 +18,7 @@ import java.util.Map;
 public interface ProductService {
     /**
      * 获取商品详情。
-     * 需要是已经审核通过的，并且上架的商品。
+     * 需要是已上架的商品。
      * 如果商品不存在返回null。
      *
      * @param id 商品id
@@ -29,7 +29,7 @@ public interface ProductService {
 
     /**
      * 获取sku的图片。
-     * sku对应的商品需要是已经审核通过的，并且上架。
+     * sku对应的商品需要是已上架。
      * 如果不存在则返回null。
      *
      * @param skuId sku主键
@@ -48,7 +48,7 @@ public interface ProductService {
     Map<Long, Integer> getIsPublish(List<Long> ids);
 
     /**
-     * 获取商品信息
+     * 获取已上架的商品信息
      * @param id 商品id
      * @return 商品信息
      */

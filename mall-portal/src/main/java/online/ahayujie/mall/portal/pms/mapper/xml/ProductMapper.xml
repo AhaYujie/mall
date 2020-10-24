@@ -67,7 +67,7 @@
         id, brand_id, product_category_id, name, brand_name, product_category_name, detail_title, detail_description,
         detail_html, price, original_price, unit, gift_point, use_point_limit, service_ids, promotion_type, is_new
         from pms_product
-        where id = #{id} and is_deleted = 0 and is_publish = #{isPublish} and is_verify = #{isVerify}
+        where id = #{id} and is_deleted = 0 and is_publish = #{isPublish}
     </select>
 
     <select id="selectMobileDetail" resultMap="DetailResultMap">
@@ -75,14 +75,7 @@
         id, brand_id, product_category_id, name, brand_name, product_category_name, detail_title, detail_description,
         detail_mobile_html, price, original_price, unit, gift_point, use_point_limit, service_ids, promotion_type, is_new
         from pms_product
-        where id = #{id} and is_deleted = 0 and is_publish = #{isPublish} and is_verify = #{isVerify}
-    </select>
-
-    <select id="selectIsPublishAndIsVerify" resultMap="BaseResultMap">
-        select
-        is_publish, is_verify
-        from pms_product
-        where id = #{id}
+        where id = #{id} and is_deleted = 0 and is_publish = #{isPublish}
     </select>
 
     <select id="selectIsPublishBatch" resultMap="BaseResultMap">
@@ -100,6 +93,16 @@
         id, is_publish
         from pms_product
         where id = #{id}
+    </select>
+
+    <select id="selectByIdAndIsPublish" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, brand_id, product_category_id, product_sn, name, brand_name, product_category_name,
+        pic, sub_title, description, detail_title, detail_description, detail_html, detail_mobile_html, price, original_price,
+        sale, stock, low_stock, unit, note, keywords, sort, gift_point, use_point_limit, service_ids, promotion_type, is_deleted,
+        is_publish, is_new, is_recommend, is_verify, is_preview
+        from pms_product
+        where id = #{id} and is_publish = #{isPublish}
     </select>
 
 </mapper>

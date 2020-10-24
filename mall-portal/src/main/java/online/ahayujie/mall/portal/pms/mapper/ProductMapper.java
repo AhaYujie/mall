@@ -24,28 +24,17 @@ public interface ProductMapper extends BaseMapper<Product> {
      * 查询商品详情
      * @param id 商品id
      * @param isPublish 是否上架
-     * @param isVerify 是否审核通过
      * @return 商品详情
      */
-    ProductDetailDTO.ProductInfo selectDetail(@Param("id") Long id, @Param("isPublish") Integer isPublish,
-                                              @Param("isVerify") Integer isVerify);
+    ProductDetailDTO.ProductInfo selectDetail(@Param("id") Long id, @Param("isPublish") Integer isPublish);
 
     /**
      * 查询移动端商品详情
      * @param id 商品id
      * @param isPublish 是否上架
-     * @param isVerify 是否审核通过
      * @return 移动端商品详情
      */
-    ProductDetailDTO.ProductInfo selectMobileDetail(@Param("id") Long id, @Param("isPublish") Integer isPublish,
-                                                    @Param("isVerify") Integer isVerify);
-
-    /**
-     * 查询是否上架和是否审核通过
-     * @param id 商品id
-     * @return 是否上架和是否审核通过
-     */
-    Product selectIsPublishAndIsVerify(Long id);
+    ProductDetailDTO.ProductInfo selectMobileDetail(@Param("id") Long id, @Param("isPublish") Integer isPublish);
 
     /**
      * 查询是否上架
@@ -60,4 +49,12 @@ public interface ProductMapper extends BaseMapper<Product> {
      * @return 商品id和isPublish
      */
     Product selectIsPublish(Long id);
+
+    /**
+     * 根据id和isPublish查询
+     * @param id 商品id
+     * @param isPublish 是否上架
+     * @return 商品
+     */
+    Product selectByIdAndIsPublish(@Param("id") Long id, @Param("isPublish") Integer isPublish);
 }

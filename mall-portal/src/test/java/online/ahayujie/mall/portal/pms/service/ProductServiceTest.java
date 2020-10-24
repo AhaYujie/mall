@@ -63,7 +63,6 @@ class ProductServiceTest extends TestBase {
         product.setDetailHtml(getRandomString(random.nextInt(50) + 100));
         product.setDetailMobileHtml(getRandomString(random.nextInt(50) + 100));
         product.setIsPublish(Product.PublishStatus.PUBLISH.getValue());
-        product.setIsVerify(Product.VerifyStatus.VERIFY.getValue());
         productMapper.insert(product);
         product = productMapper.selectById(product.getId());
         List<ProductImage> productImages = new ArrayList<>();
@@ -202,11 +201,6 @@ class ProductServiceTest extends TestBase {
         productMapper.updateById(update);
         ProductDetailDTO productDetailDTO3 = productService.getDetail(product.getId(), 0);
         assertNull(productDetailDTO3);
-        update.setIsPublish(Product.PublishStatus.PUBLISH.getValue());
-        update.setIsVerify(Product.VerifyStatus.NOT_VERIFY.getValue());
-        productMapper.updateById(update);
-        ProductDetailDTO productDetailDTO4 = productService.getDetail(product.getId(), 0);
-        assertNull(productDetailDTO4);
     }
 
     @Test
@@ -215,7 +209,6 @@ class ProductServiceTest extends TestBase {
         Random random = new Random();
         Product product = new Product();
         product.setIsPublish(Product.PublishStatus.PUBLISH.getValue());
-        product.setIsVerify(Product.VerifyStatus.VERIFY.getValue());
         productMapper.insert(product);
         Sku sku = new Sku();
         sku.setProductId(product.getId());
@@ -240,11 +233,6 @@ class ProductServiceTest extends TestBase {
         productMapper.updateById(product);
         List<String> images2 = productService.getSkuImages(sku.getId());
         assertNull(images2);
-        product.setIsPublish(Product.PublishStatus.PUBLISH.getValue());
-        product.setIsVerify(Product.VerifyStatus.NOT_VERIFY.getValue());
-        productMapper.updateById(product);
-        List<String> images3 = productService.getSkuImages(sku.getId());
-        assertNull(images3);
     }
 
     @Test

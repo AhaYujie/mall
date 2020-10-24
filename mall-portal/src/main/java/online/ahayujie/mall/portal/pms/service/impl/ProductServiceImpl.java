@@ -44,9 +44,9 @@ public class ProductServiceImpl implements ProductService {
     public ProductDetailDTO getDetail(Long id, Integer isMobile) {
         ProductDetailDTO.ProductInfo productInfo = null;
         if (isMobile == 0) {
-            productInfo = productMapper.selectDetail(id, Product.PublishStatus.PUBLISH.getValue(), Product.VerifyStatus.VERIFY.getValue());
+            productInfo = productMapper.selectDetail(id, Product.PublishStatus.PUBLISH.getValue());
         } else if (isMobile == 1) {
-            productInfo = productMapper.selectMobileDetail(id, Product.PublishStatus.PUBLISH.getValue(), Product.VerifyStatus.VERIFY.getValue());
+            productInfo = productMapper.selectMobileDetail(id, Product.PublishStatus.PUBLISH.getValue());
         }
         if (productInfo == null) {
             return null;
@@ -61,9 +61,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<String> getSkuImages(Long skuId) {
         Long productId = skuMapper.selectProductId(skuId);
-        Product product = productMapper.selectIsPublishAndIsVerify(productId);
-        if (product == null || Product.PublishStatus.NOT_PUBLISH.getValue().equals(product.getIsPublish()) ||
-            Product.VerifyStatus.NOT_VERIFY.getValue().equals(product.getIsVerify())) {
+        Product product = productMapper.selectIsPublish(productId);
+        if (product == null || !Product.PublishStatus.PUBLISH.getValue().equals(product.getIsPublish())) {
             return null;
         }
         return skuImageMapper.selectBySkuId(skuId);
@@ -84,7 +83,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getById(Long id) {
-        return productMapper.selectById(id);
+        return productMapper.selectByIdAndIsPublish(id, Product.PublishStatus.PUBLISH.getValue());
     }
 
     @Override
