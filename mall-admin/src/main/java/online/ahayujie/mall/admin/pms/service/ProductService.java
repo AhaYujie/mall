@@ -23,7 +23,10 @@ import java.util.List;
  */
 public interface ProductService {
     /**
-     * 创建商品
+     * 创建商品。
+     * 创建商品成功后发送消息到消息队列。
+     *
+     * @see online.ahayujie.mall.admin.pms.publisher.ProductPublisher#publishCreateMsg(ProductCreateMsgDTO)
      * @param param 商品
      * @throws IllegalProductException 商品信息不合法
      * @throws IllegalProductSpecificationException 商品规格不合法

@@ -1,5 +1,8 @@
 package online.ahayujie.mall.admin.pms.publisher;
 
+import online.ahayujie.mall.admin.config.RabbitmqConfig;
+import online.ahayujie.mall.admin.pms.bean.dto.ProductCreateMsgDTO;
+
 /**
  * 商品消息发送者
  * @author aha
@@ -12,4 +15,12 @@ public interface ProductPublisher {
      * @param id 更新的商品id
      */
     void publishUpdateMsg(Long id);
+
+    /**
+     * 发送创建商品消息。
+     * exchange为 {@link RabbitmqConfig#PRODUCT_CREATE_EXCHANGE}。
+     *
+     * @param msgDTO 消息
+     */
+    void publishCreateMsg(ProductCreateMsgDTO msgDTO);
 }

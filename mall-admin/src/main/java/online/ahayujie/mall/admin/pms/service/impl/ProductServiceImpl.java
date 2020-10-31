@@ -82,6 +82,8 @@ public class ProductServiceImpl implements ProductService {
                 param.getSpecifications());
         // 保存商品sku信息
         saveCreateSkus(param.getSkus(), specifications, specificationValueLists, saveProduct.getId());
+        // 发送消息到消息队列
+        productPublisher.publishCreateMsg(new ProductCreateMsgDTO(saveProduct.getId()));
     }
 
     @Override

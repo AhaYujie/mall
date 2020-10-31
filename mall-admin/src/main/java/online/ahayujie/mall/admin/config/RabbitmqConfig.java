@@ -23,6 +23,8 @@ public class RabbitmqConfig {
     public static final String BRAND_DELETE_EXCHANGE = "brand.delete";
     public static final String BRAND_DELETE_QUEUE_PRODUCT = "brand.delete.product";
 
+    public static final String PRODUCT_CREATE_EXCHANGE = "product.create";
+
     public static final String PRODUCT_UPDATE_EXCHANGE = "product.update";
 
     public static final String PRODUCT_COMMENT_REPLY_EXCHANGE = "product.comment.reply";
@@ -243,5 +245,10 @@ public class RabbitmqConfig {
     @Bean
     public FanoutExchange productCommentReplyExchange() {
         return new FanoutExchange(PRODUCT_COMMENT_REPLY_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public FanoutExchange productCreateExchange() {
+        return new FanoutExchange(PRODUCT_CREATE_EXCHANGE, true, false);
     }
 }

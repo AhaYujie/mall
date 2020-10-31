@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.config.RabbitmqConfig;
+import online.ahayujie.mall.admin.pms.bean.dto.ProductCreateMsgDTO;
 import online.ahayujie.mall.admin.pms.bean.dto.UpdateProductMessageDTO;
 import online.ahayujie.mall.admin.pms.publisher.ProductPublisher;
 import online.ahayujie.mall.admin.service.MqService;
@@ -39,6 +40,19 @@ public class ProductPublisherImpl implements ProductPublisher {
             UpdateProductMessageDTO messageDTO = new UpdateProductMessageDTO(id);
             String message = objectMapper.writeValueAsString(messageDTO);
             String exchange = RabbitmqConfig.PRODUCT_UPDATE_EXCHANGE;
+            CorrelationData correlationData = mqService.generateCorrelationData(exchange, "", message);
+            rabbitTemplate.convertAndSend(exchange, "", message, correlationData);
+        } catch (JsonProcessingException e) {
+            log.warn(e.getMessage());
+            log.warn(Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+    @Override
+    public void publishCreateMsg(ProductCreateMsgDTO msgDTO) {
+        try {
+            String message = objectMapper.writeValueAsString(msgDTO);
+            String exchange = RabbitmqConfig.PRODUCT_CREATE_EXCHANGE;
             CorrelationData correlationData = mqService.generateCorrelationData(exchange, "", message);
             rabbitTemplate.convertAndSend(exchange, "", message, correlationData);
         } catch (JsonProcessingException e) {
