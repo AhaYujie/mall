@@ -83,4 +83,18 @@ public interface ProductMapper extends BaseMapper<Product> {
      * @return MysqlExplain
      */
     MysqlExplain explainQuery(QueryProductParam param);
+
+    /**
+     * 根据商品分类id查询商品id
+     * @param productCategoryId 商品分类id
+     * @return 商品id
+     */
+    List<Long> selectIdsByProductCategoryId(Long productCategoryId);
+
+    /**
+     * 根据商品品牌id查询商品id
+     * @param brandId 商品品牌id
+     * @return 商品id
+     */
+    List<Long> selectIdsByBrandId(Long brandId);
 }

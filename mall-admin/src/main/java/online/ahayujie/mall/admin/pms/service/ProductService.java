@@ -5,6 +5,7 @@ import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.Product;
 import online.ahayujie.mall.admin.pms.bean.model.Sku;
 import online.ahayujie.mall.admin.pms.exception.*;
+import online.ahayujie.mall.admin.pms.publisher.ProductPublisher;
 import online.ahayujie.mall.common.api.CommonPage;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.AmqpHeaders;
@@ -89,6 +90,9 @@ public interface ProductService {
      *                  若某商品参数的商品id和 {@code id} 不相等则忽略。
      *               2. 参数id为null的为要新增的商品参数。
      *               3. 剩下的商品参数为要删除的。
+     * 更新商品成功后，调用{@link ProductPublisher#publishUpdateMsg(Long)}发送消息到消息队列。
+     *
+     * @see ProductPublisher#publishUpdateMsg(Long)
      * @param id 商品id
      * @param param 商品参数信息
      * @throws IllegalProductException 商品不存在
@@ -99,6 +103,9 @@ public interface ProductService {
     /**
      * 根据商品id更新商品规格信息。
      * 只能对已有的商品规格新增选项，若某一商品规格的新增选项列表为空则忽略。
+     * 更新商品成功后，调用{@link ProductPublisher#publishUpdateMsg(Long)}发送消息到消息队列。
+     *
+     * @see ProductPublisher#publishUpdateMsg(Long)
      * @param id 商品id
      * @param param 商品规格信息
      * @throws IllegalProductException 商品不存在
@@ -110,6 +117,9 @@ public interface ProductService {
     /**
      * 根据商品id更新商品sku信息。
      * 传id的为更新sku信息，不传id的为新增sku。
+     * 更新商品成功后，调用{@link ProductPublisher#publishUpdateMsg(Long)}发送消息到消息队列。
+     *
+     * @see ProductPublisher#publishUpdateMsg(Long)
      * @param id 商品id
      * @param param 商品sku信息
      * @throws IllegalProductException 商品不存在
@@ -147,6 +157,9 @@ public interface ProductService {
     /**
      * 批量更新商品的上下架状态。
      * 如果某个商品不存在则忽略。
+     * 更新商品成功后，调用{@link ProductPublisher#publishUpdateMsg(Long)}发送消息到消息队列。
+     *
+     * @see ProductPublisher#publishUpdateMsg(Long)
      * @param ids 商品id
      * @param publishStatus 商品的上下架状态
      * @throws IllegalProductException 商品的上下架状态不合法
@@ -156,6 +169,9 @@ public interface ProductService {
     /**
      * 批量更新商品的推荐状态。
      * 如果某个商品不存在则忽略。
+     * 更新商品成功后，调用{@link ProductPublisher#publishUpdateMsg(Long)}发送消息到消息队列。
+     *
+     * @see ProductPublisher#publishUpdateMsg(Long)
      * @param ids 商品id
      * @param recommendStatus 商品的推荐状态
      * @throws IllegalProductException 商品的推荐状态不合法
@@ -165,6 +181,9 @@ public interface ProductService {
     /**
      * 批量更新商品的新品状态。
      * 如果某个商品不存在则忽略。
+     * 更新商品成功后，调用{@link ProductPublisher#publishUpdateMsg(Long)}发送消息到消息队列。
+     *
+     * @see ProductPublisher#publishUpdateMsg(Long)
      * @param ids 商品id
      * @param newStatus 商品新品状态
      * @throws IllegalProductException 商品新品状态不合法
@@ -182,6 +201,9 @@ public interface ProductService {
 
     /**
      * 审核商品通过。
+     * 更新商品成功后，调用{@link ProductPublisher#publishUpdateMsg(Long)}发送消息到消息队列。
+     *
+     * @see ProductPublisher#publishUpdateMsg(Long)
      * @param id 商品id
      * @param verifyStatus 审核状态
      * @param note 备注
@@ -212,6 +234,9 @@ public interface ProductService {
     /**
      * 监听商品分类更新的消息。
      * 因为只需要更新商品分类下的商品的商品分类冗余信息，所以不需要保证幂等性。
+     * 更新商品成功后，调用{@link ProductPublisher#publishUpdateMsg(Long)}发送消息到消息队列。
+     *
+     * @see ProductPublisher#publishUpdateMsg(Long)
      * @param channel channel
      * @param message message
      * @throws IOException 确认消息失败
@@ -222,6 +247,9 @@ public interface ProductService {
      * 监听商品分类删除消息。
      * 设置该商品分类下的所有商品为无品牌，即修改商品分类id和商品分类名称字段。
      * 不需要保证幂等性。
+     * 更新商品成功后，调用{@link ProductPublisher#publishUpdateMsg(Long)}发送消息到消息队列。
+     *
+     * @see ProductPublisher#publishUpdateMsg(Long)
      * @param channel channel
      * @param message message
      * @throws IOException 确认消息失败
@@ -232,6 +260,9 @@ public interface ProductService {
      * 监听商品品牌更新消息。
      * 更新该品牌的所有商品的品牌名称冗余字段。
      * 不需要保证幂等性。
+     * 更新商品成功后，调用{@link ProductPublisher#publishUpdateMsg(Long)}发送消息到消息队列。
+     *
+     * @see ProductPublisher#publishUpdateMsg(Long)
      * @param channel channel
      * @param message message
      * @throws IOException 确认消息失败
@@ -242,6 +273,9 @@ public interface ProductService {
      * 监听商品品牌删除消息。
      * 更新该品牌的所有商品，设置为无品牌。
      * 不需要保证幂等性。
+     * 更新商品成功后，调用{@link ProductPublisher#publishUpdateMsg(Long)}发送消息到消息队列。
+     *
+     * @see ProductPublisher#publishUpdateMsg(Long)
      * @param channel channel
      * @param message message
      * @throws IOException 确认消息失败

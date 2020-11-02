@@ -261,6 +261,7 @@ public class ProductServiceImpl implements ProductService {
             productParam.setCreateTime(new Date());
         });
         productParamService.save(addProductParams);
+        productPublisher.publishUpdateMsg(id);
     }
 
     @Override
@@ -291,6 +292,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         productSpecificationService.saveSpecificationValues(allSpecificationValues);
+        productPublisher.publishUpdateMsg(id);
     }
 
     @Override
@@ -421,6 +423,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         skuService.saveSkuImages(allUpdateSkuImages);
+        productPublisher.publishUpdateMsg(id);
     }
 
     @Override
@@ -489,6 +492,7 @@ public class ProductServiceImpl implements ProductService {
         updateProduct.setIsVerify(verifyStatus);
         productMapper.updateById(updateProduct);
         productVerifyLogService.saveLog(id, note, verifyStatus);
+        productPublisher.publishUpdateMsg(id);
     }
 
     @Override
@@ -528,6 +532,8 @@ public class ProductServiceImpl implements ProductService {
         product.setProductCategoryName(productCategory.getName());
         product.setUpdateTime(new Date());
         productMapper.updateByProductCategoryId(productCategoryId, product);
+        List<Long> productIds = productMapper.selectIdsByProductCategoryId(productCategoryId);
+        productIds.forEach(productPublisher::publishUpdateMsg);
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
 
@@ -544,11 +550,13 @@ public class ProductServiceImpl implements ProductService {
             log.warn(Arrays.toString(e.getStackTrace()));
             channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
         }
+        List<Long> productIds = productMapper.selectIdsByProductCategoryId(productCategoryId);
         Product product = new Product();
         product.setProductCategoryId(Product.NON_PRODUCT_CATEGORY_ID);
         product.setProductCategoryName("");
         product.setUpdateTime(new Date());
         productMapper.updateByProductCategoryId(productCategoryId, product);
+        productIds.forEach(productPublisher::publishUpdateMsg);
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
 
@@ -570,6 +578,8 @@ public class ProductServiceImpl implements ProductService {
         product.setBrandName(brandName);
         product.setUpdateTime(new Date());
         productMapper.updateByBrandId(brandId, product);
+        List<Long> productIds = productMapper.selectIdsByBrandId(brandId);
+        productIds.forEach(productPublisher::publishUpdateMsg);
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
 
@@ -585,11 +595,13 @@ public class ProductServiceImpl implements ProductService {
             log.warn(Arrays.toString(e.getStackTrace()));
             channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
         }
+        List<Long> productIds = productMapper.selectIdsByBrandId(brandId);
         Product product = new Product();
         product.setBrandId(Product.NON_BRAND_ID);
         product.setBrandName("");
         product.setUpdateTime(new Date());
         productMapper.updateByBrandId(brandId, product);
+        productIds.forEach(productPublisher::publishUpdateMsg);
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
 

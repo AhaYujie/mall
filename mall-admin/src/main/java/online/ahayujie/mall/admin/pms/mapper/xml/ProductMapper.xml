@@ -265,4 +265,18 @@
         order by sort desc, create_time desc
     </select>
 
+    <select id="selectIdsByProductCategoryId" resultType="java.lang.Long">
+        select
+        id
+        from pms_product
+        where product_category_id = #{productCategoryId}
+    </select>
+
+    <select id="selectIdsByBrandId" resultType="java.lang.Long">
+        select
+        id
+        from pms_product
+        where brand_id = #{brandId}
+    </select>
+
 </mapper>
