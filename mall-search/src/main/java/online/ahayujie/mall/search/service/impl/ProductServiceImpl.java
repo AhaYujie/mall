@@ -162,6 +162,47 @@ public class ProductServiceImpl implements ProductService {
                 page.getTotalElements(), page.getContent());
     }
 
+    @Override
+    public CommonPage<EsProduct> recommend(Integer pageNum, Integer pageSize, Long id) {
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        queryBuilder.withPageable(PageRequest.of(pageNum - 1, pageSize));
+        EsProduct esProduct = productRepository.findById(id).orElse(null);
+        if (esProduct == null) {
+            return null;
+        }
+        List<FunctionScoreQueryBuilder.FilterFunctionBuilder> filterFunctionBuilders = new ArrayList<>();
+        if (esProduct.getName() != null) {
+            filterFunctionBuilders.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+                    QueryBuilders.matchQuery("name", esProduct.getName()), ScoreFunctionBuilders.weightFactorFunction(50)));
+        }
+        if (esProduct.getKeywords() != null) {
+            filterFunctionBuilders.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+                    QueryBuilders.matchQuery("keywords", esProduct.getKeywords()), ScoreFunctionBuilders.weightFactorFunction(10)));
+        }
+        if (esProduct.getBrandId() != null) {
+            filterFunctionBuilders.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+                    QueryBuilders.termQuery("brandId", esProduct.getBrandId()), ScoreFunctionBuilders.weightFactorFunction(10)));
+        }
+        if (esProduct.getProductCategoryId() != null) {
+            filterFunctionBuilders.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(
+                    QueryBuilders.termQuery("productCategoryId", esProduct.getProductCategoryId()), ScoreFunctionBuilders.weightFactorFunction(10)));
+        }
+        FunctionScoreQueryBuilder.FilterFunctionBuilder[] builders = new FunctionScoreQueryBuilder
+                .FilterFunctionBuilder[filterFunctionBuilders.size()];
+        filterFunctionBuilders.toArray(builders);
+        FunctionScoreQueryBuilder functionScoreQueryBuilder = QueryBuilders.functionScoreQuery(builders)
+                .scoreMode(FunctionScoreQuery.ScoreMode.SUM)
+                .setMinScore(2);
+        queryBuilder.withQuery(functionScoreQueryBuilder);
+        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+        boolQueryBuilder.mustNot(QueryBuilders.termQuery("id", esProduct.getId()));
+        queryBuilder.withFilter(boolQueryBuilder);
+        queryBuilder.withSort(getSortBuilder(0));
+        Page<EsProduct> page = productRepository.search(queryBuilder.build());
+        return new CommonPage<>((long) page.getNumber(), (long) page.getSize(), (long) page.getTotalPages(),
+                page.getTotalElements(), page.getContent());
+    }
+
     private FunctionScoreQueryBuilder getFunctionScoreQueryBuilder(String keyword) {
         List<FunctionScoreQueryBuilder.FilterFunctionBuilder> filterFunctionBuilders = new ArrayList<>();
         filterFunctionBuilders.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(
@@ -184,6 +225,11 @@ public class ProductServiceImpl implements ProductService {
                 .setMinScore(2);
     }
 
+    /**
+     * 获取SortBuilder
+     * @param sort 0->按相关度排序；1->按销量从高到低排序；2->按价格从高到低排序；3->按价格从低到高排序
+     * @return SortBuilder
+     */
     private SortBuilder<? extends SortBuilder<?>> getSortBuilder(Integer sort) {
         switch (sort) {
             case 0:

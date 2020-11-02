@@ -57,4 +57,12 @@ public class ProductController {
         return Result.data(productService.search(pageNum, pageSize, keyword, brandId, productCategoryId, productSn,
                 isPublish, isNew, isRecommend, isVerify, isPreview, minPrice, maxPrice, sort));
     }
+
+    @ApiOperation(value = "根据商品id获取推荐商品")
+    @GetMapping("/recommend")
+    public Result<CommonPage<EsProduct>> recommend(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+                                                   @RequestParam(required = false, defaultValue = "5") Integer pageSize,
+                                                   @RequestParam Long id) {
+        return Result.data(productService.recommend(pageNum, pageSize, id));
+    }
 }

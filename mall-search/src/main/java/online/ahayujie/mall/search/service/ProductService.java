@@ -82,4 +82,15 @@ public interface ProductService {
     CommonPage<EsProduct> search(Integer pageNum, Integer pageSize, String keyword, Long brandId, Long productCategoryId,
                                  String productSn, Integer isPublish, Integer isNew, Integer isRecommend, Integer isVerify,
                                  Integer isPreview, BigDecimal minPrice, BigDecimal maxPrice, Integer sort);
+
+    /**
+     * 根据商品id获取推荐商品。
+     * 如果商品不存在则返回null。
+     *
+     * @param pageNum 页索引
+     * @param pageSize 页大小
+     * @param id 商品id
+     * @return 推荐的商品
+     */
+    CommonPage<EsProduct> recommend(Integer pageNum, Integer pageSize, Long id);
 }
