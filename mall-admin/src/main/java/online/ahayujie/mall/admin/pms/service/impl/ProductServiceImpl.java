@@ -517,6 +517,9 @@ public class ProductServiceImpl implements ProductService {
             return null;
         }
         CommonPage<EsProduct> page = response.getData();
+        if (CollectionUtils.isEmpty(page.getData())) {
+            return new CommonPage<>(page.getPageNum(), page.getPageSize(), page.getTotalPage(), page.getTotal(), null);
+        }
         List<Product> products = productMapper.selectBatchIds(page.getData().stream().map(EsProduct::getId).collect(Collectors.toList()));
         List<Product> sortedProducts = new ArrayList<>();
         for (EsProduct esProduct : page.getData()) {
