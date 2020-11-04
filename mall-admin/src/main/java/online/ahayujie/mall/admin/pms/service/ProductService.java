@@ -212,16 +212,13 @@ public interface ProductService {
     void verifyProduct(Long id, Integer verifyStatus, String note) throws IllegalProductException;
 
     /**
-     * 根据商品名称，货号，分类，品牌，上架状态，新品状态，推荐状态，审核状态，预告状态分页查询。
+     * 根据商品名称，货号，分类，品牌，上架状态，新品状态，推荐状态，审核状态，预告状态，价格范围分页查询。
      * 若某一参数为null则忽略不作为查询条件。
-     * 查询条件之间的关系是and。
-     * 商品列表按照sort从大到小和创建时间从新到旧排序。
+     *
      * @param param 查询参数
-     * @param pageNum 页索引
-     * @param pageSize 页大小
      * @return 商品
      */
-    CommonPage<Product> queryProduct(QueryProductParam param, Long pageNum, Long pageSize);
+    CommonPage<Product> queryProduct(QueryProductParam param);
 
     /**
      * 根据id获取商品。

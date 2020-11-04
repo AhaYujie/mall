@@ -3,6 +3,8 @@ package online.ahayujie.mall.admin.pms.bean.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * @author aha
  * @since 2020/8/5
@@ -10,7 +12,7 @@ import lombok.Data;
 @Data
 public class QueryProductParam {
     @ApiModelProperty(value = "商品名称关键词")
-    private String name;
+    private String keyword;
 
     @ApiModelProperty(value = "商品货号关键词")
     private String productSn;
@@ -36,5 +38,18 @@ public class QueryProductParam {
     @ApiModelProperty(value = "是否为预告商品：0->不是；1->是")
     private Integer isPreview;
 
+    @ApiModelProperty(value = "最低价格")
+    private BigDecimal minPrice;
 
+    @ApiModelProperty(value = "最高价格")
+    private BigDecimal maxPrice;
+
+    @ApiModelProperty(value = "sort：0->按相关度排序；1->按销量从高到低排序；2->按价格从高到低排序；3->按价格从低到高排序")
+    private Integer sort;
+
+    @ApiModelProperty(value = "页索引，默认1")
+    private Integer pageNum;
+
+    @ApiModelProperty(value = "页大小，默认20")
+    private Integer pageSize;
 }

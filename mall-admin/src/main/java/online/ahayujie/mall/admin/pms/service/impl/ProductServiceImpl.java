@@ -19,8 +19,11 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -38,6 +41,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
+    @Value("${mall-search.search-url}")
+    private String MALL_SEARCH_URL;
+
     private SkuService skuService;
     private BrandService brandService;
     private ProductPublisher productPublisher;
@@ -48,13 +54,15 @@ public class ProductServiceImpl implements ProductService {
 
     private final SkuMapper skuMapper;
     private final ObjectMapper objectMapper;
+    private final RestTemplate restTemplate;
     private final ProductMapper productMapper;
     private final ProductImageMapper productImageMapper;
 
-    public ProductServiceImpl(SkuMapper skuMapper, ObjectMapper objectMapper, ProductMapper productMapper,
-                              ProductImageMapper productImageMapper) {
+    public ProductServiceImpl(SkuMapper skuMapper, ObjectMapper objectMapper, RestTemplate restTemplate,
+                              ProductMapper productMapper, ProductImageMapper productImageMapper) {
         this.skuMapper = skuMapper;
         this.objectMapper = objectMapper;
+        this.restTemplate = restTemplate;
         this.productMapper = productMapper;
         this.productImageMapper = productImageMapper;
     }
@@ -496,11 +504,30 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public CommonPage<Product> queryProduct(QueryProductParam param, Long pageNum, Long pageSize) {
-        List<Product> products = productMapper.query((pageNum - 1) * pageSize, pageSize, param);
-        Long count = productMapper.explainQuery(param).getRows();
-        count = (count == null ? 0 : count);
-        return new CommonPage<>(pageNum, pageSize, count / pageSize, count, products);
+    public CommonPage<Product> queryProduct(QueryProductParam param) {
+        QueryEsProductDTO response;
+        try {
+            response = restTemplate.postForObject(MALL_SEARCH_URL, param, QueryEsProductDTO.class);
+        } catch (RestClientException e) {
+            log.error(e.getMessage());
+            throw e;
+        }
+        if (response == null || response.getData() == null) {
+            log.error("搜索商品无结果: {}", response);
+            return null;
+        }
+        CommonPage<EsProduct> page = response.getData();
+        List<Product> products = productMapper.selectBatchIds(page.getData().stream().map(EsProduct::getId).collect(Collectors.toList()));
+        List<Product> sortedProducts = new ArrayList<>();
+        for (EsProduct esProduct : page.getData()) {
+            for (Product product : products) {
+                if (product.getId().equals(esProduct.getId())) {
+                    sortedProducts.add(product);
+                    break;
+                }
+            }
+        }
+        return new CommonPage<>(page.getPageNum(), page.getPageSize(), page.getTotalPage(), page.getTotal(), sortedProducts);
     }
 
     @Override

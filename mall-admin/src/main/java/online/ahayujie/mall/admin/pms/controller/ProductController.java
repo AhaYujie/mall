@@ -151,10 +151,12 @@ public class ProductController {
     }
 
     @ApiOperation(value = "分页查询商品", notes = "根据商品名称，货号，分类，品牌，上架状态，新品状态，推荐状态，审核状态，预告状态查询")
-    @PostMapping("/query/{pageNum}/{pageSize}")
-    public Result<CommonPage<Product>> query(@RequestBody QueryProductParam param,
-                                             @PathVariable Long pageNum,
-                                             @PathVariable Long pageSize) {
-        return Result.data(productService.queryProduct(param, pageNum, pageSize));
+    @PostMapping("/query")
+    public Result<CommonPage<Product>> query(@RequestBody QueryProductParam param) {
+        Integer pageNum = param.getPageNum(), pageSize = param.getPageSize(), sort = param.getSort();
+        param.setPageNum((pageNum == null || pageNum < 1) ? 1 : pageNum);
+        param.setPageSize((pageSize == null || pageSize < 1) ? 20 : pageSize);
+        param.setSort((sort == null || sort < 0 || sort > 3) ? 0 : sort);
+        return Result.data(productService.queryProduct(param));
     }
 }
