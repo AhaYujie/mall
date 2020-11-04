@@ -29,12 +29,13 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Result<Object> handleApiException(ApiException e) {
+    public Result<Object> handleApiException(Exception e) {
         e.printStackTrace();
-        if (e.getResultCode() != null) {
-            return Result.fail(e.getResultCode());
+        if (e instanceof  ApiException) {
+            ApiException apiException = (ApiException) e;
+            return Result.fail(apiException.getResultCode());
         }
-        return Result.fail(e.getMessage());
+        return Result.fail();
     }
 
     @ResponseBody
