@@ -106,7 +106,7 @@ public class ProductServiceImpl implements ProductService {
         }
         queryBuilder.withSort(getSortBuilder(sort));
         Page<EsProduct> page = productRepository.search(queryBuilder.build());
-        return new CommonPage<>((long) page.getNumber(), (long) page.getSize(), (long) page.getTotalPages(),
+        return new CommonPage<>((long) page.getNumber() + 1, (long) page.getSize(), (long) page.getTotalPages(),
                 page.getTotalElements(), page.getContent());
     }
 
@@ -158,7 +158,7 @@ public class ProductServiceImpl implements ProductService {
         queryBuilder.withFilter(boolQueryBuilder);
         queryBuilder.withSort(getSortBuilder(sort));
         Page<EsProduct> page = productRepository.search(queryBuilder.build());
-        return new CommonPage<>((long) page.getNumber(), (long) page.getSize(), (long) page.getTotalPages(),
+        return new CommonPage<>((long) page.getNumber() + 1, (long) page.getSize(), (long) page.getTotalPages(),
                 page.getTotalElements(), page.getContent());
     }
 

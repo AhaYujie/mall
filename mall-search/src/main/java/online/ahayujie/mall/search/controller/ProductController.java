@@ -33,19 +33,21 @@ public class ProductController {
     @ApiOperation(value = "简单搜索", notes = "sort：0->按相关度排序；1->按销量从高到低排序；2->按价格从高到低排序；" +
             "3->按价格从低到高排序")
     public Result<CommonPage<EsProduct>> search(@RequestBody SimpleQueryProductParam param) {
-        param.setPageNum(param.getPageNum() == null ? 1 : param.getPageNum());
-        param.setPageSize(param.getPageSize() == null ? 20 : param.getPageSize());
-        param.setSort(param.getSort() == null ? 0 : param.getSort());
-        return Result.data(productService.search(param.getPageNum(), param.getPageSize(), param.getKeyword(), param.getSort()));
+        Integer pageNum = param.getPageNum(), pageSize = param.getPageSize(), sort = param.getSort();
+        pageNum = ((pageNum == null || pageNum < 1) ? 1 : pageNum);
+        pageSize = ((pageSize == null || pageSize < 1) ? 20 : pageSize);
+        sort = ((sort == null || sort < 0 || sort > 3) ? 0 : sort);
+        return Result.data(productService.search(pageNum, pageSize, param.getKeyword(), sort));
     }
 
     @PostMapping("/search")
     @ApiOperation(value = "搜索商品", notes = "sort：0->按相关度排序；1->按销量从高到低排序；2->按价格从高到低排序；" +
             "3->按价格从低到高排序")
     public Result<CommonPage<EsProduct>> search(@RequestBody QueryProductParam param) {
-        param.setPageNum(param.getPageNum() == null ? 1 : param.getPageNum());
-        param.setPageSize(param.getPageSize() == null ? 20 : param.getPageSize());
-        param.setSort(param.getSort() == null ? 0 : param.getSort());
+        Integer pageNum = param.getPageNum(), pageSize = param.getPageSize(), sort = param.getSort();
+        param.setPageNum((pageNum == null || pageNum < 1) ? 1 : pageNum);
+        param.setPageSize((pageSize == null || pageSize < 1) ? 20 : pageSize);
+        param.setSort((sort == null || sort < 0 || sort > 3) ? 0 : sort);
         return Result.data(productService.search(param.getPageNum(), param.getPageSize(), param.getKeyword(),
                 param.getBrandId(), param.getProductCategoryId(), param.getProductSn(), param.getIsPublish(),
                 param.getIsNew(), param.getIsRecommend(), param.getIsVerify(), param.getIsPreview(),
