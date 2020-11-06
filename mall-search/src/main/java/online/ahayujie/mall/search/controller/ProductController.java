@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiOperation;
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.api.Result;
 import online.ahayujie.mall.search.bean.dto.QueryProductParam;
+import online.ahayujie.mall.search.bean.dto.RecommendProductParam;
 import online.ahayujie.mall.search.bean.dto.SimpleQueryProductParam;
 import online.ahayujie.mall.search.bean.model.EsProduct;
 import online.ahayujie.mall.search.service.ProductService;
@@ -29,7 +30,7 @@ public class ProductController {
         return Result.data(productService.getById(id));
     }
 
-    @GetMapping("/search/simple")
+    @PostMapping("/search/simple")
     @ApiOperation(value = "简单搜索", notes = "sort：0->按相关度排序；1->按销量从高到低排序；2->按价格从高到低排序；" +
             "3->按价格从低到高排序")
     public Result<CommonPage<EsProduct>> search(@RequestBody SimpleQueryProductParam param) {
@@ -55,10 +56,11 @@ public class ProductController {
     }
 
     @ApiOperation(value = "根据商品id获取推荐商品")
-    @GetMapping("/recommend")
-    public Result<CommonPage<EsProduct>> recommend(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
-                                                   @RequestParam(required = false, defaultValue = "5") Integer pageSize,
-                                                   @RequestParam Long id) {
-        return Result.data(productService.recommend(pageNum, pageSize, id));
+    @PostMapping("/recommend")
+    public Result<CommonPage<EsProduct>> recommend(@RequestBody RecommendProductParam param) {
+        Integer pageNum = param.getPageNum(), pageSize = param.getPageSize();
+        pageNum = ((pageNum == null || pageNum < 1) ? 1 : pageNum);
+        pageSize = ((pageSize == null || pageSize < 1) ? 20 : pageSize);
+        return Result.data(productService.recommend(pageNum, pageSize, param.getId()));
     }
 }
