@@ -2,15 +2,11 @@ package online.ahayujie.mall.portal.pms.controller;
 
 
 import io.swagger.annotations.ApiOperation;
+import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.api.Result;
-import online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO;
-import online.ahayujie.mall.portal.pms.bean.dto.SkuDTO;
+import online.ahayujie.mall.portal.pms.bean.dto.*;
 import online.ahayujie.mall.portal.pms.service.ProductService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -48,5 +44,21 @@ public class ProductController {
     @GetMapping("sku")
     public Result<SkuDTO> getSku(@RequestParam Long id) {
         return Result.data(productService.getSku(id));
+    }
+
+    @ApiOperation(value = "搜索商品")
+    @PostMapping("search")
+    public Result<CommonPage<ProductDTO>> search(@RequestBody SearchProductParam param) {
+        Integer pageNum = param.getPageNum(), pageSize = param.getPageSize(), sort = param.getSort();
+        param.setPageNum((pageNum == null || pageNum < 1) ? 1 : pageNum);
+        param.setPageSize((pageSize == null || pageSize < 1) ? 20 : pageSize);
+        param.setSort((sort == null || sort < 0 || sort > 3) ? 0 : sort);
+        return Result.data(productService.search(param));
+    }
+
+    @ApiOperation(value = "获取商品详情页的推荐商品")
+    @PostMapping("recommend")
+    public Result<CommonPage<ProductDTO>> recommend(@RequestBody RecommendProductParam param) {
+        return Result.data(productService.recommend(param));
     }
 }

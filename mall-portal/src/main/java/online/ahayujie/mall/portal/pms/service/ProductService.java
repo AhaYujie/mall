@@ -1,7 +1,7 @@
 package online.ahayujie.mall.portal.pms.service;
 
-import online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO;
-import online.ahayujie.mall.portal.pms.bean.dto.SkuDTO;
+import online.ahayujie.mall.common.api.CommonPage;
+import online.ahayujie.mall.portal.pms.bean.dto.*;
 import online.ahayujie.mall.portal.pms.bean.model.Product;
 
 import java.util.List;
@@ -62,4 +62,22 @@ public interface ProductService {
      * @return 商品的sku
      */
     SkuDTO getSku(Long id);
+
+    /**
+     * 搜索商品。
+     * 如果某一个参数为null则不作为查询条件。
+     *
+     * @param param 查询参数
+     * @return 商品
+     */
+    CommonPage<ProductDTO> search(SearchProductParam param);
+
+    /**
+     * 获取商品详情页的推荐商品。
+     * 如果商品(参数id的商品)不存在或者未上架则返回null。
+     *
+     * @param param 参数
+     * @return 推荐商品
+     */
+    CommonPage<ProductDTO> recommend(RecommendProductParam param);
 }

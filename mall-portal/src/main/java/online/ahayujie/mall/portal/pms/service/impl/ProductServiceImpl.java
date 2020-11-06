@@ -1,16 +1,22 @@
 package online.ahayujie.mall.portal.pms.service.impl;
 
-import online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO;
-import online.ahayujie.mall.portal.pms.bean.dto.SkuDTO;
+import lombok.extern.slf4j.Slf4j;
+import online.ahayujie.mall.common.api.CommonPage;
+import online.ahayujie.mall.portal.pms.bean.dto.*;
 import online.ahayujie.mall.portal.pms.bean.model.Product;
 import online.ahayujie.mall.portal.pms.mapper.*;
 import online.ahayujie.mall.portal.pms.service.ProductService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -20,19 +26,27 @@ import java.util.Map;
  * @author aha
  * @since 2020-10-17
  */
+@Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
+    @Value("${mall-search.search-url}")
+    private String MALL_SEARCH_URL;
+    @Value("${mall-search.recommend-url}")
+    private String MALL_RECOMMEND_URL;
+
     private final SkuMapper skuMapper;
+    private final RestTemplate restTemplate;
     private final ProductMapper productMapper;
     private final SkuImageMapper skuImageMapper;
     private final ProductImageMapper productImageMapper;
     private final ProductParamMapper productParamMapper;
     private final ProductSpecificationMapper productSpecificationMapper;
 
-    public ProductServiceImpl(SkuMapper skuMapper, ProductMapper productMapper, SkuImageMapper skuImageMapper,
-                              ProductImageMapper productImageMapper, ProductParamMapper productParamMapper,
-                              ProductSpecificationMapper productSpecificationMapper) {
+    public ProductServiceImpl(SkuMapper skuMapper, RestTemplate restTemplate, ProductMapper productMapper,
+                              SkuImageMapper skuImageMapper, ProductImageMapper productImageMapper,
+                              ProductParamMapper productParamMapper, ProductSpecificationMapper productSpecificationMapper) {
         this.skuMapper = skuMapper;
+        this.restTemplate = restTemplate;
         this.productMapper = productMapper;
         this.skuImageMapper = skuImageMapper;
         this.productImageMapper = productImageMapper;
@@ -95,5 +109,52 @@ public class ProductServiceImpl implements ProductService {
         List<ProductDetailDTO.Specification> specifications = productSpecificationMapper.selectDetailSpecification(id);
         List<ProductDetailDTO.Sku> skus = skuMapper.selectDetailSku(id);
         return new SkuDTO(specifications, skus);
+    }
+
+    @Override
+    public CommonPage<ProductDTO> search(SearchProductParam param) {
+        QueryEsProductParam queryParam = new QueryEsProductParam();
+        BeanUtils.copyProperties(param, queryParam);
+        queryParam.setIsPublish(Product.PublishStatus.PUBLISH.getValue());
+        QueryEsProductDTO response;
+        try {
+            response = restTemplate.postForObject(MALL_SEARCH_URL, param, QueryEsProductDTO.class);
+        } catch (RestClientException e) {
+            log.error(e.getMessage());
+            throw e;
+        }
+        if (response == null || response.getData() == null) {
+            log.error("搜索商品无结果: {}", response);
+            return null;
+        }
+        return getProductDTOPage(response.getData());
+    }
+
+    @Override
+    public CommonPage<ProductDTO> recommend(RecommendProductParam param) {
+        if (productMapper.selectIsPublish(param.getId()) == null) {
+            return null;
+        }
+        RecommendEsProductDTO response;
+        try {
+            response = restTemplate.postForObject(MALL_RECOMMEND_URL, param, RecommendEsProductDTO.class);
+        } catch (RestClientException e) {
+            log.error(e.getMessage());
+            throw e;
+        }
+        if (response == null || response.getData() == null) {
+            log.error("推荐商品无结果: {}", response);
+            return null;
+        }
+        return getProductDTOPage(response.getData());
+    }
+
+    private CommonPage<ProductDTO> getProductDTOPage(CommonPage<EsProduct> page) {
+        List<ProductDTO> productDTOS = page.getData().stream().map(esProduct -> {
+            ProductDTO productDTO = new ProductDTO();
+            BeanUtils.copyProperties(esProduct, productDTO);
+            return productDTO;
+        }).collect(Collectors.toList());
+        return new CommonPage<>(page.getPageNum(), page.getPageSize(), page.getTotalPage(), page.getTotal(), productDTOS);
     }
 }
