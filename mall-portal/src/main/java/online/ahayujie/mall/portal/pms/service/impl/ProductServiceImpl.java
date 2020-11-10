@@ -118,7 +118,7 @@ public class ProductServiceImpl implements ProductService {
         queryParam.setIsPublish(Product.PublishStatus.PUBLISH.getValue());
         QueryEsProductDTO response;
         try {
-            response = restTemplate.postForObject(MALL_SEARCH_URL, param, QueryEsProductDTO.class);
+            response = restTemplate.postForObject(MALL_SEARCH_URL, queryParam, QueryEsProductDTO.class);
         } catch (RestClientException e) {
             log.error(e.getMessage());
             throw e;
