@@ -7,6 +7,7 @@ import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.*;
 import online.ahayujie.mall.admin.ums.bean.model.Admin;
+import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.event.DeleteAdminEvent;
@@ -144,9 +145,14 @@ public class AdminServiceImpl implements AdminService {
         Long id = admin.getId();
         admin = adminMapper.selectById(id);
         List<Role> roles = roleService.getRoleListByAdminId(id);
+        Set<Menu> menus = new HashSet<>();
+        for (Role role : roles) {
+            menus.addAll(roleService.listMenu(role.getId()));
+        }
         AdminInfoDTO adminInfoDTO = new AdminInfoDTO();
         BeanUtils.copyProperties(admin, adminInfoDTO);
         adminInfoDTO.setRoles(roles);
+        adminInfoDTO.setMenus(new ArrayList<>(menus));
         return adminInfoDTO;
     }
 

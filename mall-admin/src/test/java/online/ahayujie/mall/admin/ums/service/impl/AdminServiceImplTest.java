@@ -2,15 +2,11 @@ package online.ahayujie.mall.admin.ums.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.admin.ums.bean.dto.*;
-import online.ahayujie.mall.admin.ums.bean.model.Admin;
-import online.ahayujie.mall.admin.ums.bean.model.AdminRoleRelation;
-import online.ahayujie.mall.admin.ums.bean.model.Role;
+import online.ahayujie.mall.admin.ums.bean.model.*;
 import online.ahayujie.mall.admin.ums.exception.DuplicateUsernameException;
 import online.ahayujie.mall.admin.ums.exception.IllegalAdminStatusException;
 import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
-import online.ahayujie.mall.admin.ums.mapper.AdminMapper;
-import online.ahayujie.mall.admin.ums.mapper.AdminRoleRelationMapper;
-import online.ahayujie.mall.admin.ums.mapper.RoleMapper;
+import online.ahayujie.mall.admin.ums.mapper.*;
 import online.ahayujie.mall.admin.ums.service.AdminService;
 import online.ahayujie.mall.admin.ums.service.RoleService;
 import online.ahayujie.mall.common.api.CommonPage;
@@ -20,13 +16,18 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,6 +59,17 @@ class AdminServiceImplTest {
 
     @Autowired
     private AdminRoleRelationMapper adminRoleRelationMapper;
+
+    @Autowired
+    private MenuMapper menuMapper;
+
+    @Autowired
+    private RoleMenuRelationMapper roleMenuRelationMapper;
+
+    @Value("${jwt.header}")
+    private String JWT_HEADER;
+    @Value("${jwt.header-prefix}")
+    private String JWT_HEADER_PREFIX;
 
     @BeforeAll
     static void beforeAll() {
@@ -454,5 +466,83 @@ class AdminServiceImplTest {
         assertEquals(5, result.getData().size());
         CommonPage<Admin> result1 = adminService.getAdminList(2L, 5L);
         assertEquals(5, result1.getData().size());
+    }
+
+    @Test
+    void getAdminInfo() {
+        // 登录
+        Random random = new Random();
+        String password = "123456";
+        Admin admin = new Admin();
+        admin.setUsername(getRandomString(random.nextInt(10) + 6));
+        admin.setPassword(passwordEncoder.encode(password));
+        admin.setStatus(Admin.ACTIVE_STATUS);
+        adminMapper.insert(admin);
+        admin.setPassword(password);
+        AdminLoginParam loginParam = new AdminLoginParam();
+        loginParam.setUsername(admin.getUsername());
+        loginParam.setPassword(admin.getPassword());
+        AdminLoginDTO loginDTO = adminService.login(loginParam);
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        assertNotNull(servletRequestAttributes);
+        HttpServletRequest request = servletRequestAttributes.getRequest();
+        MockHttpServletRequest mockHttpServletRequest = (MockHttpServletRequest) request;
+        mockHttpServletRequest.addHeader(JWT_HEADER, JWT_HEADER_PREFIX + loginDTO.getAccessToken());
+
+        // 创建角色
+        List<Role> roles = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            Role role = new Role();
+            role.setName(getRandomString(5));
+            role.setStatus(Role.STATUS.ACTIVE.getValue());
+            roleMapper.insert(role);
+            roles.add(role);
+        }
+        for (Role role : roles) {
+            AdminRoleRelation relation = new AdminRoleRelation();
+            relation.setAdminId(admin.getId());
+            relation.setRoleId(role.getId());
+            adminRoleRelationMapper.insert(relation);
+        }
+        // 创建菜单
+        List<Menu> menus = new ArrayList<>();
+        Menu commonMenu = new Menu();
+        commonMenu.setName(getRandomString(5));
+        menuMapper.insert(commonMenu);
+        menus.add(commonMenu);
+        for (Role role : roles) {
+            Menu menu = new Menu();
+            menu.setName(getRandomString(5));
+            menuMapper.insert(menu);
+            menus.add(menu);
+            RoleMenuRelation relation = new RoleMenuRelation();
+            relation.setRoleId(role.getId());
+            relation.setMenuId(menu.getId());
+            roleMenuRelationMapper.insert(relation);
+            relation = new RoleMenuRelation();
+            relation.setRoleId(role.getId());
+            relation.setMenuId(commonMenu.getId());
+            roleMenuRelationMapper.insert(relation);
+        }
+
+        AdminInfoDTO adminInfoDTO = adminService.getAdminInfo();
+        assertNotNull(adminInfoDTO);
+        assertEquals(admin.getUsername(), adminInfoDTO.getUsername());
+        assertEquals(roles.size(), adminInfoDTO.getRoles().size());
+        for (Role role : roles) {
+            boolean exist = false;
+            for (Role compare : adminInfoDTO.getRoles()) {
+                exist = (exist || compare.getName().equals(role.getName()));
+            }
+            assertTrue(exist);
+        }
+        assertEquals(menus.size(), adminInfoDTO.getMenus().size());
+        for (Menu menu : menus) {
+            boolean exist = false;
+            for (Menu compare : adminInfoDTO.getMenus()) {
+                exist = (exist || compare.getName().equals(menu.getName()));
+            }
+            assertTrue(exist);
+        }
     }
 }

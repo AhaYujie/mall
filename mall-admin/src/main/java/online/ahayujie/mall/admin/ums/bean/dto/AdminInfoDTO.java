@@ -2,6 +2,7 @@ package online.ahayujie.mall.admin.ums.bean.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import online.ahayujie.mall.admin.ums.bean.model.Menu;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 
 import java.util.Date;
@@ -36,4 +37,7 @@ public class AdminInfoDTO {
 
     @ApiModelProperty(value = "角色")
     private List<Role> roles;
+
+    @ApiModelProperty(value = "菜单")
+    private List<Menu> menus;
 }
