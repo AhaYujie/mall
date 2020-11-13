@@ -11,6 +11,8 @@ import online.ahayujie.mall.admin.ums.service.ResourceService;
 import online.ahayujie.mall.common.api.Result;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * <p>
  * 后台资源表 前端控制器
@@ -62,5 +64,11 @@ public class ResourceController {
     public Result<Object> deleteResource(@PathVariable Long id) {
         resourceService.removeById(id);
         return Result.success();
+    }
+
+    @ApiOperation(value = "获取全部资源")
+    @GetMapping("listAll")
+    public Result<List<Resource>> listAll() {
+        return Result.data(resourceService.list());
     }
 }
