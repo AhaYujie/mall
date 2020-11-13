@@ -24,7 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/brand")
-@Api(tags = "商品模块", value = "商品品牌管理")
+@Api(tags = "商品模块-商品品牌管理")
 public class BrandController {
     private final BrandService brandService;
 

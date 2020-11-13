@@ -27,7 +27,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/menu")
-@Api(tags = "后台用户管理", value = "后台菜单管理")
+@Api(tags = "后台用户模块-菜单管理")
 public class MenuController {
     private final MenuService menuService;
 

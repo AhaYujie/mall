@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/order-refund-reason")
-@Api(tags = "订单模块", value = "订单仅退款原因管理")
+@Api(tags = "订单模块-订单仅退款原因管理")
 public class OrderRefundReasonController {
     private final OrderRefundReasonService orderRefundReasonService;
 

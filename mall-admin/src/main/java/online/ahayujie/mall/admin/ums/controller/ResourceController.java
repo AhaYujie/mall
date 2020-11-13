@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/resource")
-@Api(tags = "后台用户管理", value = "后台资源管理")
+@Api(tags = "后台用户模块-资源管理")
 public class ResourceController {
     private final ResourceService resourceService;
 

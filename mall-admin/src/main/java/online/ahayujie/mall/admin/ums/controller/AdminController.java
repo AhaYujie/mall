@@ -30,7 +30,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/admin")
-@Api(tags = "后台用户管理", value = "后台用户管理")
+@Api(tags = "后台用户模块-用户管理")
 public class AdminController {
     private final RoleService roleService;
     private final AdminService adminService;

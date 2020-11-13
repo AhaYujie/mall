@@ -28,7 +28,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/role")
-@Api(tags = "后台用户管理", value = "后台用户角色管理")
+@Api(tags = "后台用户模块-角色管理")
 public class RoleController {
     private final RoleService roleService;
 

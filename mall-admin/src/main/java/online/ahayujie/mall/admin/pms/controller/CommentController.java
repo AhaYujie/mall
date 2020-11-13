@@ -1,6 +1,7 @@
 package online.ahayujie.mall.admin.pms.controller;
 
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import online.ahayujie.mall.admin.pms.bean.dto.CommentReplyParam;
 import online.ahayujie.mall.admin.pms.bean.model.Comment;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/product-comment")
+@Api(tags = "商品模块-商品评价管理")
 public class CommentController {
     private final CommentService commentService;
 

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/company-address")
-@Api(tags = "订单模块", value = "公司地址管理")
+@Api(tags = "订单模块-公司地址管理")
 public class CompanyAddressController {
     private final CompanyAddressService companyAddressService;
 

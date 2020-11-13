@@ -25,7 +25,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/product-category")
-@Api(tags = "商品模块", value = "商品分类管理")
+@Api(tags = "商品模块-商品分类管理")
 public class ProductCategoryController {
     private final ProductCategoryService productCategoryService;
 

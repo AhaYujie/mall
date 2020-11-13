@@ -24,7 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/order-refund-apply")
-@Api(tags = "订单模块", value = "订单仅退款申请管理")
+@Api(tags = "订单模块-订单仅退款申请管理")
 public class OrderRefundApplyController {
     private final OrderRefundApplyService orderRefundApplyService;
 

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/member")
-@Api(tags = "会员管理", value = "会员管理")
+@Api(tags = "会员模块-会员管理")
 public class MemberController {
     private final MemberService memberService;
 

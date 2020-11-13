@@ -23,7 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/resourceCategory")
-@Api(tags = "后台用户管理", value = "后台资源分类管理")
+@Api(tags = "后台用户模块-资源管理")
 public class ResourceCategoryController {
     private final ResourceCategoryService resourceCategoryService;
 

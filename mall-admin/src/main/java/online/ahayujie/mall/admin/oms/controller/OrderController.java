@@ -22,7 +22,7 @@ import javax.annotation.PostConstruct;
  */
 @RestController
 @RequestMapping("/order")
-@Api(tags = "订单模块", value = "订单管理")
+@Api(tags = "订单模块-订单管理")
 public class OrderController {
     private final OrderService orderService;
 

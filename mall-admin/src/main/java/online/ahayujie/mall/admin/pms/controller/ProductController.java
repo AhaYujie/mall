@@ -1,6 +1,7 @@
 package online.ahayujie.mall.admin.pms.controller;
 
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import online.ahayujie.mall.admin.pms.bean.dto.*;
 import online.ahayujie.mall.admin.pms.bean.model.Product;
@@ -24,6 +25,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/product")
+@Api(tags = "商品模块-商品管理")
 public class ProductController {
     private final ProductService productService;
 

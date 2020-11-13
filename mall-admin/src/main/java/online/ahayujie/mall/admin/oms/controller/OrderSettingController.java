@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/order-setting")
-@Api(tags = "订单模块", value = "订单设置管理")
+@Api(tags = "订单模块-订单设置管理")
 public class OrderSettingController {
     private final OrderSettingService orderSettingService;
 
