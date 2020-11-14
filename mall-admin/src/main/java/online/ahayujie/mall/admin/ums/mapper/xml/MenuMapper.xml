@@ -31,4 +31,11 @@
         from ums_menu
     </select>
 
+    <select id="selectAllByParentId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, parent_id, title, level, sort, name, icon, hidden
+        from ums_menu
+        where parent_id = #{parentId}
+    </select>
+
 </mapper>

@@ -34,4 +34,11 @@ public interface MenuMapper extends BaseMapper<Menu> {
      * @return 全部菜单
      */
     List<Menu> selectAll();
+
+    /**
+     * 根据上级菜单id查询全部
+     * @param parentId 上级菜单id
+     * @return 全部子菜单
+     */
+    List<Menu> selectAllByParentId(Long parentId);
 }

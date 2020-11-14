@@ -182,5 +182,19 @@ class MenuServiceImplTest {
         log.debug("oldMenus: " + oldMenus);
         log.debug("newMenus: " + newMenus);
         assertEquals(oldMenus.size(), newMenus.size());
+
+        // with sub menu
+        Menu parent = new Menu();
+        parent.setParentId(Menu.NON_PARENT_ID);
+        parent.setName("parent menu");
+        menuMapper.insert(parent);
+        Menu subMenu = new Menu();
+        subMenu.setParentId(parent.getId());
+        subMenu.setName("sub menu");
+        menuMapper.insert(subMenu);
+        List<Menu> oldMenus1 = menuService.list();
+        menuService.removeById(parent.getId());
+        List<Menu> newMenus1 = menuService.list();
+        assertEquals(oldMenus1.size() - 2, newMenus1.size());
     }
 }

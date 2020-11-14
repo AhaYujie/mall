@@ -69,7 +69,7 @@ public class MenuController {
         return Result.data(menuService.getById(id));
     }
 
-    @ApiOperation(value = "根据ID删除后台菜单")
+    @ApiOperation(value = "根据ID删除后台菜单", notes = "根据ID删除后台菜单，如果该菜单存在下级菜单，则一并删除下级菜单")
     @PostMapping("/delete/{id}")
     public Result<Object> deleteById(@PathVariable Long id) {
         menuService.removeById(id);

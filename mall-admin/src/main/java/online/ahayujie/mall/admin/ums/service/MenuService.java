@@ -85,7 +85,7 @@ public interface MenuService extends ApplicationEventPublisherAware {
     List<Menu> list();
 
     /**
-     * 根据id删除菜单，
+     * 根据id删除菜单，如果该菜单存在下级菜单，则一并删除下级菜单。
      * 删除菜单成功后，通过Spring 事件机制发布
      * {@link online.ahayujie.mall.admin.ums.event.DeleteMenuEvent} 事件
      * @param id 主键id

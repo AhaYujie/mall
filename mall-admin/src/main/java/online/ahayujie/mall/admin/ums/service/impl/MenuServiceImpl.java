@@ -12,7 +12,6 @@ import online.ahayujie.mall.admin.ums.exception.IllegalMenuVisibilityException;
 import online.ahayujie.mall.admin.ums.exception.IllegalParentMenuException;
 import online.ahayujie.mall.admin.ums.mapper.MenuMapper;
 import online.ahayujie.mall.admin.ums.service.MenuService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
 import org.springframework.beans.BeanUtils;
@@ -113,6 +112,11 @@ public class MenuServiceImpl implements MenuService {
         Menu menu = menuMapper.selectById(id);
         int count = menuMapper.deleteById(id);
         if (count > 0) {
+            List<Menu> subMenus = menuMapper.selectAllByParentId(id);
+            for (Menu subMenu : subMenus) {
+                menuMapper.deleteById(subMenu.getId());
+                applicationEventPublisher.publishEvent(new DeleteMenuEvent(subMenu));
+            }
             applicationEventPublisher.publishEvent(new DeleteMenuEvent(menu));
         }
         return count;
