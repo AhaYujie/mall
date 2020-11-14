@@ -33,4 +33,21 @@
         where category_id = #{categoryId}
     </select>
 
+    <select id="queryPage" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, is_deleted, category_id, name, url, description
+        from ums_resource
+        <where>
+            <if test="categoryId != null">
+                category_id = #{categoryId}
+            </if>
+            <if test="nameKeyword != null">
+                and name like concat('%', #{nameKeyword}, '%')
+            </if>
+            <if test="urlKeyword != null">
+                and url like concat('%', #{urlKeyword}, '%')
+            </if>
+        </where>
+    </select>
+
 </mapper>

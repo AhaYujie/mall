@@ -14,6 +14,7 @@ import online.ahayujie.mall.admin.ums.mapper.RoleMapper;
 import online.ahayujie.mall.admin.ums.mapper.RoleResourceRelationMapper;
 import online.ahayujie.mall.admin.ums.service.ResourceCategoryService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
+import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -249,5 +250,32 @@ class ResourceServiceImplTest {
         List<Resource> resources = resourceService.getByCategoryId(resourceCategory.getId());
         log.debug("resources: " + resources);
         assertEquals(size, resources.size());
+    }
+
+    @Test
+    void list() {
+        // not exist
+        CommonPage<Resource> result = resourceService.list(-1L, "", "", 1, 20);
+        assertEquals(0, result.getData().size());
+
+        // exist
+        ResourceCategory resourceCategory = new ResourceCategory();
+        resourceCategory.setName("for test");
+        resourceCategoryMapper.insert(resourceCategory);
+        for (int i = 0; i < 10; i++) {
+            Resource resource = new Resource();
+            resource.setCategoryId(resourceCategory.getId());
+            resource.setName("for test: " + i);
+            resource.setUrl("/for/test/" + i);
+            resourceMapper.insert(resource);
+        }
+        CommonPage<Resource> result1 = resourceService.list(resourceCategory.getId(), "", "", 1, 5);
+        assertEquals(5, result1.getData().size());
+        CommonPage<Resource> result2 = resourceService.list(null, null, null, 1, 5);
+        assertEquals(5, result2.getData().size());
+        CommonPage<Resource> result3 = resourceService.list(null, "test", null, 1, 5);
+        assertEquals(5, result3.getData().size());
+        CommonPage<Resource> result4 = resourceService.list(null, null, "/test", 1, 5);
+        assertEquals(5, result4.getData().size());
     }
 }

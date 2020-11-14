@@ -1,5 +1,6 @@
 package online.ahayujie.mall.admin.ums.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import online.ahayujie.mall.admin.ums.bean.dto.CreateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.dto.UpdateResourceParam;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
@@ -14,6 +15,7 @@ import online.ahayujie.mall.admin.ums.service.ResourceCategoryService;
 import online.ahayujie.mall.admin.ums.service.ResourceService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import online.ahayujie.mall.admin.ums.service.RoleService;
+import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,6 +126,13 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public List<Resource> getByCategoryId(Long categoryId) {
         return resourceMapper.selectByCategoryId(categoryId);
+    }
+
+    @Override
+    public CommonPage<Resource> list(Long categoryId, String nameKeyword, String urlKeyword, Integer pageNum, Integer pageSize) {
+        Page<Resource> page = new Page<>(pageNum, pageSize);
+        Page<Resource> resourcePage = resourceMapper.queryPage(page, categoryId, nameKeyword, urlKeyword);
+        return new CommonPage<>(resourcePage);
     }
 
     @Override

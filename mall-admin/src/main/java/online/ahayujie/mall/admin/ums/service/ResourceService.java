@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceCategoryException;
 import online.ahayujie.mall.admin.ums.exception.IllegalResourceException;
+import online.ahayujie.mall.common.api.CommonPage;
 import org.springframework.context.ApplicationEventPublisherAware;
 
 import java.util.Collection;
@@ -90,4 +91,15 @@ public interface ResourceService extends ApplicationEventPublisherAware {
      * @return 资源
      */
     List<Resource> getByCategoryId(Long categoryId);
+
+    /**
+     * 分页模糊查询后台资源
+     * @param categoryId 分类id，为null则不作为查询条件
+     * @param nameKeyword 名称关键词，为null则不作为查询条件
+     * @param urlKeyword url关键词，为null则不作为查询条件
+     * @param pageNum 页索引
+     * @param pageSize 页大小
+     * @return 后台资源
+     */
+    CommonPage<Resource> list(Long categoryId, String nameKeyword, String urlKeyword, Integer pageNum, Integer pageSize);
 }

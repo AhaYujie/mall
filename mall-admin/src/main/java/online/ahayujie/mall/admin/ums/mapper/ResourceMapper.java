@@ -1,8 +1,10 @@
 package online.ahayujie.mall.admin.ums.mapper;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import online.ahayujie.mall.admin.ums.bean.model.Resource;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -37,4 +39,15 @@ public interface ResourceMapper extends BaseMapper<Resource> {
      * @return 资源
      */
     List<Resource> selectByCategoryId(Long categoryId);
+
+    /**
+     * 分页模糊查询
+     * @param page 分页参数
+     * @param categoryId 分类id，为null则不作为查询条件
+     * @param nameKeyword 名称关键词，为null则不作为查询条件
+     * @param urlKeyword url关键词，为null则不作为查询条件
+     * @return 资源
+     */
+    Page<Resource> queryPage(@Param("page") Page<Resource> page, @Param("categoryId") Long categoryId,
+                             @Param("nameKeyword") String nameKeyword, @Param("urlKeyword") String urlKeyword);
 }
