@@ -8,6 +8,7 @@ import online.ahayujie.mall.admin.ums.bean.model.Admin;
 import online.ahayujie.mall.admin.ums.bean.model.Role;
 import online.ahayujie.mall.admin.ums.exception.DuplicateUsernameException;
 import online.ahayujie.mall.admin.ums.exception.IllegalAdminStatusException;
+import online.ahayujie.mall.admin.ums.exception.IllegalRoleException;
 import online.ahayujie.mall.admin.ums.service.AdminService;
 import online.ahayujie.mall.admin.ums.service.RoleService;
 import online.ahayujie.mall.common.api.CommonPage;
@@ -74,7 +75,7 @@ public class AdminController {
         }
     }
 
-    @ApiOperation(value = "给用户分配角色")
+    @ApiOperation(value = "给用户分配角色", notes = "给用户分配角色，分配的角色需要是已启用的")
     @PostMapping("/role/update")
     public Result<Object> updateRole(@RequestParam("adminId") Long adminId,
                                      @RequestParam("roleIds") List<Long> roleIds) {
@@ -83,12 +84,12 @@ public class AdminController {
             return Result.success();
         } catch (UsernameNotFoundException e) {
             return Result.fail("用户不存在");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalRoleException e) {
             return Result.fail("角色不合法");
         }
     }
 
-    @ApiOperation(value = "获取指定用户的角色")
+    @ApiOperation(value = "获取指定用户的角色", notes = "获取指定用户的角色，且角色状态是启用的")
     @GetMapping("/role/{adminId}")
     public Result<List<Role>> getAdminRoleList(@PathVariable Long adminId) {
         return Result.data(roleService.getRoleListByAdminId(adminId));
@@ -100,7 +101,7 @@ public class AdminController {
         return Result.data(adminService.getAdminInfo());
     }
 
-    @ApiOperation(value = "根据用户名或昵称分页获取用户列表")
+    @ApiOperation(value = "根据用户名或昵称分页模糊查询用户列表")
     @GetMapping("/query")
     public Result<CommonPage<Admin>> getAdminList(@RequestParam(required = false) String keyword,
                                                   @RequestParam(defaultValue = "5") Integer pageSize,

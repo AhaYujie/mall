@@ -55,7 +55,8 @@ public class ResourceCategoryController {
         }
     }
 
-    @ApiOperation(value = "根据ID删除后台资源分类", notes = "根据ID删除后台资源分类，只删除资源分类，不删除资源分类下的资源")
+    @ApiOperation(value = "根据ID删除后台资源分类", notes = "根据ID删除后台资源分类，只删除资源分类，不删除该资源分类下的资源，" +
+            "并且该分类下的资源变为无分类的资源")
     @PostMapping("/delete/{id}")
     public Result<Object> delete(@PathVariable Long id) {
         resourceCategoryService.delete(id);

@@ -69,7 +69,8 @@ public class MenuController {
         return Result.data(menuService.getById(id));
     }
 
-    @ApiOperation(value = "根据ID删除后台菜单", notes = "根据ID删除后台菜单，如果该菜单存在下级菜单，则一并删除下级菜单")
+    @ApiOperation(value = "根据ID删除后台菜单", notes = "根据ID删除后台菜单，如果该菜单存在下级菜单，则一并删除下级菜单。" +
+            "删除菜单成功后，会删除相关的角色菜单关系，即所有角色不再拥有被删除的菜单")
     @PostMapping("/delete/{id}")
     public Result<Object> deleteById(@PathVariable Long id) {
         menuService.removeById(id);

@@ -56,7 +56,7 @@ public class RoleController {
         }
     }
 
-    @ApiOperation(value = "批量删除角色")
+    @ApiOperation(value = "批量删除角色", notes = "批量删除角色，删除角色成功后，会删除相关的后台用户角色关系，菜单角色关系，资源角色关系")
     @PostMapping("/delete")
     public Result<Object> deleteRoles(@RequestParam List<Long> ids) {
         roleService.deleteRoles(ids);
@@ -69,7 +69,7 @@ public class RoleController {
         return Result.data(roleService.list());
     }
 
-    @ApiOperation(value = "根据角色名称分页获取角色列表")
+    @ApiOperation(value = "根据角色名称分页模糊查询角色列表")
     @GetMapping("/list")
     public Result<CommonPage<Role>> queryByName(@RequestParam(required = false) String keyword,
                                                 @RequestParam(defaultValue = "5") Integer pageSize,
