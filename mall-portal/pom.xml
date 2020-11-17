@@ -31,6 +31,12 @@
     <build>
         <resources>
             <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.*</include>
+                </includes>
+            </resource>
+            <resource>
                 <directory>src/main/java</directory>
                 <includes>
                     <include>**/*.xml</include>
@@ -41,6 +47,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

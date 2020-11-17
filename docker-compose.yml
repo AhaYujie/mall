@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  mall-admin:
+    container_name: mall-admin
+    image: online.ahayujie/mall-admin:1.0-SNAPSHOT
+    restart: always
+    environment:
+      - "SPRING_PROFILES_ACTIVE=prod"
+
+  mall-portal:
+    container_name: mall-portal
+    image: online.ahayujie/mall-portal:1.0-SNAPSHOT
+    restart: always
+    environment:
+      - "SPRING_PROFILES_ACTIVE=prod"
+
+  mall-search:
+    container_name: mall-search
+    image: online.ahayujie/mall-search:1.0-SNAPSHOT
+    restart: always
+    environment:
+      - "SPRING_PROFILES_ACTIVE=prod"
