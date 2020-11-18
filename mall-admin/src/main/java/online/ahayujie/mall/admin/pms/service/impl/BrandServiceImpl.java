@@ -134,11 +134,11 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public void updateFactoryStatus(List<Long> ids, Integer isFactory) throws IllegalBrandException {
         Brand brand = new Brand();
-        brand.setIsShow(isFactory);
+        brand.setIsFactory(isFactory);
         validateBrand(brand);
         for (Long id : ids) {
             UpdateBrandParam param = new UpdateBrandParam();
-            param.setIsShow(isFactory);
+            param.setIsFactory(isFactory);
             try {
                 update(id, param);
             } catch (IllegalBrandException e) {

@@ -261,7 +261,7 @@ class BrandServiceImplTest {
         brandService.updateFactoryStatus(ids, isFactory);
         List<Brand> newBrands = brandMapper.selectBatchIds(ids);
         for (Brand brand : newBrands) {
-            assertEquals(Brand.ShowStatus.SHOW.getValue(), brand.getIsShow());
+            assertEquals(Brand.FactoryStatus.FACTORY.getValue(), brand.getIsFactory());
         }
 
         // illegal
