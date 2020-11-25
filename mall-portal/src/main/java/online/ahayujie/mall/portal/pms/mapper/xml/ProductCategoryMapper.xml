@@ -9,14 +9,10 @@
     <result column="create_time" property="createTime" />
         <result column="parent_id" property="parentId" />
         <result column="name" property="name" />
-        <result column="level" property="level" />
         <result column="product_count" property="productCount" />
-        <result column="product_unit" property="productUnit" />
         <result column="is_nav" property="isNav" />
-        <result column="is_show" property="isShow" />
         <result column="sort" property="sort" />
         <result column="icon" property="icon" />
-        <result column="keywords" property="keywords" />
         <result column="description" property="description" />
     </resultMap>
 
@@ -24,27 +20,24 @@
         <result column="id" property="id" />
         <result column="parent_id" property="parentId" />
         <result column="name" property="name" />
-        <result column="level" property="level" />
         <result column="product_count" property="productCount" />
-        <result column="product_unit" property="productUnit" />
         <result column="icon" property="icon" />
-        <result column="keywords" property="keywords" />
         <result column="description" property="description" />
     </resultMap>
 
-    <select id="selectFirstLevel" resultMap="DTOResultMap">
+    <select id="selectAllByParentId" resultMap="DTOResultMap">
         select
-        id, parent_id, name, level, product_count, product_unit, icon, keywords, description
+        id, parent_id, name, product_count, icon, description
         from pms_product_category
-        where parent_id = #{parentId} and is_show = #{isShow}
+        where parent_id = #{parentId}
         order by sort desc
     </select>
 
-    <select id="selectSecondLevel" resultMap="DTOResultMap">
+    <select id="selectPageByIsNav" resultMap="DTOResultMap">
         select
-            id, parent_id, name, level, product_count, product_unit, icon, keywords, description
+            id, parent_id, name, product_count, icon, description
         from pms_product_category
-        where parent_id = #{parentId} and is_show = #{isShow}
+        where is_nav = #{isNav}
         order by sort desc
     </select>
 

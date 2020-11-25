@@ -24,14 +24,9 @@ import lombok.experimental.Accessors;
 @TableName("pms_product_category")
 @ApiModel(value="ProductCategory对象", description="商品分类")
 public class ProductCategory extends Base {
-
     public static final long NON_PARENT_ID = 0L;
 
-    public static final int FIRST_LEVEL = 0;
-
-    public static final int SECOND_LEVEL = 1;
-
-    public enum ShowStatus {
+    public enum NavStatus {
         /**
          * 不显示在导航栏
          */
@@ -44,7 +39,7 @@ public class ProductCategory extends Base {
         ;
         private final Integer value;
 
-        ShowStatus(Integer value) {
+        NavStatus(Integer value) {
             this.value = value;
         }
 
@@ -61,31 +56,18 @@ public class ProductCategory extends Base {
     @ApiModelProperty(value = "名称")
     private String name;
 
-    @ApiModelProperty(value = "分类级别：0->1级；1->2级")
-    private Integer level;
-
-    @ApiModelProperty(value = "商品数量")
-    private Integer productCount;
-
-    @ApiModelProperty(value = "商品单位")
-    private String productUnit;
-
-    @ApiModelProperty(value = "是否显示在导航栏：0->不显示；1->显示")
-    private Integer isNav;
-
-    @ApiModelProperty(value = "是否在移动端显示：0->不显示；1->显示")
-    private Integer isShow;
-
-    @ApiModelProperty(value = "排序，从大到小排序")
-    private Integer sort;
-
     @ApiModelProperty(value = "图标")
     private String icon;
-
-    @ApiModelProperty(value = "关键字")
-    private String keywords;
 
     @ApiModelProperty(value = "描述")
     private String description;
 
+    @ApiModelProperty(value = "商品数量")
+    private Integer productCount;
+
+    @ApiModelProperty(value = "是否显示在导航栏：0->不显示；1->显示")
+    private Integer isNav;
+
+    @ApiModelProperty(value = "排序，从大到小排序")
+    private Integer sort;
 }

@@ -22,26 +22,21 @@ import java.util.List;
 @Repository
 public interface ProductCategoryMapper extends BaseMapper<ProductCategory> {
     /**
-     * 获取所有一级分类。
-     * 商品分类的isShow = {@code isShow}，
+     * 根据上级分类获取所有。
      * 根据sort从大到小排序。
      *
-     * @param parentId 一级分类的父类id
-     * @param isShow 是否显示
-     * @return 商品一级分类
+     * @param parentId 上级分类id
+     * @return 商品分类
      */
-    List<ProductCategoryDTO> selectFirstLevel(@Param("parentId") Long parentId, @Param("isShow") Integer isShow);
+    List<ProductCategoryDTO> selectAllByParentId(@Param("parentId") Long parentId);
 
     /**
-     * 分页查询二级分类。
-     * 商品分类的isShow = {@code isShow}，
+     * 根据isNav分页获取。
      * 根据sort从大到小排序。
      *
      * @param page 分页参数
-     * @param parentId 上级分类id
-     * @param isShow 是否显示
-     * @return 商品二级分类
+     * @param isNav 是否显示在导航栏
+     * @return 商品分类
      */
-    Page<ProductCategoryDTO> selectSecondLevel(@Param("page") Page<ProductCategoryDTO> page, @Param("parentId") Long parentId,
-                                               @Param("isShow") Integer isShow);
+    Page<ProductCategoryDTO> selectPageByIsNav(@Param("page") Page<ProductCategoryDTO> page, @Param("isNav") Integer isNav);
 }

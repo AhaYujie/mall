@@ -41,4 +41,11 @@ public interface ProductCategoryMapper extends BaseMapper<ProductCategory> {
      * @return 商品分类
      */
     List<ProductCategory> selectAllByParentId(Long parentId);
+
+    /**
+     * 根据上级分类查询全部id
+     * @param parentId 上级分类id
+     * @return 全部分类id
+     */
+    List<Long> selectIdsByParentId(Long parentId);
 }

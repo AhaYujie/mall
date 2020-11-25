@@ -41,7 +41,10 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         ProductCategory productCategory = new ProductCategory();
         BeanUtils.copyProperties(param, productCategory);
         validate(productCategory);
-        productCategory.setLevel(getLevel(productCategory.getParentId()));
+        Long parentId = param.getParentId();
+        if (parentId != ProductCategory.NON_PARENT_ID && productCategoryMapper.selectById(parentId) == null) {
+            throw new IllegalProductCategoryException("上级分类不存在");
+        }
         productCategory.setCreateTime(new Date());
         productCategoryMapper.insert(productCategory);
     }
@@ -52,11 +55,15 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         productCategory.setId(id);
         BeanUtils.copyProperties(param, productCategory);
         validate(productCategory);
+        if (id.equals(param.getParentId())) {
+            throw new IllegalProductCategoryException("上级分类不能是自身");
+        }
         if (productCategoryMapper.selectById(id) == null) {
             throw new IllegalProductCategoryException("商品分类不存在");
         }
-        if (productCategory.getParentId() != null) {
-            productCategory.setLevel(getLevel(productCategory.getParentId()));
+        Long parentId = productCategory.getParentId();
+        if (parentId != null && ProductCategory.NON_PARENT_ID != parentId && productCategoryMapper.selectById(parentId) == null) {
+            throw new IllegalProductCategoryException("上级分类不存在");
         }
         productCategory.setUpdateTime(new Date());
         productCategoryMapper.updateById(productCategory);
@@ -83,6 +90,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             return;
         }
         productCategoryMapper.deleteById(id);
+        List<Long> subCategoryIds = productCategoryMapper.selectIdsByParentId(id);
+        subCategoryIds.forEach(this::delete);
         // 发送删除商品分类消息
         DeleteProductCategoryMessageDTO messageDTO = new DeleteProductCategoryMessageDTO();
         BeanUtils.copyProperties(productCategory, messageDTO);
@@ -100,56 +109,22 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             try {
                 update(id, param);
             } catch (IllegalProductCategoryException e) {
-                // do nothing
+                // 抛出异常说明这个商品分类不存在，则忽略
             }
         }
     }
 
     @Override
-    public void updateShowStatus(List<Long> ids, Integer isShow) throws IllegalProductCategoryException {
-        ProductCategory productCategory = new ProductCategory();
-        productCategory.setIsNav(isShow);
-        validate(productCategory);
-        for (Long id : ids) {
-            UpdateProductCategoryParam param = new UpdateProductCategoryParam();
-            param.setIsShow(isShow);
-            try {
-                update(id, param);
-            } catch (IllegalProductCategoryException e) {
-                // do nothing
-            }
-        }
-    }
-
-    @Override
-    public List<ProductCategoryTree> listWithChildren() {
-        List<ProductCategory> parents = productCategoryMapper.selectAllByParentId(ProductCategory.NON_PARENT_ID);
-        List<ProductCategoryTree> trees = parents.stream()
-                .map(parent -> new ProductCategoryTree(parent, null))
-                .collect(Collectors.toList());
-        for (ProductCategoryTree tree : trees) {
-            ProductCategory parent = tree.getProductCategory();
-            List<ProductCategory> children = productCategoryMapper.selectAllByParentId(parent.getId());
-            List<ProductCategoryTree> childrenTrees = children.stream()
-                    .map(child -> new ProductCategoryTree(child, null))
-                    .collect(Collectors.toList());
-            tree.setChildren(childrenTrees);
+    public List<ProductCategoryTree> listWithChildren(Long parentId) {
+        List<ProductCategory> roots = productCategoryMapper.selectAllByParentId(parentId);
+        List<ProductCategoryTree> trees = new ArrayList<>();
+        for (ProductCategory root : roots) {
+            ProductCategoryTree tree = new ProductCategoryTree();
+            tree.setProductCategory(root);
+            tree.setChildren(listWithChildren(root.getId()));
+            trees.add(tree);
         }
         return trees;
-    }
-
-    /**
-     * 根据上级分类获取分类级别
-     * 若parentId为null则默认返回一级分类，即0
-     * @param parentId 上级分类id
-     * @return 分类级别
-     */
-    private Integer getLevel(Long parentId) {
-        if (parentId == null || parentId == 0) {
-            return 0;
-        }
-        ProductCategory parent = productCategoryMapper.selectById(parentId);
-        return parent == null ? 0 : (parent.getLevel() + 1);
     }
 
     /**
@@ -167,12 +142,6 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             .map(ProductCategory.NavStatus::getValue)
             .collect(Collectors.toList()).contains(isNav)) {
             throw new IllegalProductCategoryException("显示在导航栏状态不合法");
-        }
-        Integer isShow = productCategory.getIsShow();
-        if (isShow != null && !Arrays.stream(ProductCategory.ShowStatus.values())
-                .map(ProductCategory.ShowStatus::getValue)
-                .collect(Collectors.toList()).contains(isShow)) {
-            throw new IllegalProductCategoryException("显示在移动端状态不合法");
         }
     }
 

@@ -33,7 +33,7 @@ public class ProductCategoryController {
         this.productCategoryService = productCategoryService;
     }
 
-    @ApiOperation(value = "添加商品分类")
+    @ApiOperation(value = "添加商品分类", notes = "支持多级分类")
     @PostMapping("create")
     public Result<Object> create(@RequestBody CreateProductCategoryParam param) {
         try {
@@ -44,7 +44,7 @@ public class ProductCategoryController {
         }
     }
 
-    @ApiOperation(value = "修改商品分类")
+    @ApiOperation(value = "修改商品分类", notes = "支持多级分类，上级分类不可以是自身")
     @PostMapping("/update/{id}")
     public Result<Object> update(@PathVariable Long id, @RequestBody UpdateProductCategoryParam param) {
         try {
@@ -55,7 +55,7 @@ public class ProductCategoryController {
         }
     }
 
-    @ApiOperation(value = "根据上级分类分页查询商品分类")
+    @ApiOperation(value = "根据上级分类分页查询商品分类", notes = "分页查询该上级分类的下一级商品分类，不包括下一级分类的下级分类")
     @GetMapping("/list/{parentId}")
     public Result<CommonPage<ProductCategory>> getPageByParentId(@PathVariable Long parentId,
                                                                  @RequestParam(defaultValue = "5") Integer pageNum,
@@ -69,7 +69,7 @@ public class ProductCategoryController {
         return Result.data(productCategoryService.getById(id));
     }
 
-    @ApiOperation(value = "删除商品分类", notes = "删除商品分类，该分类下的商品不被删除，而是变成没有分类的商品")
+    @ApiOperation(value = "删除商品分类", notes = "同时递归删除该分类的下级分类，被删除的商品分类下的商品不被删除，而是变成没有分类的商品")
     @PostMapping("/delete/{id}")
     public Result<Object> delete(@PathVariable Long id) {
         productCategoryService.delete(id);
@@ -87,20 +87,9 @@ public class ProductCategoryController {
         }
     }
 
-    @ApiOperation(value = "修改显示状态", notes = "修改显示状态，若某个商品分类不存在则忽略")
-    @PostMapping("/update/showStatus")
-    public Result<Object> updateShowStatus(@RequestParam List<Long> ids, @RequestParam Integer isShow) {
-        try {
-            productCategoryService.updateShowStatus(ids, isShow);
-            return Result.success();
-        } catch (IllegalProductCategoryException e) {
-            return Result.fail("显示状态不合法");
-        }
-    }
-
-    @ApiOperation(value = "查询所有一级分类及子分类")
+    @ApiOperation(value = "根据上级分类树形结构递归查询所有子分类", notes = "查询包括该上级分类的所有子分类及其子分类，例如子分类A的子分类a")
     @GetMapping("/list/withChildren")
-    public Result<List<ProductCategoryTree>> listWithChildren() {
-        return Result.data(productCategoryService.listWithChildren());
+    public Result<List<ProductCategoryTree>> listWithChildren(@RequestParam Long parentId) {
+        return Result.data(productCategoryService.listWithChildren(parentId));
     }
 }
