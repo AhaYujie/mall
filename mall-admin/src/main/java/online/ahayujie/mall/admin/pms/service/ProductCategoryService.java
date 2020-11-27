@@ -30,6 +30,7 @@ public interface ProductCategoryService {
 
     /**
      * 更新商品分类信息，支持多级分类。
+     * 上级分类不能是自身和所有下级分类(包括下一级分类的下级分类)。
      * 更新成功后，调用
      * {@link ProductCategoryPublisher#publishUpdateMsg(Long)}
      * 发送消息。

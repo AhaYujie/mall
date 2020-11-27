@@ -65,10 +65,28 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         if (parentId != null && ProductCategory.NON_PARENT_ID != parentId && productCategoryMapper.selectById(parentId) == null) {
             throw new IllegalProductCategoryException("上级分类不存在");
         }
+        List<Long> subIds = new ArrayList<>();
+        helpGetSub(id, subIds);
+        if (subIds.contains(parentId)) {
+            throw new IllegalProductCategoryException("更新的上级分类不能是该商品分类的下级分类");
+        }
         productCategory.setUpdateTime(new Date());
         productCategoryMapper.updateById(productCategory);
         // 发送更新商品分类的消息
         productCategoryPublisher.publishUpdateMsg(id);
+    }
+
+    /**
+     * 递归获取所有下级分类id
+     * @param parentId 上级分类id
+     * @param ids 下级分类id
+     */
+    private void helpGetSub(Long parentId, List<Long> ids) {
+        List<Long> tmp = productCategoryMapper.selectIdsByParentId(parentId);
+        for (Long id : tmp) {
+            helpGetSub(id, ids);
+        }
+        ids.addAll(tmp);
     }
 
     @Override

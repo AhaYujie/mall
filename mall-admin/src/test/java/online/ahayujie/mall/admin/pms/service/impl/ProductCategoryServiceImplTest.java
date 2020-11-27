@@ -128,6 +128,20 @@ class ProductCategoryServiceImplTest {
         assertThrows(IllegalProductCategoryException.class, () -> productCategoryService.update(productCategory.getId(), param));
         param.setParentId(productCategory.getId());
         assertThrows(IllegalProductCategoryException.class, () -> productCategoryService.update(productCategory.getId(), param));
+        ProductCategory sub = new ProductCategory();
+        sub.setName("sub");
+        sub.setParentId(productCategory.getId());
+        productCategoryMapper.insert(sub);
+        UpdateProductCategoryParam param8 = new UpdateProductCategoryParam();
+        param8.setParentId(sub.getId());
+        assertThrows(IllegalProductCategoryException.class, () -> productCategoryService.update(productCategory.getId(), param8));
+        ProductCategory subSub = new ProductCategory();
+        subSub.setName("subSub");
+        subSub.setParentId(sub.getId());
+        productCategoryMapper.insert(subSub);
+        UpdateProductCategoryParam param7 = new UpdateProductCategoryParam();
+        param7.setParentId(subSub.getId());
+        assertThrows(IllegalProductCategoryException.class, () -> productCategoryService.update(productCategory.getId(), param7));
 
         // legal
         UpdateProductCategoryParam param5 = new UpdateProductCategoryParam();
