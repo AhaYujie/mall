@@ -134,6 +134,9 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public List<ProductCategoryTree> listWithChildren(Long parentId) {
+        if (ProductCategory.NON_PARENT_ID == parentId) {
+            return listAllWithChildren();
+        }
         List<ProductCategory> roots = productCategoryMapper.selectAllByParentId(parentId);
         List<ProductCategoryTree> trees = new ArrayList<>();
         for (ProductCategory root : roots) {
@@ -142,6 +145,29 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             tree.setChildren(listWithChildren(root.getId()));
             trees.add(tree);
         }
+        return trees;
+    }
+
+    /**
+     * 树形结构递归查询所有子分类
+     * @return 商品分类
+     */
+    private List<ProductCategoryTree> listAllWithChildren() {
+        List<ProductCategory> all = productCategoryMapper.selectAll();
+        return helpListAllWithChildren(ProductCategory.NON_PARENT_ID, all);
+    }
+
+    private List<ProductCategoryTree> helpListAllWithChildren(Long parentId, List<ProductCategory> all) {
+        List<ProductCategoryTree> trees = new ArrayList<>();
+        for (ProductCategory each : all) {
+            if (parentId.equals(each.getParentId())) {
+                ProductCategoryTree tree = new ProductCategoryTree();
+                tree.setProductCategory(each);
+                tree.setChildren(helpListAllWithChildren(each.getId(), all));
+                trees.add(tree);
+            }
+        }
+        trees.sort((o1, o2) -> o2.getProductCategory().getSort() - o1.getProductCategory().getSort());
         return trees;
     }
 
