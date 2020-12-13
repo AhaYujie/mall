@@ -77,4 +77,11 @@ public interface SkuService {
      * @return sku
      */
     Sku getById(Long id);
+
+    /**
+     * 获取商品全部sku的商品规格关系
+     * @param productId 商品id
+     * @return 商品全部sku的商品规格关系
+     */
+    List<List<SkuSpecificationRelationship>> getAllSkuSpecificationRelationships(Long productId);
 }

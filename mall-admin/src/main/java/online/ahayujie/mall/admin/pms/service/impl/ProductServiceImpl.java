@@ -335,6 +335,7 @@ public class ProductServiceImpl implements ProductService {
         addSkus.forEach(skuService::validate);
         updateSkus.forEach(skuService::validate);
         // 检查新增的sku的商品规格合法性
+        List<List<SkuSpecificationRelationship>> existSkuRelationships = skuService.getAllSkuSpecificationRelationships(id);
         if (!CollectionUtils.isEmpty(addSkus)) {
             List<ProductDTO.SpecificationDTO> specificationDTOS = productSpecificationService.getByProductId(id);
             for (UpdateSkuParam.UpdateSku updateSku : addSkuParams) {
@@ -344,6 +345,7 @@ public class ProductServiceImpl implements ProductService {
                 if (updateSku.getSpecifications().size() != specificationDTOS.size()) {
                     throw new IllegalProductSpecificationException("sku的商品规格数量不合法");
                 }
+                // 检查商品规格和选项是否存在
                 for (ProductDTO.SpecificationDTO specificationDTO : specificationDTOS) {
                     boolean isSpecificationExist = false;
                     for (UpdateSkuParam.UpdateSkuSpecificationRelationship relationship : updateSku.getSpecifications()) {
@@ -366,6 +368,20 @@ public class ProductServiceImpl implements ProductService {
                     }
                     if (!isSpecificationExist) {
                         throw new IllegalProductSpecificationException("缺少商品规格");
+                    }
+                }
+                // 检查sku商品规格是否和已存在的sku重复
+                for (List<SkuSpecificationRelationship> relationships : existSkuRelationships) {
+                    boolean duplicate = true;
+                    for (UpdateSkuParam.UpdateSkuSpecificationRelationship relationship : updateSku.getSpecifications()) {
+                        for (SkuSpecificationRelationship compare : relationships) {
+                            if (compare.getSpecificationId().equals(relationship.getSpecificationId())) {
+                                duplicate = (duplicate && compare.getSpecificationValueId().equals(relationship.getSpecificationValueId()));
+                            }
+                        }
+                    }
+                    if (duplicate) {
+                        throw new IllegalProductSpecificationException("新增sku的商品规格和已存在的sku重复");
                     }
                 }
             }

@@ -116,7 +116,8 @@ public interface ProductService {
 
     /**
      * 根据商品id更新商品sku信息。
-     * 传id的为更新sku信息，不传id的为新增sku。
+     * id不为null的为更新sku信息，id为null的为新增sku。
+     * 新增sku的商品规格不能和已存在的sku重复；更新的sku不更新商品规格。
      * 更新商品成功后，调用{@link ProductPublisher#publishUpdateMsg(Long)}发送消息到消息队列。
      *
      * @see ProductPublisher#publishUpdateMsg(Long)

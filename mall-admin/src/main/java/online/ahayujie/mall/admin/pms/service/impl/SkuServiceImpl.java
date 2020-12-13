@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -161,6 +162,16 @@ public class SkuServiceImpl implements SkuService {
     @Override
     public Sku getById(Long id) {
         return skuMapper.selectById(id);
+    }
+
+    @Override
+    public List<List<SkuSpecificationRelationship>> getAllSkuSpecificationRelationships(Long productId) {
+        List<Sku> skus = skuMapper.selectByProductId(productId);
+        List<List<SkuSpecificationRelationship>> result = new ArrayList<>();
+        for (Sku sku : skus) {
+            result.add(skuSpecificationRelationshipMapper.selectBySkuId(sku.getId()));
+        }
+        return result;
     }
 
     @Data

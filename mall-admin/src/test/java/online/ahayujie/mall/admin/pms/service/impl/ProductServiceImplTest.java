@@ -6,6 +6,7 @@ import online.ahayujie.mall.admin.pms.bean.model.*;
 import online.ahayujie.mall.admin.pms.exception.*;
 import online.ahayujie.mall.admin.pms.mapper.*;
 import online.ahayujie.mall.admin.pms.service.ProductService;
+import online.ahayujie.mall.admin.pms.service.SkuService;
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.common.bean.model.Base;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,8 @@ class ProductServiceImplTest {
     private SkuImageMapper skuImageMapper;
     @Autowired
     private SkuSpecificationRelationshipMapper skuSpecificationRelationshipMapper;
+    @Autowired
+    private SkuService skuService;
 
     @Test
     void create() {
@@ -863,6 +866,21 @@ class ProductServiceImplTest {
         param3.setSkus(Collections.singletonList(updateSku3));
         Throwable throwable4 = assertThrows(IllegalProductSpecificationException.class, () -> productService.updateSku(productId, param3));
         log.debug(throwable4.getMessage());
+        // sku商品规格和已存在的sku重复
+        List<List<SkuSpecificationRelationship>> existSkuRelationships = skuService.getAllSkuSpecificationRelationships(productId);
+        UpdateSkuParam param5 = new UpdateSkuParam();
+        UpdateSkuParam.UpdateSku updateSku6 = new UpdateSkuParam.UpdateSku();
+        List<UpdateSkuParam.UpdateSkuSpecificationRelationship> updateSkuSpecificationRelationships3 = new ArrayList<>();
+        for (SkuSpecificationRelationship relationship : existSkuRelationships.get(0)) {
+            UpdateSkuParam.UpdateSkuSpecificationRelationship updateSkuSpecificationRelationship1 = new UpdateSkuParam.UpdateSkuSpecificationRelationship();
+            updateSkuSpecificationRelationship1.setSpecificationId(relationship.getSpecificationId());
+            updateSkuSpecificationRelationship1.setSpecificationValueId(relationship.getSpecificationValueId());
+            updateSkuSpecificationRelationships3.add(updateSkuSpecificationRelationship1);
+        }
+        updateSku6.setSpecifications(updateSkuSpecificationRelationships3);
+        param5.setSkus(Collections.singletonList(updateSku6));
+        Throwable throwable5 = assertThrows(IllegalProductSpecificationException.class, () -> productService.updateSku(productId, param5));
+        log.debug("sku商品规格和已存在的sku重复: " + throwable5.getMessage());
 
         // legal
         UpdateSkuParam param4 = new UpdateSkuParam();
@@ -886,6 +904,11 @@ class ProductServiceImplTest {
         updateSku4.setImages(updateSkuImages);
         updateSkus.add(updateSku4);
         // 新增的sku
+        ProductSpecificationValue specificationValue = new ProductSpecificationValue();
+        specificationValue.setProductSpecificationId(specificationDTOS.get(0).getId());
+        specificationValue.setType(specificationDTOS.get(0).getSpecificationValues().get(0).getType());
+        specificationValue.setValue(specificationDTOS.get(0).getSpecificationValues().get(0).getValue());
+        productSpecificationValueMapper.insert(specificationValue);
         UpdateSkuParam.UpdateSku updateSku5 = new UpdateSkuParam.UpdateSku();
         updateSku5.setLowStock(666);
         updateSku5.setPic("add pic");
@@ -899,10 +922,15 @@ class ProductServiceImplTest {
         }
         updateSku5.setImages(updateSkuImages1);
         List<UpdateSkuParam.UpdateSkuSpecificationRelationship> updateSkuSpecificationRelationships2 = new ArrayList<>();
-        for (ProductDTO.SpecificationDTO specificationDTO : specificationDTOS) {
+        for (int i = 0; i < specificationDTOS.size(); i++) {
+            ProductDTO.SpecificationDTO specificationDTO = specificationDTOS.get(i);
             UpdateSkuParam.UpdateSkuSpecificationRelationship updateSkuSpecificationRelationship1 = new UpdateSkuParam.UpdateSkuSpecificationRelationship();
             updateSkuSpecificationRelationship1.setSpecificationId(specificationDTO.getId());
-            updateSkuSpecificationRelationship1.setSpecificationValueId(specificationDTO.getSpecificationValues().get(0).getId());
+            if (i == 0) {
+                updateSkuSpecificationRelationship1.setSpecificationValueId(specificationValue.getId());
+            } else {
+                updateSkuSpecificationRelationship1.setSpecificationValueId(specificationDTO.getSpecificationValues().get(0).getId());
+            }
             updateSkuSpecificationRelationships2.add(updateSkuSpecificationRelationship1);
         }
         updateSku5.setSpecifications(updateSkuSpecificationRelationships2);

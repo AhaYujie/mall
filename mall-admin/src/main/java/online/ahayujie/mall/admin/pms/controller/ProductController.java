@@ -83,7 +83,8 @@ public class ProductController {
         }
     }
 
-    @ApiOperation(value = "根据商品id更新商品sku信息", notes = "新增的sku不传id，更新的sku传id，不允许删除sku，更新的sku不允许更新与商品规格的关系")
+    @ApiOperation(value = "根据商品id更新商品sku信息", notes = "新增的sku不传id，更新的sku传id，不允许删除sku。" +
+            "新增sku的商品规格不能和已存在的sku重复；更新的sku不允许更新商品规格")
     @PostMapping("/update/sku/{id}")
     public Result<Object> updateSku(@PathVariable Long id, @RequestBody UpdateSkuParam param) {
         try {
