@@ -4,6 +4,7 @@ import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.portal.mms.bean.dto.CreateReceiveAddressParam;
 import online.ahayujie.mall.portal.mms.bean.dto.ReceiveAddressDTO;
 import online.ahayujie.mall.portal.mms.bean.dto.UpdateReceiveAddressParam;
+import online.ahayujie.mall.portal.mms.bean.model.ReceiveAddress;
 
 /**
  * <p>
@@ -47,4 +48,14 @@ public interface ReceiveAddressService {
      * @return 默认收货地址
      */
     ReceiveAddressDTO getDefault();
+
+    /**
+     * 获取会员的收货地址。
+     * 如果不存在则返回null。
+     *
+     * @param id 收货地址id
+     * @param memberId 会员id
+     * @return 收货地址
+     */
+    ReceiveAddress getById(Long id, Long memberId);
 }

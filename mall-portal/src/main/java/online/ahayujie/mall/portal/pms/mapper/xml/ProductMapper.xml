@@ -105,4 +105,23 @@
         where id = #{id} and is_publish = #{isPublish}
     </select>
 
+    <resultMap id="ConfirmOrderProduct" type="online.ahayujie.mall.portal.oms.bean.dto.ConfirmOrderDTO$Product">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="unit" column="unit" />
+        <result property="giftPoint" column="gift_point" />
+        <result property="usePointLimit" column="use_point_limit" />
+    </resultMap>
+
+    <select id="selectConfirmOrderProductBatch" resultMap="ConfirmOrderProduct">
+        select
+        id, name, unit, gift_point, use_point_limit
+        from pms_product
+        where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and is_publish = #{isPublish}
+    </select>
+
 </mapper>

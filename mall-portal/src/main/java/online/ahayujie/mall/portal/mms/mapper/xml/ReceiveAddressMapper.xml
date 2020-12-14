@@ -45,4 +45,11 @@
         where member_id = #{memberId} and is_default = #{defaultValue}
     </select>
 
+    <select id="selectByIdAndMemberId" resultMap="BaseResultMap">
+        select
+        id, update_time, create_time, member_id, name, phone_number, province, city, region, street, detail_address, is_default
+        from mms_receive_address
+        where id = #{id} and member_id = #{memberId}
+    </select>
+
 </mapper>

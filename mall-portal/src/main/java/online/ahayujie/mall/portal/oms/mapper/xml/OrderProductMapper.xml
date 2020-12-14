@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="online.ahayujie.mall.portal.oms.mapper.OrderProductMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="online.ahayujie.mall.portal.oms.bean.model.OrderProduct">
+    <result column="id" property="id" />
+    <result column="update_time" property="updateTime" />
+    <result column="create_time" property="createTime" />
+        <result column="order_id" property="orderId" />
+        <result column="order_sn" property="orderSn" />
+        <result column="product_id" property="productId" />
+        <result column="sku_id" property="skuId" />
+        <result column="product_sku_code" property="productSkuCode" />
+        <result column="product_sn" property="productSn" />
+        <result column="product_name" property="productName" />
+        <result column="brand_name" property="brandName" />
+        <result column="product_category_name" property="productCategoryName" />
+        <result column="product_pic" property="productPic" />
+        <result column="product_price" property="productPrice" />
+        <result column="product_quantity" property="productQuantity" />
+        <result column="specification" property="specification" />
+        <result column="promotion_name" property="promotionName" />
+        <result column="promotion_amount" property="promotionAmount" />
+        <result column="coupon_amount" property="couponAmount" />
+        <result column="integration_amount" property="integrationAmount" />
+        <result column="real_amount" property="realAmount" />
+        <result column="integration" property="integration" />
+        <result column="status" property="status" />
+        <result column="is_comment" property="isComment" />
+    </resultMap>
+
+</mapper>

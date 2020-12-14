@@ -87,6 +87,11 @@ public class ReceiveAddressServiceImpl implements ReceiveAddressService {
         return receiveAddressDTO;
     }
 
+    @Override
+    public ReceiveAddress getById(Long id, Long memberId) {
+        return receiveAddressMapper.selectByIdAndMemberId(id, memberId);
+    }
+
     /**
      * 更新旧的默认地址为非默认地址
      * @param memberId 会员id

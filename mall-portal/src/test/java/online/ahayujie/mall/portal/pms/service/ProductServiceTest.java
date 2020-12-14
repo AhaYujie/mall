@@ -3,6 +3,7 @@ package online.ahayujie.mall.portal.pms.service;
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.common.bean.model.Base;
 import online.ahayujie.mall.portal.TestBase;
+import online.ahayujie.mall.portal.oms.bean.dto.ConfirmOrderDTO;
 import online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO;
 import online.ahayujie.mall.portal.pms.bean.dto.SkuDTO;
 import online.ahayujie.mall.portal.pms.bean.model.*;
@@ -357,5 +358,22 @@ class ProductServiceTest extends TestBase {
         update.setIsPublish(Product.PublishStatus.NOT_PUBLISH.getValue());
         productMapper.updateById(update);
         assertNull(productService.getSku(product.getId()));
+    }
+
+    @Test
+    void getConfirmOrderProductBatch() {
+        Product publishProduct = new Product();
+        publishProduct.setIsPublish(Product.PublishStatus.PUBLISH.getValue());
+        productMapper.insert(publishProduct);
+        Product notPublishProduct = new Product();
+        notPublishProduct.setIsPublish(Product.PublishStatus.NOT_PUBLISH.getValue());
+        productMapper.insert(notPublishProduct);
+
+        List<Long> ids = new ArrayList<>();
+        ids.add(publishProduct.getId());
+        ids.add(notPublishProduct.getId());
+        List<ConfirmOrderDTO.Product> products = productService.getConfirmOrderProductBatch(ids);
+        assertEquals(1, products.size());
+        assertEquals(publishProduct.getId(), products.get(0).getId());
     }
 }

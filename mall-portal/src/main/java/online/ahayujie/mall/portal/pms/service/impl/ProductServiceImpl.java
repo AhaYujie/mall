@@ -2,6 +2,7 @@ package online.ahayujie.mall.portal.pms.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import online.ahayujie.mall.common.api.CommonPage;
+import online.ahayujie.mall.portal.oms.bean.dto.ConfirmOrderDTO;
 import online.ahayujie.mall.portal.pms.bean.dto.*;
 import online.ahayujie.mall.portal.pms.bean.model.Product;
 import online.ahayujie.mall.portal.pms.mapper.*;
@@ -147,6 +148,11 @@ public class ProductServiceImpl implements ProductService {
             return null;
         }
         return getProductDTOPage(response.getData());
+    }
+
+    @Override
+    public List<ConfirmOrderDTO.Product> getConfirmOrderProductBatch(List<Long> ids) {
+        return productMapper.selectConfirmOrderProductBatch(ids, Product.PublishStatus.PUBLISH.getValue());
     }
 
     private CommonPage<ProductDTO> getProductDTOPage(CommonPage<EsProduct> page) {

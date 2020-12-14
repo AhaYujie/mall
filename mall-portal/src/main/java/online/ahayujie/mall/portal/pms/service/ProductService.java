@@ -1,6 +1,7 @@
 package online.ahayujie.mall.portal.pms.service;
 
 import online.ahayujie.mall.common.api.CommonPage;
+import online.ahayujie.mall.portal.oms.bean.dto.ConfirmOrderDTO;
 import online.ahayujie.mall.portal.pms.bean.dto.*;
 import online.ahayujie.mall.portal.pms.bean.model.Product;
 
@@ -80,4 +81,13 @@ public interface ProductService {
      * @return 推荐商品
      */
     CommonPage<ProductDTO> recommend(RecommendProductParam param);
+
+    /**
+     * 获取确认订单的商品信息。
+     * 如果有商品是未上架的，则不包含在返回结果中。
+     *
+     * @param ids 商品id
+     * @return 确认订单的商品信息
+     */
+    List<ConfirmOrderDTO.Product> getConfirmOrderProductBatch(List<Long> ids);
 }

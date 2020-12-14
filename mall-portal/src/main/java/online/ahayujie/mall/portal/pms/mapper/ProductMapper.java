@@ -1,5 +1,6 @@
 package online.ahayujie.mall.portal.pms.mapper;
 
+import online.ahayujie.mall.portal.oms.bean.dto.ConfirmOrderDTO;
 import online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO;
 import online.ahayujie.mall.portal.pms.bean.model.Product;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -57,4 +58,13 @@ public interface ProductMapper extends BaseMapper<Product> {
      * @return 商品
      */
     Product selectByIdAndIsPublish(@Param("id") Long id, @Param("isPublish") Integer isPublish);
+
+    /**
+     * 查询确认订单的商品信息
+     * @param ids 商品id
+     * @param isPublish 是否上架
+     * @return 确认订单的商品信息
+     */
+    List<ConfirmOrderDTO.Product> selectConfirmOrderProductBatch(@Param("list") List<Long> ids,
+                                                                 @Param("isPublish") Integer isPublish);
 }

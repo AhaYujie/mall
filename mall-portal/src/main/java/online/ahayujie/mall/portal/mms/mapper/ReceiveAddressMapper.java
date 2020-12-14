@@ -36,4 +36,12 @@ public interface ReceiveAddressMapper extends BaseMapper<ReceiveAddress> {
      * @return 默认收货地址
      */
     ReceiveAddress selectDefaultByMemberId(@Param("memberId") Long memberId, @Param("defaultValue") Integer defaultValue);
+
+    /**
+     * 根据id和会员id查询收货地址
+     * @param id 收货地址id
+     * @param memberId 会员id
+     * @return 收货地址
+     */
+    ReceiveAddress selectByIdAndMemberId(@Param("id") Long id, @Param("memberId") Long memberId);
 }
