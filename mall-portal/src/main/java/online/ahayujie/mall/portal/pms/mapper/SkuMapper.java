@@ -4,6 +4,7 @@ import online.ahayujie.mall.portal.pms.bean.dto.ProductDetailDTO;
 import online.ahayujie.mall.portal.pms.bean.model.Sku;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -40,4 +41,14 @@ public interface SkuMapper extends BaseMapper<Sku> {
      * @return price
      */
     List<Sku> selectPrice(List<Long> ids);
+
+    /**
+     * 更新库存。
+     * 如果更新后的库存小于0则不更新。
+     *
+     * @param id sku主键
+     * @param difference 差值，更新后的stock=更新前的stock+difference
+     * @return 更新数量
+     */
+    Integer updateStock(@Param("id") Long id, @Param("difference") Integer difference);
 }

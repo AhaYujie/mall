@@ -25,6 +25,43 @@ import lombok.experimental.Accessors;
 @TableName("oms_order_product")
 @ApiModel(value="OrderProduct对象", description="订单中的商品")
 public class OrderProduct extends Base {
+    public static final int UN_COMMENT = 0;
+    public static final int COMMENT = 1;
+
+    public enum Status {
+        /**
+         * 未购买
+         */
+        UN_PAY(0),
+
+        /**
+         * 已购买
+         */
+        PAY(1),
+
+        /**
+         * 售后中
+         */
+        AFTER_SALE(2),
+
+        /**
+         * 售后完成
+         */
+        AFTER_SALE_COMPLETE(3)
+        ;
+        /**
+         * 状态值
+         */
+        private final Integer value;
+
+        Status(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
 
     private static final long serialVersionUID = 1L;
 

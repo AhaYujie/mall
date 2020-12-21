@@ -26,6 +26,174 @@ import lombok.experimental.Accessors;
 @TableName("oms_order")
 @ApiModel(value="Order对象", description="订单表")
 public class Order extends Base {
+    public static final String UN_PAY_STATUS_NAME = "unPayOrderState";
+    public static final String UN_DELIVER_STATUS_NAME = "unDeliverOrderState";
+    public static final String DELIVERED_STATUS_NAME = "deliveredOrderState";
+    public static final String UN_COMMENT_STATUS_NAME = "unCommentOrderState";
+    public static final String COMPLETE_STATUS_NAME = "completeOrderState";
+    public static final String APPLY_REFUND_STATUS_NAME = "applyRefundOrderState";
+    public static final String APPLY_RETURN_STATUS_NAME = "applyReturnOrderState";
+    public static final String REFUND_STATUS_NAME = "refundOrderState";
+    public static final String RETURN_STATUS_NAME = "returnOrderState";
+    public static final String CLOSED_STATUS_NAME = "closedOrderState";
+
+    /**
+     * 订单状态
+     */
+    public enum Status {
+        /**
+         * 待付款状态
+         */
+        UN_PAY(0, UN_PAY_STATUS_NAME),
+
+        /**
+         * 待发货状态
+         */
+        UN_DELIVER(1, UN_DELIVER_STATUS_NAME),
+
+        /**
+         * 已发货状态
+         */
+        DELIVERED(2, DELIVERED_STATUS_NAME),
+
+        /**
+         * 待评价状态
+         */
+        UN_COMMENT(3, UN_COMMENT_STATUS_NAME),
+
+        /**
+         * 交易完成状态
+         */
+        COMPLETE(4, COMPLETE_STATUS_NAME),
+
+        /**
+         * 申请仅退款状态
+         */
+        APPLY_REFUND(5, APPLY_REFUND_STATUS_NAME),
+
+        /**
+         * 申请退款退货状态
+         */
+        APPLY_RETURN(6, APPLY_RETURN_STATUS_NAME),
+
+        /**
+         * 仅退款中状态
+         */
+        REFUND(7, REFUND_STATUS_NAME),
+
+        /**
+         * 退货退款中状态
+         */
+        RETURN(8, RETURN_STATUS_NAME),
+
+        /**
+         * 交易关闭状态
+         */
+        CLOSED(9, CLOSED_STATUS_NAME)
+        ;
+        /**
+         * 订单状态值
+         */
+        private final Integer value;
+
+        /**
+         * 订单状态实现类beanId
+         */
+        private final String name;
+
+        Status(Integer value, String name) {
+            this.value = value;
+            this.name = name;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    /**
+     * 订单类型
+     */
+    public enum Type {
+        /**
+         * 正常订单
+         */
+        NORMAL(0),
+
+        /**
+         * 秒杀订单
+         */
+        MIAO_SHA(1)
+        ;
+        private final Integer value;
+
+        Type(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
+
+    /**
+     * 订单来源类型
+     */
+    public enum SourceType {
+        /**
+         * PC订单
+         */
+        PC(0),
+
+        /**
+         * APP订单
+         */
+        APP(1)
+        ;
+        private final Integer value;
+
+        SourceType(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
+
+    /**
+     * 订单支付方式
+     */
+    public enum PayType {
+        /**
+         * 未支付
+         */
+        UN_PAY(0),
+
+        /**
+         * 支付宝
+         */
+        AliPay(1),
+
+        /**
+         * 微信支付
+         */
+        WeChatPay(2)
+        ;
+        private final Integer value;
+
+        PayType(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
 
     private static final long serialVersionUID = 1L;
 

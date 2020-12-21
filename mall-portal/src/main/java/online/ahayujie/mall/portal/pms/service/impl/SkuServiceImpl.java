@@ -1,9 +1,12 @@
 package online.ahayujie.mall.portal.pms.service.impl;
 
+import online.ahayujie.mall.portal.oms.bean.dto.SubmitOrderParam;
 import online.ahayujie.mall.portal.pms.bean.model.Sku;
 import online.ahayujie.mall.portal.pms.mapper.SkuMapper;
 import online.ahayujie.mall.portal.pms.service.SkuService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -39,5 +42,15 @@ public class SkuServiceImpl implements SkuService {
     @Override
     public Sku getById(Long id) {
         return skuMapper.selectById(id);
+    }
+
+    @Override
+    public void updateStock(List<SubmitOrderParam.Product> products) throws IllegalArgumentException {
+        for (SubmitOrderParam.Product product : products) {
+            Integer count = skuMapper.updateStock(product.getSkuId(), -product.getQuantity());
+            if (count != 1) {
+                throw new IllegalArgumentException();
+            }
+        }
     }
 }

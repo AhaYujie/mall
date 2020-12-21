@@ -124,4 +124,25 @@
         and is_publish = #{isPublish}
     </select>
 
+    <resultMap id="SubmitOrderProductResultMap" type="online.ahayujie.mall.portal.oms.bean.dto.SubmitOrderProductDTO">
+        <id property="productId" column="id" />
+        <result property="productSn" column="product_sn" />
+        <result property="productName" column="name" />
+        <result property="brandName" column="brand_name" />
+        <result property="productCategoryName" column="product_category_name" />
+        <result property="integration" column="gift_point" />
+        <result property="usePointLimit" column="use_point_limit" />
+    </resultMap>
+
+    <select id="selectSubmitOrderProductBatch" resultMap="SubmitOrderProductResultMap">
+        select
+        id, product_sn, name, brand_name, product_category_name, gift_point, use_point_limit
+        from pms_product
+        where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and is_publish = #{isPublish}
+    </select>
+
 </mapper>

@@ -2,6 +2,7 @@ package online.ahayujie.mall.portal.pms.service;
 
 import online.ahayujie.mall.common.api.CommonPage;
 import online.ahayujie.mall.portal.oms.bean.dto.ConfirmOrderDTO;
+import online.ahayujie.mall.portal.oms.bean.dto.SubmitOrderProductDTO;
 import online.ahayujie.mall.portal.pms.bean.dto.*;
 import online.ahayujie.mall.portal.pms.bean.model.Product;
 
@@ -90,4 +91,13 @@ public interface ProductService {
      * @return 确认订单的商品信息
      */
     List<ConfirmOrderDTO.Product> getConfirmOrderProductBatch(List<Long> ids);
+
+    /**
+     * 获取提交订单的商品信息。
+     * 如果有商品是未上架的，则不包含在返回结果中。
+     *
+     * @param ids 商品id
+     * @return 提交订单的商品信息
+     */
+    List<SubmitOrderProductDTO> getSubmitOrderProductBatch(List<Long> ids);
 }

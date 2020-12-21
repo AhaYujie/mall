@@ -30,4 +30,18 @@
         <result column="is_comment" property="isComment" />
     </resultMap>
 
+    <insert id="insertList">
+        insert into oms_order_product
+            (create_time, order_id, order_sn, product_id, sku_id, product_sku_code, product_sn, product_name,
+            brand_name, product_category_name, product_pic, product_price, product_quantity, specification,
+            promotion_name, promotion_amount, coupon_amount, integration_amount, real_amount, integration, status, is_comment)
+        values
+        <foreach collection="list" separator="," item="item" index="index">
+            (#{item.createTime}, #{item.orderId}, #{item.orderSn}, #{item.productId}, #{item.skuId}, #{item.productSkuCode},
+            #{item.productSn}, #{item.productName}, #{item.brandName}, #{item.productCategoryName}, #{item.productPic},
+            #{item.productPrice}, #{item.productQuantity}, #{item.specification}, #{item.promotionName}, #{item.promotionAmount},
+            #{item.couponAmount}, #{item.integrationAmount}, #{item.realAmount}, #{item.integration}, #{item.status}, #{item.isComment})
+        </foreach>
+    </insert>
+
 </mapper>

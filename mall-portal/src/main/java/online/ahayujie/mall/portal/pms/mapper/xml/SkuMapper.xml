@@ -57,4 +57,10 @@
         </foreach>
     </select>
 
+    <update id="updateStock">
+        update pms_sku
+        set stock = stock + #{difference}
+        where id = #{id} and stock + #{difference} >= 0
+    </update>
+
 </mapper>
