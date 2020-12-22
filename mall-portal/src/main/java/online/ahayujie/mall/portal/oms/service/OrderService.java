@@ -33,11 +33,14 @@ public interface OrderService {
 
     /**
      * 提交订单。
-     * 检验参数合法后，扣减商品库存。如果全部商品库存扣减成功，
-     * 则成功生成订单，否则生成失败。
+     * <li> 检验参数是否合法
+     * <li> 扣减商品库存
+     * <li> 扣除会员使用的积分
+     * <li> 生成订单
+     * <p>
+     * 如果上述某一步骤失败，则生成订单失败，回滚所有操作。
      * 生成订单成功后，调用 {@link OrderPublisher#publishOrderTimeoutCancelDelayedMsg(OrderCancelMsgDTO)}
      * 发送延迟消息到消息队列。
-     * 如果生成订单失败，则回滚所有操作。
      *
      * @param param 订单参数
      * @return 生成订单的信息

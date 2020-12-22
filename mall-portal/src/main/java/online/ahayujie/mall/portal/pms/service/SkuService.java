@@ -44,4 +44,13 @@ public interface SkuService {
      */
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     void updateStock(List<SubmitOrderParam.Product> products) throws IllegalArgumentException;
+
+    /**
+     * 批量获取。
+     * 如果某一sku不存在则忽略。
+     *
+     * @param ids sku主键
+     * @return sku
+     */
+    List<Sku> getBatch(List<Long> ids);
 }

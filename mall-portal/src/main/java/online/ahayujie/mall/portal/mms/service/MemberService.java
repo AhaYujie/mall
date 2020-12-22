@@ -8,6 +8,8 @@ import online.ahayujie.mall.security.jwt.JwtUserDetailService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -73,4 +75,15 @@ public interface MemberService extends JwtUserDetailService {
      * @throws IllegalArgumentException 参数不合法
      */
     void updateInfo(UpdateMemberParam param) throws IllegalArgumentException;
+
+    /**
+     * 更新会员的积分。
+     * 此接口为事务方法。如果调用此接口的上层事务方法抛出 {@link Exception} 异常，
+     * 则回滚此接口的所有操作。
+     *
+     * @param id 会员id
+     * @param integration 会员的积分
+     */
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    void updateIntegration(Long id, Integer integration);
 }

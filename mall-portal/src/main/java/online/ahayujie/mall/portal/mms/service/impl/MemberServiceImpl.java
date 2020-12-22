@@ -166,6 +166,14 @@ public class MemberServiceImpl implements MemberService {
         memberMapper.updateById(update);
     }
 
+    @Override
+    public void updateIntegration(Long id, Integer integration) {
+        Member member = new Member();
+        member.setId(id);
+        member.setIntegration(integration);
+        memberMapper.updateById(member);
+    }
+
     private Map<String, Object> getClaims(MemberUserDetailsDTO memberUserDetailsDTO) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", memberUserDetailsDTO.getMember().getId());

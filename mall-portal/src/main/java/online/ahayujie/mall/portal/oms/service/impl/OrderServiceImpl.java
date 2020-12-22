@@ -2,6 +2,7 @@ package online.ahayujie.mall.portal.oms.service.impl;
 
 import online.ahayujie.mall.portal.config.RedisConfig;
 import online.ahayujie.mall.portal.mapper.DictMapper;
+import online.ahayujie.mall.portal.mms.bean.dto.MemberDTO;
 import online.ahayujie.mall.portal.mms.bean.model.Member;
 import online.ahayujie.mall.portal.mms.bean.model.ReceiveAddress;
 import online.ahayujie.mall.portal.mms.service.MemberService;
@@ -14,7 +15,6 @@ import online.ahayujie.mall.portal.oms.mapper.OrderProductMapper;
 import online.ahayujie.mall.portal.oms.publisher.OrderPublisher;
 import online.ahayujie.mall.portal.oms.service.OrderService;
 import online.ahayujie.mall.portal.pms.bean.model.Sku;
-import online.ahayujie.mall.portal.pms.mapper.SkuMapper;
 import online.ahayujie.mall.portal.pms.service.ProductService;
 import online.ahayujie.mall.portal.pms.service.SkuService;
 import org.springframework.beans.BeanUtils;
@@ -49,15 +49,13 @@ public class OrderServiceImpl implements OrderService {
     private OrderPublisher orderPublisher;
     private ReceiveAddressService receiveAddressService;
 
-    private final SkuMapper skuMapper;
     private final DictMapper dictMapper;
     private final OrderMapper orderMapper;
     private final OrderProductMapper orderProductMapper;
     private final RedisTemplate<String, Serializable> redisTemplate;
 
-    public OrderServiceImpl(SkuMapper skuMapper, DictMapper dictMapper, OrderMapper orderMapper,
-                            OrderProductMapper orderProductMapper, RedisTemplate<String, Serializable> redisTemplate) {
-        this.skuMapper = skuMapper;
+    public OrderServiceImpl(DictMapper dictMapper, OrderMapper orderMapper, OrderProductMapper orderProductMapper,
+                            RedisTemplate<String, Serializable> redisTemplate) {
         this.dictMapper = dictMapper;
         this.orderMapper = orderMapper;
         this.orderProductMapper = orderProductMapper;
@@ -94,7 +92,7 @@ public class OrderServiceImpl implements OrderService {
                 throw new IllegalArgumentException("购买商品的数量小于等于0");
             }
         }
-        List<Sku> skus = skuMapper.selectBatchIds(skuIds);
+        List<Sku> skus = skuService.getBatch(skuIds);
         if (skuIds.size() != skus.size()) {
             List<Long> exists = skus.stream().map(Sku::getId).collect(Collectors.toList());
             for (Long skuId : skuIds) {
@@ -243,7 +241,7 @@ public class OrderServiceImpl implements OrderService {
                 throw new IllegalArgumentException("购买商品的数量小于等于0");
             }
         }
-        List<Sku> skus = skuMapper.selectBatchIds(skuIds);
+        List<Sku> skus = skuService.getBatch(skuIds);
         Map<Long, Sku> idSkuMap = new HashMap<>();
         for (Long id : skuIds) {
             Sku sku = null;
@@ -314,7 +312,8 @@ public class OrderServiceImpl implements OrderService {
         order.setReceiverDetailAddress(receiveAddress.getDetailAddress());
 
         // 积分信息检验
-        Integer haveIntegration = memberService.getInfo().getIntegration();
+        MemberDTO memberDTO = memberService.getInfo();
+        Integer haveIntegration = memberDTO.getIntegration();
         Integer usedIntegration = param.getUsedIntegration();
         if (usedIntegration < 0 || usedIntegration > haveIntegration) {
             throw new IllegalArgumentException("使用的积分数量不合法");
@@ -377,6 +376,9 @@ public class OrderServiceImpl implements OrderService {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("商品库存不足");
         }
+
+        // 扣除会员使用的积分
+        memberService.updateIntegration(member.getId(), haveIntegration - usedIntegration);
 
         order.setOrderSn(generateOrderSn(order));
         order.setCreateTime(new Date());

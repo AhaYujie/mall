@@ -17,6 +17,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -180,5 +181,12 @@ class MemberServiceTest extends TestBase {
         UpdateMemberParam param1 = new UpdateMemberParam();
         param1.setGender(-1);
         assertThrows(IllegalArgumentException.class, () -> memberService.updateInfo(param1));
+    }
+
+    @Test
+    void updateIntegration() {
+        memberService.updateIntegration(member.getId(), 2000);
+        member = memberMapper.selectById(member.getId());
+        assertEquals(2000, member.getIntegration());
     }
 }

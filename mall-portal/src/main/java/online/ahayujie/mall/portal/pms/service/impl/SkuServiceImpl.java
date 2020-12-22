@@ -53,4 +53,9 @@ public class SkuServiceImpl implements SkuService {
             }
         }
     }
+
+    @Override
+    public List<Sku> getBatch(List<Long> ids) {
+        return skuMapper.selectBatchIds(ids);
+    }
 }
