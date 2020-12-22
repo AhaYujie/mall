@@ -1,6 +1,7 @@
 package online.ahayujie.mall.admin.pms.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import online.ahayujie.mall.admin.oms.bean.dto.CreateOrderParam;
 import online.ahayujie.mall.admin.pms.bean.dto.ProductSpecificationDTO;
 import online.ahayujie.mall.admin.pms.bean.model.*;
 import online.ahayujie.mall.admin.pms.mapper.SkuImageMapper;
@@ -134,6 +135,37 @@ class SkuServiceImplTest {
             assertNotNull(sku);
             List<SkuSpecificationRelationship> compare = map.get(sku);
             assertTrue(sub.containsAll(compare));
+        }
+    }
+
+    @Test
+    void updateStock() {
+        List<Sku> skus = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Sku sku = new Sku();
+            sku.setStock(i + 1);
+            skuMapper.insert(sku);
+            skus.add(sku);
+        }
+
+        List<CreateOrderParam.Product> products = new ArrayList<>();
+        CreateOrderParam.Product product1 = new CreateOrderParam.Product();
+        product1.setSkuId(skus.get(0).getId());
+        product1.setProductQuantity(skus.get(0).getStock() + 10);
+        products.add(product1);
+        assertThrows(IllegalArgumentException.class, () -> skuService.updateStock(products));
+
+        // success
+        List<CreateOrderParam.Product> products1 = new ArrayList<>();
+        for (Sku sku : skus) {
+            CreateOrderParam.Product product = new CreateOrderParam.Product();
+            product.setSkuId(sku.getId());
+            product.setProductQuantity(sku.getStock());
+            products1.add(product);
+        }
+        skuService.updateStock(products1);
+        for (Sku sku : skus) {
+            assertEquals(0, skuMapper.selectById(sku.getId()).getStock());
         }
     }
 }

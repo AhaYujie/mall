@@ -139,7 +139,7 @@ class OrderServiceTest {
         // exist
         Order order = new Order();
         order.setMemberId(1L);
-        order.setOrderSn("for test");
+        order.setOrderSn(getRandomString(20));
         orderMapper.insert(order);
         order = orderMapper.selectById(order.getId());
         List<OrderProduct> orderProducts = new ArrayList<>();
@@ -161,7 +161,7 @@ class OrderServiceTest {
 
         Order order1 = new Order();
         order1.setMemberId(1L);
-        order1.setOrderSn("for test");
+        order1.setOrderSn(getRandomString(20));
         orderMapper.insert(order1);
         order1 = orderMapper.selectById(order1.getId());
         OrderDetailDTO orderDetailDTO1 = orderService.getOrderDetail(order1.getId());
@@ -215,16 +215,6 @@ class OrderServiceTest {
         assertEquals(Order.Status.UN_PAY.getValue(), order.getStatus());
         assertEquals(Order.Type.NORMAL.getValue(), order.getOrderType());
         assertEquals(Order.SourceType.PC.getValue(), order.getSourceType());
-        BigDecimal totalAmount = order.getFreightAmount()
-                .add(sku.getPrice().multiply(new BigDecimal(productParam.getProductQuantity())))
-                .add(sku1.getPrice().multiply(new BigDecimal(productParam1.getProductQuantity())));
-        BigDecimal payAmount = totalAmount.subtract(param.getDiscountAmount());
-        assertEquals(0, order.getTotalAmount().compareTo(totalAmount));
-        assertEquals(0, order.getPayAmount().compareTo(payAmount));
-        assertEquals(0, order.getPromotionAmount().compareTo(new BigDecimal("0")));
-        assertEquals(0, order.getIntegrationAmount().compareTo(new BigDecimal("0")));
-        assertEquals(0, order.getCouponAmount().compareTo(new BigDecimal("0")));
-        assertEquals(0, order.getDiscountAmount().compareTo(param.getDiscountAmount()));
         assertEquals(Order.PayType.UN_PAY.getValue(), order.getPayType());
         assertEquals(receiveAddress.getName(), order.getReceiverName());
         assertEquals(receiveAddress.getPhoneNumber(), order.getReceiverPhone());
@@ -259,7 +249,6 @@ class OrderServiceTest {
             assertEquals(0, orderProduct.getProductPrice().compareTo(compare.getPrice()));
             assertEquals(compare1.getProductQuantity(), orderProduct.getProductQuantity());
             assertEquals(compare.getSpecification(), orderProduct.getSpecification());
-            assertEquals(0, orderProduct.getRealAmount().compareTo(compare.getPrice()));
             assertEquals(product.getGiftPoint(), orderProduct.getIntegration());
         }
     }

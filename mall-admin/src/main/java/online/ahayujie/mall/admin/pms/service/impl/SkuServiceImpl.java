@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import online.ahayujie.mall.admin.oms.bean.dto.CreateOrderParam;
 import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
 import online.ahayujie.mall.admin.pms.bean.dto.ProductSpecificationDTO;
 import online.ahayujie.mall.admin.pms.bean.model.Sku;
@@ -172,6 +173,16 @@ public class SkuServiceImpl implements SkuService {
             result.add(skuSpecificationRelationshipMapper.selectBySkuId(sku.getId()));
         }
         return result;
+    }
+
+    @Override
+    public void updateStock(List<CreateOrderParam.Product> products) throws IllegalArgumentException {
+        for (CreateOrderParam.Product product : products) {
+            Integer count = skuMapper.updateStock(product.getSkuId(), -product.getProductQuantity());
+            if (count != 1) {
+                throw new IllegalArgumentException();
+            }
+        }
     }
 
     @Data

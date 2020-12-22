@@ -72,6 +72,12 @@
         where s.product_id = #{productId}
     </select>
 
+    <update id="updateStock">
+        update pms_sku
+        set stock = stock + #{difference}
+        where id = #{id} and stock + #{difference} >= 0
+    </update>
+
     <select id="queryByProductIdAndSkuCode" resultMap="BaseResultMap">
         select
         id, update_time, create_time, product_id, sku_code, price, promotion_price,

@@ -23,14 +23,12 @@ import online.ahayujie.mall.admin.oms.service.OrderContextFactory;
 import online.ahayujie.mall.admin.oms.service.OrderService;
 import online.ahayujie.mall.admin.pms.bean.model.Product;
 import online.ahayujie.mall.admin.pms.bean.model.Sku;
-import online.ahayujie.mall.admin.pms.mapper.ProductMapper;
 import online.ahayujie.mall.admin.pms.service.ProductService;
 import online.ahayujie.mall.admin.pms.service.SkuService;
 import online.ahayujie.mall.common.api.CommonPage;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -102,17 +100,37 @@ public class OrderServiceImpl implements OrderService {
         order.setMemberId(member.getId());
         order.setMemberUsername(member.getUsername());
 
-        // 生成订单商品信息
-        Integer integration = 0;
+        // 合并相同的商品
+        List<CreateOrderParam.Product> mergeProducts = new ArrayList<>();
+        for (CreateOrderParam.Product product : param.getProducts()) {
+            CreateOrderParam.Product merge = null;
+            for (CreateOrderParam.Product prev : mergeProducts) {
+                if (product.getSkuId().equals(prev.getSkuId())) {
+                    merge = prev;
+                    break;
+                }
+            }
+            if (merge == null) {
+                merge = product;
+                mergeProducts.add(merge);
+            } else {
+                merge.setProductQuantity(merge.getProductQuantity() + product.getProductQuantity());
+            }
+        }
+        param.setProducts(mergeProducts);
+        // 检查订单商品信息
+        int integration = 0;
         List<OrderProduct> orderProducts = new ArrayList<>();
         for (CreateOrderParam.Product productParam : param.getProducts()) {
             OrderProduct orderProduct = new OrderProduct();
             Sku sku = skuService.getById(productParam.getSkuId());
-            // 检查库存
-            if (sku == null || sku.getStock() < productParam.getProductQuantity()) {
-                throw new IllegalOrderException("商品库存不足");
+            if (sku == null) {
+                throw new IllegalOrderException("商品不存在");
             }
             Product product =  productService.getById(sku.getProductId());
+            if (product == null) {
+                throw new IllegalOrderException("商品不存在");
+            }
             orderProduct.setProductId(product.getId());
             orderProduct.setSkuId(sku.getId());
             orderProduct.setProductSkuCode(sku.getSkuCode());
@@ -126,18 +144,17 @@ public class OrderServiceImpl implements OrderService {
             orderProduct.setSpecification(sku.getSpecification());
             orderProduct.setIntegration(product.getGiftPoint());
             orderProducts.add(orderProduct);
-            integration += orderProduct.getIntegration();
+            integration += (orderProduct.getIntegration() * productParam.getProductQuantity());
         }
         order.setIntegration(integration);
 
         // 计算订单价格
-        // TODO:计算订单运费
         order.setFreightAmount(new BigDecimal("0"));
         BigDecimal totalAmount = order.getFreightAmount();
         for (OrderProduct orderProduct : orderProducts) {
-            BigDecimal realAmount = orderProduct.getProductPrice();
+            BigDecimal realAmount = orderProduct.getProductPrice().multiply(new BigDecimal(orderProduct.getProductQuantity()));
             orderProduct.setRealAmount(realAmount);
-            totalAmount = totalAmount.add(realAmount.multiply(new BigDecimal(orderProduct.getProductQuantity())));
+            totalAmount = totalAmount.add(realAmount);
         }
         order.setTotalAmount(totalAmount);
         order.setDiscountAmount(param.getDiscountAmount());
@@ -160,6 +177,13 @@ public class OrderServiceImpl implements OrderService {
             order.setReceiverRegion(receiveAddress.getRegion());
             order.setReceiverStreet(receiveAddress.getStreet());
             order.setReceiverDetailAddress(receiveAddress.getDetailAddress());
+        }
+
+        // 商品库存扣减
+        try {
+            skuService.updateStock(param.getProducts());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalOrderException("商品库存不足");
         }
 
         // 生成订单号

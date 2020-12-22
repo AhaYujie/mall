@@ -1,11 +1,14 @@
 package online.ahayujie.mall.admin.pms.service;
 
+import online.ahayujie.mall.admin.oms.bean.dto.CreateOrderParam;
 import online.ahayujie.mall.admin.pms.bean.dto.ProductDTO;
 import online.ahayujie.mall.admin.pms.bean.dto.ProductSpecificationDTO;
 import online.ahayujie.mall.admin.pms.bean.model.Sku;
 import online.ahayujie.mall.admin.pms.bean.model.SkuImage;
 import online.ahayujie.mall.admin.pms.bean.model.SkuSpecificationRelationship;
 import online.ahayujie.mall.admin.pms.exception.IllegalSkuException;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -84,4 +87,17 @@ public interface SkuService {
      * @return 商品全部sku的商品规格关系
      */
     List<List<SkuSpecificationRelationship>> getAllSkuSpecificationRelationships(Long productId);
+
+    /**
+     * 扣减库存。
+     * 如果某一个商品扣减库存失败，则回滚已经进行的扣减库存操作，
+     * 并抛出 {@link IllegalArgumentException} 异常。
+     * 这是一个事务接口，如果调用此接口的上层方法也是事务方法，
+     * 且抛出 {@link Exception} 异常，则此接口已经进行的扣减库存操作也会回滚。
+     *
+     * @param products 需要扣减库存的商品
+     * @throws IllegalArgumentException 扣减库存失败
+     */
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    void updateStock(List<CreateOrderParam.Product> products) throws IllegalArgumentException;
 }
