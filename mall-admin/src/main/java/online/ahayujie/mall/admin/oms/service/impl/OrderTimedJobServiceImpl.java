@@ -49,7 +49,7 @@ public class OrderTimedJobServiceImpl implements OrderTimedJobService {
                 .build();
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(job.getCron()).withMisfireHandlingInstructionDoNothing();
         CronTrigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity(job.getJobName(), job.getJobGroup())
+                .withIdentity(job.getTriggerName(), job.getTriggerGroup())
                 .startAt(new Date())
                 .withSchedule(scheduleBuilder)
                 .build();
@@ -59,7 +59,7 @@ public class OrderTimedJobServiceImpl implements OrderTimedJobService {
 
     @Override
     public void updateJob(OrderTimedJob job, String cron) throws SchedulerException {
-        TriggerKey triggerKey = TriggerKey.triggerKey(job.getJobName(), job.getJobGroup());
+        TriggerKey triggerKey = TriggerKey.triggerKey(job.getTriggerName(), job.getTriggerGroup());
         if (scheduler.checkExists(triggerKey)) {
             CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
             CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cron);
@@ -84,5 +84,19 @@ public class OrderTimedJobServiceImpl implements OrderTimedJobService {
     public void deleteJob(OrderTimedJob job) throws SchedulerException {
         JobKey jobKey = new JobKey(job.getJobName(), job.getJobGroup());
         scheduler.deleteJob(jobKey);
+    }
+
+    @Override
+    public OrderTimedJob.Status getJobState(OrderTimedJob job) throws SchedulerException {
+        TriggerKey triggerKey = new TriggerKey(job.getTriggerName(), job.getTriggerGroup());
+        Trigger.TriggerState triggerState = scheduler.getTriggerState(triggerKey);
+        switch (triggerState) {
+            case NORMAL:
+                return OrderTimedJob.Status.NORMAL;
+            case PAUSED:
+                return OrderTimedJob.Status.PAUSED;
+            default:
+                return OrderTimedJob.Status.NOT_EXIST;
+        }
     }
 }

@@ -5,6 +5,7 @@ import online.ahayujie.mall.admin.bean.model.Dict;
 import online.ahayujie.mall.admin.mapper.DictMapper;
 import online.ahayujie.mall.admin.oms.bean.dto.AutoCommentSettingDTO;
 import online.ahayujie.mall.admin.oms.bean.dto.OrderSettingDTO;
+import online.ahayujie.mall.admin.oms.bean.dto.OrderTimedJobStatusDTO;
 import online.ahayujie.mall.admin.oms.job.AutoCloseJob;
 import online.ahayujie.mall.admin.oms.job.AutoCommentJob;
 import online.ahayujie.mall.admin.oms.job.AutoConfirmReceiveJob;
@@ -63,31 +64,6 @@ public class OrderSettingServiceImpl implements OrderSettingService {
     }
 
     @Override
-    public void updateAutoConfirmReceiveCron(String cron) throws IllegalArgumentException, SchedulerException {
-        updateCron(AutoConfirmReceiveJob.class, cron);
-    }
-
-    @Override
-    public void initAutoConfirmReceiveJob() throws SchedulerException {
-        orderTimedJobService.initJob(getJob(AutoConfirmReceiveJob.class));
-    }
-
-    @Override
-    public void pauseAutoConfirmReceiveJob() throws SchedulerException {
-        orderTimedJobService.pauseJob(getJob(AutoConfirmReceiveJob.class));
-    }
-
-    @Override
-    public void resumeAutoConfirmReceiveJob() throws SchedulerException {
-        orderTimedJobService.resumeJob(getJob(AutoConfirmReceiveJob.class));
-    }
-
-    @Override
-    public void deleteAutoConfirmReceiveJob() throws SchedulerException {
-        orderTimedJobService.deleteJob(getJob(AutoConfirmReceiveJob.class));
-    }
-
-    @Override
     public Integer getAutoConfirmReceiveTime() {
         AutoConfirmReceiveJob job = (AutoConfirmReceiveJob) getJob(AutoConfirmReceiveJob.class);
         return job.getAutoConfirmReceiveTime();
@@ -102,31 +78,6 @@ public class OrderSettingServiceImpl implements OrderSettingService {
     @Override
     public String getAutoCommentCron() {
         return getJob(AutoCommentJob.class).getCron();
-    }
-
-    @Override
-    public void updateAutoCommentCron(String cron) throws IllegalArgumentException, SchedulerException {
-        updateCron(AutoCommentJob.class, cron);
-    }
-
-    @Override
-    public void initAutoCommentJob() throws SchedulerException {
-        orderTimedJobService.initJob(getJob(AutoCommentJob.class));
-    }
-
-    @Override
-    public void pauseAutoCommentJob() throws SchedulerException {
-        orderTimedJobService.pauseJob(getJob(AutoCommentJob.class));
-    }
-
-    @Override
-    public void resumeAutoCommentJob() throws SchedulerException {
-        orderTimedJobService.resumeJob(getJob(AutoCommentJob.class));
-    }
-
-    @Override
-    public void deleteAutoCommentJob() throws SchedulerException {
-        orderTimedJobService.deleteJob(getJob(AutoCommentJob.class));
     }
 
     @Override
@@ -171,31 +122,6 @@ public class OrderSettingServiceImpl implements OrderSettingService {
     }
 
     @Override
-    public void updateAutoCloseCron(String cron) throws IllegalArgumentException, SchedulerException {
-        updateCron(AutoCloseJob.class, cron);
-    }
-
-    @Override
-    public void initAutoCloseJob() throws SchedulerException {
-        orderTimedJobService.initJob(getJob(AutoCloseJob.class));
-    }
-
-    @Override
-    public void pauseAutoCloseJob() throws SchedulerException {
-        orderTimedJobService.pauseJob(getJob(AutoCloseJob.class));
-    }
-
-    @Override
-    public void resumeAutoCloseJob() throws SchedulerException {
-        orderTimedJobService.resumeJob(getJob(AutoCloseJob.class));
-    }
-
-    @Override
-    public void deleteAutoCloseJob() throws SchedulerException {
-        orderTimedJobService.deleteJob(getJob(AutoCloseJob.class));
-    }
-
-    @Override
     public Integer getAutoCloseTime() {
         AutoCloseJob job = (AutoCloseJob) getJob(AutoCloseJob.class);
         return job.getAutoCloseTime();
@@ -217,13 +143,127 @@ public class OrderSettingServiceImpl implements OrderSettingService {
         return orderSettingDTO;
     }
 
-    private OrderTimedJob  getJob(Class<? extends OrderTimedJob> jobClass) {
+    @Override
+    public OrderTimedJobStatusDTO getTimedJobStatus(Integer job) throws SchedulerException {
+        OrderTimedJobStatusDTO orderTimedJobStatusDTO = new OrderTimedJobStatusDTO();
+        OrderTimedJob orderTimedJob = getJob(job);
+        if (orderTimedJob == null) {
+            orderTimedJobStatusDTO.setStatus(OrderTimedJob.Status.NOT_EXIST.value());
+        } else {
+            try {
+                orderTimedJobStatusDTO.setStatus(orderTimedJobService.getJobState(orderTimedJob).value());
+            } catch (SchedulerException e) {
+                log.error(e.getMessage());
+                e.printStackTrace();
+                throw e;
+            }
+        }
+        return orderTimedJobStatusDTO;
+    }
+
+    @Override
+    public void initTimedJob(Integer job) throws SchedulerException {
+        operateTimedJob(job, 0);
+    }
+
+    @Override
+    public void pauseTimedJob(Integer job) throws SchedulerException {
+        operateTimedJob(job, 1);
+    }
+
+    @Override
+    public void resumeTimedJob(Integer job) throws SchedulerException {
+        operateTimedJob(job, 2);
+    }
+
+    @Override
+    public void deleteTimedJob(Integer job) throws SchedulerException {
+        operateTimedJob(job, 3);
+    }
+
+    @Override
+    public String getTimedJobCron(Integer job) {
+        OrderTimedJob orderTimedJob = getJob(job);
+        return (orderTimedJob == null) ? null : orderTimedJob.getCron();
+    }
+
+    @Override
+    public void updateTimedJobCron(Integer job, String cron) throws SchedulerException {
+        OrderTimedJob orderTimedJob = getJob(job);
+        if (orderTimedJob == null) {
+            return;
+        }
+        orderTimedJob.updateCron(cron);
+        try {
+            orderTimedJobService.updateJob(orderTimedJob, cron);
+        } catch (SchedulerException e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * 操作订单定时任务.
+     * 如果定时任务不存在或操作不存在则不做直接返回.
+     *
+     * @param job 0->自动确认收货; 1->自动评价; 2->自动关闭订单
+     * @param operation 0->初始化; 1->暂停; 2->恢复; 3->删除
+     * @throws SchedulerException 调度定时任务异常
+     */
+    private void operateTimedJob(Integer job, Integer operation) throws SchedulerException {
+        OrderTimedJob orderTimedJob = getJob(job);
+        if (orderTimedJob == null) {
+            return;
+        }
+        try {
+            switch (operation) {
+                case 0:
+                    orderTimedJobService.initJob(orderTimedJob);
+                    break;
+                case 1:
+                    orderTimedJobService.pauseJob(orderTimedJob);
+                    break;
+                case 2:
+                    orderTimedJobService.resumeJob(orderTimedJob);
+                    break;
+                case 3:
+                    orderTimedJobService.deleteJob(orderTimedJob);
+                    break;
+            }
+        } catch (SchedulerException e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    private OrderTimedJob getJob(Class<? extends OrderTimedJob> jobClass) {
         for (OrderTimedJob job : orderTimedJobs) {
             if (job.getClass().equals(jobClass)) {
                 return job;
             }
         }
         throw new IllegalArgumentException();
+    }
+
+    /**
+     * 获取 {@link OrderTimedJob} 单例.
+     * 如果不存在则返回null.
+     *
+     * @param job 0->自动确认收货; 1->自动评价; 2->自动关闭订单
+     * @return {@link OrderTimedJob} 单例
+     */
+    private OrderTimedJob getJob(Integer job) {
+        switch (job) {
+            case 0:
+                return getJob(AutoConfirmReceiveJob.class);
+            case 1:
+                return getJob(AutoCommentJob.class);
+            case 2:
+                return getJob(AutoCloseJob.class);
+        }
+        return null;
     }
 
     private void updateCron(Class<? extends OrderTimedJob> jobClass, String cron) throws SchedulerException {

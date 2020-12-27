@@ -50,4 +50,11 @@ public interface OrderTimedJobService {
      * @throws SchedulerException SchedulerException
      */
     void deleteJob(OrderTimedJob job) throws SchedulerException;
+
+    /**
+     * 获取定时任务状态
+     * @param job 定时任务
+     * @return 定时任务状态
+     */
+    OrderTimedJob.Status getJobState(OrderTimedJob job) throws SchedulerException;
 }
