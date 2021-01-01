@@ -6,6 +6,7 @@ import online.ahayujie.mall.admin.mapper.DictMapper;
 import online.ahayujie.mall.admin.oms.service.OrderService;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -20,14 +21,13 @@ import java.util.List;
 public class AutoCloseJob extends OrderTimedJob {
     private static final String TIME_DICT_KEY = "7";
 
-    private final OrderService orderService;
+    private OrderService orderService;
 
-    public AutoCloseJob(DictMapper dictMapper, OrderService orderService) {
+    public AutoCloseJob(DictMapper dictMapper) {
         super(dictMapper);
         this.cronDictKey = "4";
         this.jobName = "auto-close";
         this.jobGroup = "order-timed-job";
-        this.orderService = orderService;
     }
 
     @Override
@@ -65,5 +65,10 @@ public class AutoCloseJob extends OrderTimedJob {
         dict.setDictKey(TIME_DICT_KEY);
         dict.setDictValue(time.toString());
         dictMapper.updateByCodeAndDictKey(dict);
+    }
+
+    @Autowired
+    public void setOrderService(OrderService orderService) {
+        this.orderService = orderService;
     }
 }

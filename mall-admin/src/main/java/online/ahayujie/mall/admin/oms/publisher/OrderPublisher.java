@@ -14,8 +14,9 @@ public interface OrderPublisher {
      * 消息到期后会重新入队到超时取消订单队列 {@link RabbitmqConfig#ORDER_TIMEOUT_CANCEL_QUEUE}。
      *
      * @param orderCancelMsgDTO 消息内容
+     * @param timeout 订单消息过期时间, 单位毫秒
      */
-    void publishOrderTimeoutCancelDelayedMsg(OrderCancelMsgDTO orderCancelMsgDTO);
+    void publishOrderTimeoutCancelDelayedMsg(OrderCancelMsgDTO orderCancelMsgDTO, int timeout);
 
     /**
      * 发送订单已取消消息到消息队列，

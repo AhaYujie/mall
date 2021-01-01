@@ -24,7 +24,6 @@ import java.util.Arrays;
 @Service
 public class OrderPublisherImpl implements OrderPublisher {
     private MqService mqService;
-    private OrderSettingService orderSettingService;
 
     private final ObjectMapper objectMapper;
     private final RabbitTemplate rabbitTemplate;
@@ -36,15 +35,14 @@ public class OrderPublisherImpl implements OrderPublisher {
 
     @Async
     @Override
-    public void publishOrderTimeoutCancelDelayedMsg(OrderCancelMsgDTO orderCancelMsgDTO) {
+    public void publishOrderTimeoutCancelDelayedMsg(OrderCancelMsgDTO orderCancelMsgDTO, int timeout) {
         try {
             String message = objectMapper.writeValueAsString(orderCancelMsgDTO);
             String exchange = RabbitmqConfig.ORDER_TTL_EXCHANGE;
             String routingKey = RabbitmqConfig.ORDER_CANCEL_TTL_ROUTING_KEY;
             CorrelationData correlationData = mqService.generateCorrelationData(exchange, routingKey, message);
             rabbitTemplate.convertAndSend(exchange, routingKey, message, msg -> {
-                int millisecond = orderSettingService.getUnPayTimeout() * 60 * 1000;
-                msg.getMessageProperties().setExpiration(Integer.toString(millisecond));
+                msg.getMessageProperties().setExpiration(Integer.toString(timeout));
                 return msg;
             }, correlationData);
         } catch (JsonProcessingException e) {
@@ -207,10 +205,5 @@ public class OrderPublisherImpl implements OrderPublisher {
     @Autowired
     public void setMqService(MqService mqService) {
         this.mqService = mqService;
-    }
-
-    @Autowired
-    public void setOrderSettingService(OrderSettingService orderSettingService) {
-        this.orderSettingService = orderSettingService;
     }
 }

@@ -13,6 +13,7 @@ import online.ahayujie.mall.admin.oms.job.OrderTimedJob;
 import online.ahayujie.mall.admin.oms.service.OrderSettingService;
 import online.ahayujie.mall.admin.oms.service.OrderTimedJobService;
 import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -29,14 +30,13 @@ public class OrderSettingServiceImpl implements OrderSettingService {
     private static final String CODE = "order-setting";
     private static final String UN_PAY_TIMEOUT_KEY = "1";
 
-    private final DictMapper dictMapper;
-    private final List<OrderTimedJob> orderTimedJobs;
-    private final OrderTimedJobService orderTimedJobService;
+    private List<OrderTimedJob> orderTimedJobs;
+    private OrderTimedJobService orderTimedJobService;
 
-    public OrderSettingServiceImpl(DictMapper dictMapper, List<OrderTimedJob> orderTimedJobs, OrderTimedJobService orderTimedJobService) {
+    private final DictMapper dictMapper;
+
+    public OrderSettingServiceImpl(DictMapper dictMapper) {
         this.dictMapper = dictMapper;
-        this.orderTimedJobs = orderTimedJobs;
-        this.orderTimedJobService = orderTimedJobService;
     }
 
     @Override
@@ -276,5 +276,15 @@ public class OrderSettingServiceImpl implements OrderSettingService {
             log.error(Arrays.toString(e.getStackTrace()));
             throw e;
         }
+    }
+
+    @Autowired
+    public void setOrderTimedJobs(List<OrderTimedJob> orderTimedJobs) {
+        this.orderTimedJobs = orderTimedJobs;
+    }
+
+    @Autowired
+    public void setOrderTimedJobService(OrderTimedJobService orderTimedJobService) {
+        this.orderTimedJobService = orderTimedJobService;
     }
 }

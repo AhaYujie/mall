@@ -6,6 +6,7 @@ import online.ahayujie.mall.admin.mapper.DictMapper;
 import online.ahayujie.mall.admin.oms.service.OrderService;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -23,14 +24,13 @@ public class AutoCommentJob extends OrderTimedJob {
     private static final String PICS_DICT_KEY = "9";
     private static final String STAR_DICT_KEY = "10";
 
-    private final OrderService orderService;
+    private OrderService orderService;
 
-    public AutoCommentJob(DictMapper dictMapper, OrderService orderService) {
+    public AutoCommentJob(DictMapper dictMapper) {
         super(dictMapper);
         this.cronDictKey = "3";
         this.jobName = "auto-comment";
         this.jobGroup = "order-timed-job";
-        this.orderService = orderService;
     }
 
     @Override
@@ -135,5 +135,10 @@ public class AutoCommentJob extends OrderTimedJob {
         dict.setDictKey(STAR_DICT_KEY);
         dict.setDictValue(star.toString());
         dictMapper.updateByCodeAndDictKey(dict);
+    }
+
+    @Autowired
+    public void setOrderService(OrderService orderService) {
+        this.orderService = orderService;
     }
 }

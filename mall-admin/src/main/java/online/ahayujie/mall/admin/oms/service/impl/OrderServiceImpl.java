@@ -21,6 +21,7 @@ import online.ahayujie.mall.admin.oms.publisher.OrderPublisher;
 import online.ahayujie.mall.admin.oms.service.OrderContext;
 import online.ahayujie.mall.admin.oms.service.OrderContextFactory;
 import online.ahayujie.mall.admin.oms.service.OrderService;
+import online.ahayujie.mall.admin.oms.service.OrderSettingService;
 import online.ahayujie.mall.admin.pms.bean.model.Product;
 import online.ahayujie.mall.admin.pms.bean.model.Sku;
 import online.ahayujie.mall.admin.pms.service.ProductService;
@@ -56,6 +57,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderPublisher orderPublisher;
     private OrderContextFactory orderContextFactory;
     private ReceiveAddressService receiveAddressService;
+    private OrderSettingService orderSettingService;
 
     private final OrderMapper orderMapper;
     private final ObjectMapper objectMapper;
@@ -202,7 +204,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 发送延迟消息到消息队列
         OrderCancelMsgDTO orderCancelMsgDTO = new OrderCancelMsgDTO(order.getId());
-        orderPublisher.publishOrderTimeoutCancelDelayedMsg(orderCancelMsgDTO);
+        orderPublisher.publishOrderTimeoutCancelDelayedMsg(orderCancelMsgDTO, orderSettingService.getUnPayTimeout() * 60 * 1000);
     }
 
     /**
@@ -390,5 +392,10 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     public void setReceiveAddressService(ReceiveAddressService receiveAddressService) {
         this.receiveAddressService = receiveAddressService;
+    }
+
+    @Autowired
+    public void setOrderSettingService(OrderSettingService orderSettingService) {
+        this.orderSettingService = orderSettingService;
     }
 }

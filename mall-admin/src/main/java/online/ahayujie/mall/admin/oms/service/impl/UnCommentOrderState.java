@@ -31,16 +31,14 @@ import java.util.List;
 public class UnCommentOrderState extends AbstractOrderState {
     private MemberService memberService;
     private CommentService commentService;
+    private OrderPublisher orderPublisher;
 
     private final OrderMapper orderMapper;
-    private final OrderPublisher orderPublisher;
     private final OrderProductMapper orderProductMapper;
 
-    public UnCommentOrderState(ApplicationContext applicationContext, OrderMapper orderMapper, OrderPublisher orderPublisher,
-                               OrderProductMapper orderProductMapper) {
+    public UnCommentOrderState(ApplicationContext applicationContext, OrderMapper orderMapper, OrderProductMapper orderProductMapper) {
         super(applicationContext);
         this.orderMapper = orderMapper;
-        this.orderPublisher = orderPublisher;
         this.orderProductMapper = orderProductMapper;
     }
 
@@ -107,5 +105,10 @@ public class UnCommentOrderState extends AbstractOrderState {
     @Autowired
     public void setCommentService(CommentService commentService) {
         this.commentService = commentService;
+    }
+
+    @Autowired
+    public void setOrderPublisher(OrderPublisher orderPublisher) {
+        this.orderPublisher = orderPublisher;
     }
 }

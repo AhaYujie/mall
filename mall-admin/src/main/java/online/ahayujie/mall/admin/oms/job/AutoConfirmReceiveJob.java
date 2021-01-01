@@ -8,6 +8,7 @@ import online.ahayujie.mall.admin.oms.mapper.OrderMapper;
 import online.ahayujie.mall.admin.oms.service.OrderService;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -23,14 +24,13 @@ import java.util.List;
 public class AutoConfirmReceiveJob extends OrderTimedJob {
     private static final String TIME_DICT_KEY = "5";
 
-    private final OrderService orderService;
+    private OrderService orderService;
 
-    public AutoConfirmReceiveJob(DictMapper dictMapper, OrderService orderService) {
+    public AutoConfirmReceiveJob(DictMapper dictMapper) {
         super(dictMapper);
         this.cronDictKey = "2";
         this.jobName = "auto-confirm-receive";
         this.jobGroup = "order-timed-job";
-        this.orderService = orderService;
     }
 
     @Override
@@ -68,5 +68,10 @@ public class AutoConfirmReceiveJob extends OrderTimedJob {
         dict.setDictKey(TIME_DICT_KEY);
         dict.setDictValue(time.toString());
         dictMapper.updateByCodeAndDictKey(dict);
+    }
+
+    @Autowired
+    public void setOrderService(OrderService orderService) {
+        this.orderService = orderService;
     }
 }

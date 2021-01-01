@@ -8,6 +8,7 @@ import online.ahayujie.mall.admin.oms.mapper.OrderMapper;
 import online.ahayujie.mall.admin.oms.publisher.OrderPublisher;
 import online.ahayujie.mall.admin.oms.service.AbstractOrderState;
 import online.ahayujie.mall.admin.oms.service.OrderContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +23,12 @@ import java.util.Date;
 @Service(value = Order.DELIVERED_STATUS_NAME)
 public class DeliveredOrderState extends AbstractOrderState {
     private final OrderMapper orderMapper;
-    private final OrderPublisher orderPublisher;
 
-    public DeliveredOrderState(ApplicationContext applicationContext, OrderMapper orderMapper, OrderPublisher orderPublisher) {
+    private OrderPublisher orderPublisher;
+
+    public DeliveredOrderState(ApplicationContext applicationContext, OrderMapper orderMapper) {
         super(applicationContext);
         this.orderMapper = orderMapper;
-        this.orderPublisher = orderPublisher;
     }
 
     /**
@@ -51,5 +52,10 @@ public class DeliveredOrderState extends AbstractOrderState {
         OrderConfirmReceiveMsgDTO msgDTO = new OrderConfirmReceiveMsgDTO(orderId);
         orderPublisher.publishConfirmReceiveMsg(msgDTO);
         orderContext.setOrderState(getOrderState(Order.Status.UN_COMMENT));
+    }
+
+    @Autowired
+    public void setOrderPublisher(OrderPublisher orderPublisher) {
+        this.orderPublisher = orderPublisher;
     }
 }
