@@ -90,12 +90,12 @@ public interface SkuService {
 
     /**
      * 扣减库存。
-     * 如果某一个商品扣减库存失败，则回滚已经进行的扣减库存操作，
+     * 如果某一个商品扣减库存失败(更新后的商品库存小于0)，则回滚已经进行的扣减库存操作，
      * 并抛出 {@link IllegalArgumentException} 异常。
      * 这是一个事务接口，如果调用此接口的上层方法也是事务方法，
      * 且抛出 {@link Exception} 异常，则此接口已经进行的扣减库存操作也会回滚。
      *
-     * @param products 需要扣减库存的商品
+     * @param products 需要扣减库存的商品，{@link CreateOrderParam.Product#getProductQuantity()}大于0是扣减库存，小于0是增加库存。
      * @throws IllegalArgumentException 扣减库存失败
      */
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

@@ -55,6 +55,12 @@
         where username like concat(#{username}, '%')
     </select>
 
+    <update id="updateIntegrationById">
+        update mms_member
+        set integration = integration + #{diff}
+        where id = #{id} and (integration + #{diff}) >= 0
+    </update>
+
     <select id="selectCountByPhone" resultType="long">
         select
             count(1)

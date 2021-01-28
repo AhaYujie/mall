@@ -64,4 +64,12 @@ public class MemberServiceImpl implements MemberService {
     public Member getById(Long id) {
         return memberMapper.selectById(id);
     }
+
+    @Override
+    public void updateIntegration(Long id, Integer diff) {
+        int count = memberMapper.updateIntegrationById(id, diff);
+        if (count == 0) {
+            throw new IllegalArgumentException("更新会员积分失败");
+        }
+    }
 }

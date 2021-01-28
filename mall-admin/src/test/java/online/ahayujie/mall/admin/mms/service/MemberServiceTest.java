@@ -100,6 +100,19 @@ class MemberServiceTest {
     }
 
     @Test
+    void updateMemberIntegration() {
+        Member member = new Member();
+        member.setUsername(getRandomString(16));
+        member.setPhone(getRandomString(11));
+        member.setIntegration(100);
+        memberMapper.insert(member);
+        memberService.updateIntegration(member.getId(), -member.getIntegration());
+        assertThrows(IllegalArgumentException.class, () -> memberService.updateIntegration(member.getId(), -member.getIntegration()));
+        memberService.updateIntegration(member.getId(), member.getIntegration());
+        assertEquals(member.getIntegration(), memberMapper.selectById(member.getId()).getIntegration());
+    }
+
+    @Test
     void getLoginLog() {
         List<LoginLog> loginLogs = new ArrayList<>();
         for (int i = 0; i < 10; i++) {

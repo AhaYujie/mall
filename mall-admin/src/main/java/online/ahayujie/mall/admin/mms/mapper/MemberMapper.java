@@ -55,6 +55,16 @@ public interface MemberMapper extends BaseMapper<Member> {
     Long selectCountByUsername(String username);
 
     /**
+     * 根据id更新会员积分。
+     * 更新后积分不能小于0，否则不更新。
+     *
+     * @param id 会员id
+     * @param diff 积分差值：大于0是增加，小于0是减小
+     * @return 更新数量
+     */
+    int updateIntegrationById(@Param("id") Long id, @Param("diff") Integer diff);
+
+    /**
      * 根据手机号右模糊查询数量
      * @param phone 手机号
      * @return 用户数量

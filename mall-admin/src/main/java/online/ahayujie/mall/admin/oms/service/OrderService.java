@@ -53,10 +53,10 @@ public interface OrderService {
      * 如果上述某一步骤失败，则生成订单失败，回滚所有操作。
      * 优惠方式只支持管理员后台调整订单使用的折扣金额。
      * 订单收货地址为会员的默认收货地址，如果不存在默认收货地址则不设置订单收货地址。
-     * 创建订单成功后，调用 {@link OrderPublisher#publishOrderTimeoutCancelDelayedMsg(OrderCancelMsgDTO)}
+     * 创建订单成功后，调用 {@link OrderPublisher#publishOrderTimeoutCancelDelayedMsg(OrderCancelMsgDTO, int)}
      * 发送延迟消息到消息队列。
      *
-     * @see OrderPublisher#publishOrderTimeoutCancelDelayedMsg(OrderCancelMsgDTO)
+     * @see OrderPublisher#publishOrderTimeoutCancelDelayedMsg(OrderCancelMsgDTO, int)
      * @param param 订单信息
      * @throws IllegalOrderException {@code param} 不合法
      */
